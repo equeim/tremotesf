@@ -89,6 +89,7 @@ Column {
 
     CommonTextField {
         id: addressField
+        inputMethodHints: Qt.ImhUrlCharactersOnly
         label: qsTr("Server address")
     }
 
@@ -100,6 +101,7 @@ Column {
 
     CommonTextField {
         id: apiField
+        inputMethodHints: Qt.ImhUrlCharactersOnly
         label: qsTr("API path")
     }
 
@@ -123,6 +125,7 @@ Column {
     CommonTextField {
         id: usernameField
         label: qsTr("Username")
+        inputMethodHints: Qt.ImhNoAutoUppercase
         visible: authenticationSwitch.checked
     }
 

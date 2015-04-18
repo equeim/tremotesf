@@ -39,6 +39,7 @@ Item {
             left: parent.left
             right: selectButton.left
         }
+        inputMethodHints: Qt.ImhUrlCharactersOnly
     }
 
     IconButton {

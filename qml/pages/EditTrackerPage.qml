@@ -73,6 +73,7 @@ Page {
 
             CommonTextField {
                 id: announceUrlField
+                inputMethodHints: Qt.ImhUrlCharactersOnly
                 label: qsTr("Tracker announce URL")
 
                 Component.onCompleted: {

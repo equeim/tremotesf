@@ -40,22 +40,22 @@
         <translation>Добавить торрент</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="52"/>
-        <source>Torrent link (HTTP, Magnet or local file)</source>
-        <translation>Ссылка (HTTP, Magnet или путь к файлу)</translation>
+        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="53"/>
+        <source>HTTP, Magnet or local file path</source>
+        <translation>HTTP, Magnet или путь к файлу</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="80"/>
+        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="81"/>
         <source>Download directory</source>
         <translation>Каталог загрузки</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="86"/>
+        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="87"/>
         <source>Start torrent</source>
         <translation>Запустить торрент</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="87"/>
+        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="88"/>
         <source>Start downloading after adding</source>
         <translation>Начать загрузку после добавления</translation>
     </message>
@@ -68,7 +68,7 @@
         <translation>Добавить трекер</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddTrackerDialog.qml" line="39"/>
+        <location filename="../qml/dialogs/AddTrackerDialog.qml" line="40"/>
         <source>Tracker announce URL</source>
         <translation>Адрес объявлений трекера</translation>
     </message>
@@ -160,42 +160,42 @@
         <translation>Имя учетной записи</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="92"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="93"/>
         <source>Server address</source>
         <translation>Адрес сервера</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="98"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="99"/>
         <source>Port</source>
         <translation>Порт</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="103"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="105"/>
         <source>API path</source>
         <translation>Путь API</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="109"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="111"/>
         <source>Update interval, s</source>
         <translation>Интервал обновления, с</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="115"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="117"/>
         <source>Timeout, s</source>
         <translation>Таймаут, с</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="120"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="122"/>
         <source>Authentication</source>
         <translation>Идентификация</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="125"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="127"/>
         <source>Username</source>
         <translation>Имя пользователя</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="132"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="135"/>
         <source>Password</source>
         <translation>Пароль</translation>
     </message>
@@ -236,7 +236,7 @@
         <translation>Редактировать трекер</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EditTrackerPage.qml" line="76"/>
+        <location filename="../qml/pages/EditTrackerPage.qml" line="77"/>
         <source>Tracker announce URL</source>
         <translation>Адрес объявлений трекера</translation>
     </message>

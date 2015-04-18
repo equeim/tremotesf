@@ -36,6 +36,7 @@ Dialog {
         CommonTextField {
             id: announceUrlField
             focus: true
+            inputMethodHints: Qt.ImhUrlCharactersOnly
             label: qsTr("Tracker announce URL")
         }
     }

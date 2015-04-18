@@ -49,7 +49,8 @@ Dialog {
                         left: parent.left
                         right: selectFileButton.left
                     }
-                    label: qsTr("Torrent link (HTTP, Magnet or local file)")
+                    inputMethodHints: Qt.ImhUrlCharactersOnly
+                    label: qsTr("HTTP, Magnet or local file path")
                 }
 
                 IconButton {
