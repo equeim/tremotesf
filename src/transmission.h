@@ -78,8 +78,8 @@ private:
     static const QByteArray ModelDataRequest;
     static const QByteArray ServerSettingsRequest;
     static const QByteArray ServerStatsRequest;
-    bool checkSessionId(QNetworkReply *reply);
-    bool checkError(QNetworkReply *reply);
+    bool checkSessionId(const QNetworkReply *reply);
+    void getError(const QNetworkReply *reply);
     QNetworkReply* rpcPost(const QByteArray &data);
 
     QNetworkAccessManager *m_netMan;

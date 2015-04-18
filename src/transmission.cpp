@@ -85,7 +85,7 @@ const QByteArray Transmission::ServerStatsRequest =
 Transmission::Transmission()
 {
     m_netMan = new QNetworkAccessManager(this);
-    connect(m_netMan, &QNetworkAccessManager::authenticationRequired, this, &Transmission::authenticate, Qt::QueuedConnection);
+    connect(m_netMan, &QNetworkAccessManager::authenticationRequired, this, &Transmission::authenticate);
     m_authenticationRequested = false;
 
     m_updateTimer = new QTimer(this);
@@ -279,63 +279,69 @@ void Transmission::endGetModelData()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 
-    if (!checkSessionId(reply)) {
-        reply->deleteLater();
-        return beginGetModelData();
-    }
-
-    if (!checkError(reply)) {
+    if (reply->error() != QNetworkReply::NoError) {
+        if (!checkSessionId(reply)) {
+            reply->deleteLater();
+            return beginGetModelData();
+        }
+        getError(reply);
         reply->deleteLater();
         return;
+    }
+    if (m_error != NoError) {
+        m_error = NoError;
+        emit errorChanged();
     }
 
     const QByteArray &replyData = reply->readAll();
     m_torrentModel->beginUpdateModel(replyData);
-
     reply->deleteLater();
-    m_authenticationRequested = false;
 }
 
 void Transmission::endGetServerSettings()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 
-    if (!checkSessionId(reply)) {
-        reply->deleteLater();
-        return beginGetServerSettings();
-    }
-
-    if (!checkError(reply)) {
+    if (reply->error() != QNetworkReply::NoError) {
+        if (!checkSessionId(reply)) {
+            reply->deleteLater();
+            return beginGetServerSettings();
+        }
+        getError(reply);
         reply->deleteLater();
         return;
+    }
+    if (m_error != NoError) {
+        m_error = NoError;
+        emit errorChanged();
     }
 
     const QByteArray &replyData = reply->readAll();
     m_appSettings->beginUpdateServerSettings(replyData);
-
     reply->deleteLater();
-    m_authenticationRequested = false;
 }
 
 void Transmission::endGetServerStats()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 
-    if (!checkSessionId(reply)) {
-        reply->deleteLater();
-        return beginGetServerStats();
-    }
-
-    if (!checkError(reply)) {
+    if (reply->error() != QNetworkReply::NoError) {
+        if (!checkSessionId(reply)) {
+            reply->deleteLater();
+            return beginGetServerStats();
+        }
+        getError(reply);
         reply->deleteLater();
         return;
+    }
+    if (m_error != NoError) {
+        m_error = NoError;
+        emit errorChanged();
     }
 
     const QByteArray &replyData = reply->readAll();
     m_appSettings->beginUpdateServerStats(replyData);
-
     reply->deleteLater();
-    m_authenticationRequested = false;
 }
 
 void Transmission::beginGetModelData()
@@ -359,7 +365,7 @@ void Transmission::beginGetServerStats()
     QTimer::singleShot(m_timeout, reply, SLOT(abort()));
 }
 
-bool Transmission::checkSessionId(QNetworkReply *reply)
+bool Transmission::checkSessionId(const QNetworkReply *reply)
 {   
     if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 409 && reply->hasRawHeader("X-Transmission-Session-Id")) {
         m_sessionId = reply->rawHeader("X-Transmission-Session-Id");
@@ -368,31 +374,22 @@ bool Transmission::checkSessionId(QNetworkReply *reply)
     return true;
 }
 
-bool Transmission::checkError(QNetworkReply *reply)
+void Transmission::getError(const QNetworkReply *reply)
 {
-    if (reply->error() == QNetworkReply::NoError) {
-        if (m_error != NoError) {
-            m_error = NoError;
-            emit errorChanged();
-        }
-        return true;
-    }
-
     if (reply->error() == QNetworkReply::AuthenticationRequiredError) {
+        m_authenticationRequested = false;
         qWarning() << "authentication error";
         if (m_error != AuthenticationError) {
             m_error = AuthenticationError;
             emit errorChanged();
         }
-        return false;
+    } else {
+        qWarning() << reply->errorString();
+        if (m_error != ConnectionError) {
+            m_error = ConnectionError;
+            emit errorChanged();
+        }
     }
-
-    qWarning() << reply->errorString();
-    if (m_error != ConnectionError) {
-        m_error = ConnectionError;
-        emit errorChanged();
-    }
-    return false;
 }
 
 QNetworkReply *Transmission::rpcPost(const QByteArray &data)
@@ -402,6 +399,5 @@ QNetworkReply *Transmission::rpcPost(const QByteArray &data)
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("X-Transmission-Session-Id", m_sessionId);
 
-    QNetworkReply *reply = m_netMan->post(request, data);
-    return reply;
+    return m_netMan->post(request, data);
 }
