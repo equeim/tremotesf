@@ -44,11 +44,12 @@ class TorrentFileModelWorker : public QThread
     Q_OBJECT
 public:
     TorrentFileModelWorker(TorrentFile *rootEntry, QMap<QString, TorrentFile*> *allEntries);
-    void setFileList(const QVariantList &fileList);
+    void setData(const QVariantList &fileList, const QVariantList &fileStatsList);
 private:
     TorrentFile *m_rootEntry;
     QMap<QString, TorrentFile*> *m_allEntries;
     QVariantList m_fileList;
+    QVariantList m_fileStatsList;
 protected:
     void run();
 signals:
@@ -101,7 +102,7 @@ public:
     void setIsActive(bool isActive);
     void setTorrentId(int torrentId);
 
-    void beginUpdateModel(const QVariantList &fileList);
+    void beginUpdateModel(const QVariantList &fileList, const QVariantList &fileStatsList);
 
     Q_INVOKABLE void resetModel();
     Q_INVOKABLE void loadDirectory(QString path);

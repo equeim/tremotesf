@@ -60,6 +60,7 @@ struct Torrent {
     float uploadRatio;
 
     QVariantList fileList;
+    QVariantList fileStatsList;
     QVariantList peerList;
     QVariantList trackerList;
 };

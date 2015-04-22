@@ -83,18 +83,8 @@ void TorrentModelWorker::run() Q_DECL_OVERRIDE
         torrent.uploadLimited = torrentMap.value("uploadLimited").toBool();
         torrent.uploadRatio = torrentMap.value("uploadRatio").toFloat();
 
-        QVariantList fileList = torrentMap.value("files").toList();
-        QVariantList fileStatsList = torrentMap.value("fileStats").toList();
-        for (int j = 0; j < fileList.length(); j++)
-        {
-            QVariantMap fileMap = fileList.at(j).toMap();
-            QVariantMap fileStatsMap = fileStatsList.at(j).toMap();
-            fileMap.insert("wanted", fileStatsMap.value("wanted"));
-            fileMap.insert("priority", fileStatsMap.value("priority"));
-            fileList[j] = fileMap;
-        }
-        torrent.fileList = fileList;
-
+        torrent.fileList = torrentMap.value("files").toList();
+        torrent.fileStatsList = torrentMap.value("fileStats").toList();
         torrent.peerList = torrentMap.value("peers").toList();
         torrent.trackerList = torrentMap.value("trackerStats").toList();
 
@@ -334,7 +324,7 @@ void TorrentModel::loadFileModel(int index)
 {
     m_fileModel->setIsActive(true);
     m_fileModel->setTorrentId(m_torrentIds.at(index));
-    m_fileModel->beginUpdateModel(m_torrents.at(index).fileList);
+    m_fileModel->beginUpdateModel(m_torrents.at(index).fileList, m_torrents.at(index).fileStatsList);
 }
 
 void TorrentModel::loadPeerModel(int index)
@@ -412,7 +402,7 @@ void TorrentModel::endUpdateModel(const QList<Torrent> &torrents, const QList<in
 
     if (m_fileModel->isActive()) {
         int index = m_torrentIds.indexOf(m_fileModel->torrentId());
-        m_fileModel->beginUpdateModel(m_torrents.at(index).fileList);
+        m_fileModel->beginUpdateModel(m_torrents.at(index).fileList, m_torrents.at(index).fileStatsList);
     }
 
     if (m_peerModel->isActive()) {

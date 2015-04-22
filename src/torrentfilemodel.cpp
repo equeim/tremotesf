@@ -27,27 +27,29 @@ TorrentFileModelWorker::TorrentFileModelWorker(TorrentFile *rootEntry, QMap<QStr
     m_allEntries = allEntries;
 }
 
-void TorrentFileModelWorker::setFileList(const QVariantList &fileList)
+void TorrentFileModelWorker::setData(const QVariantList &fileList, const QVariantList &fileStatsList)
 {
     m_fileList = fileList;
+    m_fileStatsList = fileStatsList;
 }
 
 void TorrentFileModelWorker::run() Q_DECL_OVERRIDE
 {
     if (!m_rootEntry->entries.isEmpty()) {
         for (int i = 0; i < m_fileList.length(); i++) {
-            QVariantMap fileMap = m_fileList.at(i).toMap();
-            QString filePath = fileMap.value("name").toString();
-
+            QVariantMap fileStatsMap = m_fileStatsList.at(i).toMap();
+            QString filePath = m_fileList.at(i).toMap().value("name").toString();
             TorrentFile *file = m_allEntries->value("/" + filePath);
-            file->bytesCompleted = fileMap.value("bytesCompleted").toLongLong();
-            file->priority = fileMap.value("priority").toInt();
-            file->wanted = fileMap.value("wanted").toBool();
+
+            file->bytesCompleted = fileStatsMap.value("bytesCompleted").toLongLong();
+            file->priority = fileStatsMap.value("priority").toInt();
+            file->wanted = fileStatsMap.value("wanted").toBool();
         }
         emit done(false);
     } else if (!m_fileList.isEmpty()) {
         for (int i = 0; i < m_fileList.length(); i++) {
             TorrentFile *current = m_rootEntry;
+            QVariantMap fileStatsMap = m_fileStatsList.at(i).toMap();
             QVariantMap fileMap = m_fileList.at(i).toMap();
             QString filePath = fileMap.value("name").toString();
             filePath.insert(0, "/");
@@ -64,11 +66,11 @@ void TorrentFileModelWorker::run() Q_DECL_OVERRIDE
                 current->name = part;
                 current->path = path;
                 if (path == filePath) {
-                    current->bytesCompleted = fileMap.value("bytesCompleted").toLongLong();
+                    current->bytesCompleted = fileStatsMap.value("bytesCompleted").toLongLong();
                     current->isDirectory = false;
                     current->length = fileMap.value("length").toLongLong();
-                    current->priority = fileMap.value("priority").toInt();
-                    current->wanted = fileMap.value("wanted").toBool();
+                    current->priority = fileStatsMap.value("priority").toInt();
+                    current->wanted = fileStatsMap.value("wanted").toBool();
                     current->fileIndex = i;
                 }
                 else {
@@ -170,7 +172,7 @@ void TorrentFileModel::setTorrentId(int torrentId)
     m_torrentId = torrentId;
 }
 
-void TorrentFileModel::beginUpdateModel(const QVariantList &fileList)
+void TorrentFileModel::beginUpdateModel(const QVariantList &fileList, const QVariantList &fileStatsList)
 {
     if (m_changingModel) {
         QEventLoop loop;
@@ -179,7 +181,7 @@ void TorrentFileModel::beginUpdateModel(const QVariantList &fileList)
     }
     m_changingModel = true;
 
-    m_worker->setFileList(fileList);
+    m_worker->setData(fileList, fileStatsList);
     m_worker->start(QThread::LowestPriority);
 }
 
