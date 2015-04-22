@@ -50,10 +50,12 @@ CoverBackground {
                     return qsTr("Connection error")
                 return String()
             }
+            elide: Text.ElideRight
             font.pixelSize: Theme.fontSizeLarge
+            maximumLineCount: 2
             visible: transmission.error !== Transmission.NoError
             width: parent.width
-            wrapMode: Text.WordWrap
+            wrapMode: Text.Wrap
         }
 
         Column {
