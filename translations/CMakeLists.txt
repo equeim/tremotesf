@@ -2,6 +2,7 @@ qt5_create_translation(QM_FILES
     "${PROJECT_SOURCE_DIR}/src/torrentmodel.cpp"
     "${PROJECT_SOURCE_DIR}/qml"
 
+    ${PROJECT_NAME}-en.ts
     ${PROJECT_NAME}-ru.ts
 )
 add_custom_target(translations ALL DEPENDS ${QM_FILES})
