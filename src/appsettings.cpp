@@ -66,8 +66,7 @@ AppSettings::AppSettings()
 
     m_clientSettings = new QSettings(this);
     m_clientSettings->setIniCodec("UTF-8");
-    if(m_clientSettings->allKeys().isEmpty())
-        setDefaultClientSettings();
+    checkClientSettings();
 }
 
 AppSettings::~AppSettings()
@@ -78,11 +77,19 @@ AppSettings::~AppSettings()
     m_statsWorker->deleteLater();
 }
 
-void AppSettings::setDefaultClientSettings()
+void AppSettings::checkClientSettings()
 {
-    m_clientSettings->setValue("filterMode", 0);
-    m_clientSettings->setValue("sortOrder", Qt::AscendingOrder);
-    m_clientSettings->setValue("sortRole", TorrentModel::NameRole);
+    if (!accounts().contains(currentAccount()))
+        m_clientSettings->setValue("currentAccount", QString());
+
+    if (!m_clientSettings->value("fileterMode").isValid())
+        m_clientSettings->setValue("filterMode", 0);
+
+    if (!m_clientSettings->value("sortOrder").isValid())
+        m_clientSettings->setValue("sortOrder", Qt::AscendingOrder);
+
+    if (!m_clientSettings->value("sortRole").isValid())
+        m_clientSettings->setValue("sortRole", TorrentModel::NameRole);
 }
 
 QStringList AppSettings::accounts() const

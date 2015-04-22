@@ -65,7 +65,7 @@ public:
     AppSettings();
     ~AppSettings();
 
-    void setDefaultClientSettings();
+    void checkClientSettings();
 
     QStringList accounts() const;
     QString currentAccount() const;
