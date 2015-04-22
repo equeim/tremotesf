@@ -22,6 +22,9 @@ import Sailfish.Silica 1.0
 import "../components"
 
 Dialog {
+    property alias accountName: editItem.accountName
+    property alias address: editItem.address
+
     allowedOrientations: Orientation.All
     canAccept: {
         if (editItem.accountName && editItem.address && editItem.port && editItem.apiPath && editItem.updateInterval && editItem.timeout) {

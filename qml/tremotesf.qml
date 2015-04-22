@@ -35,7 +35,7 @@ ApplicationWindow
         if (appSettings.accounts.length === 0) {
             var dialog = pageStack.push(addAccountDialog, {}, PageStackAction.Immediate)
             dialog.accepted.connect(function() {
-                appSettings.currentAccount = appSettings.accounts[0]
+                appSettings.currentAccount = dialog.accountName
             })
         }
     }

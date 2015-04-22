@@ -30,26 +30,24 @@ Page {
     function getData(index) {
         var accountName = appSettings.accounts[index]
         return {
+            address: appSettings.getClientValue(accountName + "/address"),
             isCurrent: currentAccount === accountName,
-            name: accountName,
-            address: appSettings.getClientValue(accountName + "/address")
+            name: accountName
         }
     }
 
     function updateModel() {
-        var existCount = Math.min(appSettings.accounts.length, accountModel.count)
-        for (var i = 0; i < existCount; i++) {
-            accountModel.set(i, getData(i))
-        }
+        var allCount = appSettings.accounts.length
 
-        if (appSettings.accounts.length > accountModel.count) {
-            for (var i = accountModel.count; i < appSettings.accounts.length; i++) {
+        for (var i = 0; i < Math.min(allCount, accountModel.count); i++)
+            accountModel.set(i, getData(i))
+
+        if (allCount > accountModel.count) {
+            for (i = accountModel.count; i < allCount; i++)
                 accountModel.append(getData(i))
-            }
-        } else if (appSettings.accounts.length < accountModel.count) {
-            for (var i = accountModel.count; i > appSettings.accounts.length; i--) {
+        } else if (allCount < accountModel.count) {
+            for (i = accountModel.count; i > allCount; i--)
                 accountModel.remove(i - 1)
-            }
         }
     }
 
@@ -57,12 +55,7 @@ Page {
 
     ListModel {
         id: accountModel
-
-        Component.onCompleted: {
-            for (var i = 0; i < appSettings.accounts.length; i++) {
-                append(getData(i))
-            }
-        }
+        Component.onCompleted: updateModel()
     }
 
     SilicaListView {
@@ -73,23 +66,27 @@ Page {
             title: qsTr("Accounts")
         }
         delegate: ListItem {
-            function setFirstCurrent() {
-                appSettings.currentAccount = appSettings.accounts[0]
-                updateModel()
-            }
-
             function removeAccount() {
                 appSettings.removeAccount(model.name)
                 if (model.isCurrent) {
-                    if (appSettings.accounts.length > 0) {
-                        setFirstCurrent()
-                    } else {
+                    if (accountModel.count === 1) {
                         var dialog = pageStack.push(addAccountDialog)
-                        dialog.accepted.connect(setFirstCurrent)
+                        dialog.accepted.connect(function() {
+                            appSettings.currentAccount = dialog.accountName
+                            accountModel.append({
+                                                    address: dialog.address,
+                                                    isCurrent: true,
+                                                    name: dialog.accountName
+                                                })
+                            accountModel.remove(model.index)
+                        })
+                        return
+                    } else {
+                        appSettings.currentAccount = appSettings.accounts[0]
+                        accountModel.setProperty(0, "isCurrent", true)
                     }
-                } else {
-                    updateModel()
                 }
+                accountModel.remove(model.index)
             }
 
             contentHeight: Theme.itemSizeMedium
@@ -111,7 +108,15 @@ Page {
                 onClicked: {
                     if (!checked) {
                         appSettings.currentAccount = model.name
-                        updateModel()
+                        var currentIndex
+                        for (var i = 0; i < accountModel.count; i++) {
+                            if (accountModel.get(i).isCurrent) {
+                                currentIndex = i
+                                break
+                            }
+                        }
+                        accountModel.setProperty(currentIndex, "isCurrent", false)
+                        accountModel.setProperty(model.index, "isCurrent", true)
                     }
                 }
             }
