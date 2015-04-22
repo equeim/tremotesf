@@ -98,7 +98,12 @@ Item {
             bottomMargin: -Theme.paddingMedium
         }
         maximumValue: 100
-        value: Math.floor(model.percentDone * 100) / 100
+        value: {
+            if (torrentStatus === 2) {
+                return Math.floor(model.recheckProgress * 100) / 100
+            }
+            return Math.floor(model.percentDone * 100) / 100
+        }
         width: parent.width
     }
 

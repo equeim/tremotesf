@@ -57,6 +57,7 @@ const QByteArray Transmission::ModelDataRequest =
         "            \"percentDone\",\n"
         "            \"rateDownload\",\n"
         "            \"rateUpload\",\n"
+        "            \"recheckProgress\",\n"
         "            \"seedRatioLimit\",\n"
         "            \"seedRatioMode\",\n"
         "            \"sizeWhenDone\",\n"
@@ -188,6 +189,19 @@ void Transmission::addTorrent(QString link, QString downloadDirectoryPath, bool 
     QTimer::singleShot(m_timeout, reply, SLOT(abort()));
 }
 
+void Transmission::changeServerSettings(QString key, const QVariant &value)
+{
+    QVariantMap request;
+    request.insert("method", "session-set");
+    QVariantMap arguments;
+    arguments.insert(key, value);
+    request.insert("arguments", arguments);
+
+    QNetworkReply *reply = rpcPost(QJsonDocument::fromVariant(request).toJson());
+    connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+    QTimer::singleShot(m_timeout, reply, SLOT(abort()));
+}
+
 void Transmission::changeTorrent(int id, QString key, const QVariant &value)
 {
     QVariantMap request;
@@ -242,12 +256,12 @@ void Transmission::startTorrent(int id)
     QTimer::singleShot(m_timeout, reply, SLOT(abort()));
 }
 
-void Transmission::changeServerSettings(QString key, const QVariant &value)
+void Transmission::verifyTorrent(int id)
 {
     QVariantMap request;
-    request.insert("method", "session-set");
+    request.insert("method", "torrent-verify");
     QVariantMap arguments;
-    arguments.insert(key, value);
+    arguments.insert("ids", id);
     request.insert("arguments", arguments);
 
     QNetworkReply *reply = rpcPost(QJsonDocument::fromVariant(request).toJson());

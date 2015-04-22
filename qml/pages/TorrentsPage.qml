@@ -88,6 +88,10 @@ Page {
                         onClicked: torrentStatus === 0 ? transmission.startTorrent(torrentId) : transmission.stopTorrent(torrentId)
                     }
                     MenuItem {
+                        text: qsTr("Verify")
+                        onClicked: transmission.verifyTorrent(torrentId)
+                    }
+                    MenuItem {
                         text: qsTr("Remove")
                         onClicked: remorseItemRemove(false)
                     }

@@ -73,6 +73,7 @@ void TorrentModelWorker::run() Q_DECL_OVERRIDE
         torrent.percentDone = torrentMap.value("percentDone").toFloat() * 100;
         torrent.rateDownload = torrentMap.value("rateDownload").toInt();
         torrent.rateUpload = torrentMap.value("rateUpload").toInt();
+        torrent.recheckProgress = torrentMap.value("recheckProgress").toFloat() * 100;
         torrent.seedRatioLimit = torrentMap.value("seedRatioLimit").toFloat();
         torrent.seedRatioMode = torrentMap.value("seedRatioMode").toInt();
         torrent.sizeWhenDone = torrentMap.value("sizeWhenDone").toLongLong();
@@ -165,6 +166,8 @@ QVariant TorrentModel::data(const QModelIndex &index, int role) const
         return torrent.rateDownload;
     case RateUploadRole:
         return torrent.rateUpload;
+    case RecheckProgressRole:
+        return torrent.recheckProgress;
     case SeedRatioLimitRole:
         return torrent.seedRatioLimit;
     case SeedRatioModeRole:
@@ -440,6 +443,7 @@ QHash<int, QByteArray> TorrentModel::roleNames() const
     roles.insert(PercentDoneRole, "percentDone");
     roles.insert(RateDownloadRole, "rateDownload");
     roles.insert(RateUploadRole, "rateUpload");
+    roles.insert(RecheckProgressRole, "recheckProgress");
     roles.insert(SeedRatioLimitRole, "seedRatioLimit");
     roles.insert(SeedRatioModeRole, "seedRatioMode");
     roles.insert(SizeWhenDoneRole, "sizeWhenDone");

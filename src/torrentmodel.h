@@ -49,6 +49,7 @@ struct Torrent {
     float percentDone;
     int rateDownload;
     int rateUpload;
+    float recheckProgress;
     float seedRatioLimit;
     int seedRatioMode;
     qint64 sizeWhenDone;
@@ -109,6 +110,7 @@ public:
         PercentDoneRole,
         RateDownloadRole,
         RateUploadRole,
+        RecheckProgressRole,
         SeedRatioLimitRole,
         SeedRatioModeRole,
         SizeWhenDoneRole,

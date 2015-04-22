@@ -59,11 +59,12 @@ public:
     Q_INVOKABLE bool isLocal() const;
 
     Q_INVOKABLE void addTorrent(QString link, QString downloadDirectoryPath, bool paused);
+    Q_INVOKABLE void changeServerSettings(QString key, const QVariant &value);
     Q_INVOKABLE void changeTorrent(int id, QString key, const QVariant &value);
     Q_INVOKABLE void removeTorrent(int id, bool deleteLocalData);
     Q_INVOKABLE void stopTorrent(int id);
     Q_INVOKABLE void startTorrent(int id);
-    Q_INVOKABLE void changeServerSettings(QString key, const QVariant &value);
+    Q_INVOKABLE void verifyTorrent(int id);
 public slots:
     void authenticate(const QNetworkReply *reply, QAuthenticator *authenticator);
     void getData();

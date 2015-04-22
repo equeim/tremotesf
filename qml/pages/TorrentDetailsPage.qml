@@ -75,6 +75,10 @@ Page {
                 onClicked: remorsePopupRemove(false)
             }
             MenuItem {
+                text: qsTr("Verify")
+                onClicked: transmission.verifyTorrent(torrentId)
+            }
+            MenuItem {
                 text: torrentStatus === 0 ? qsTr("Start") : qsTr("Stop")
                 onClicked: torrentStatus === 0 ? transmission.startTorrent(torrentId) : transmission.stopTorrent(torrentId)
             }
