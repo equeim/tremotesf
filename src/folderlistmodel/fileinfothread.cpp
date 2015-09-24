@@ -40,6 +40,8 @@
 ****************************************************************************/
 
 #include "fileinfothread_p.h"
+#include "fileinfothread_p.moc"
+
 #include <qdiriterator.h>
 
 #include <QDebug>

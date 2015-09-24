@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "transmission.moc"
+
 #include <QAuthenticator>
 #include <QFile>
 #include <QJsonDocument>
@@ -27,8 +29,6 @@
 
 #include "appsettings.h"
 #include "torrentmodel.h"
-
-#include "transmission.h"
 
 const QByteArray Transmission::ModelDataRequest =
         "{\n"

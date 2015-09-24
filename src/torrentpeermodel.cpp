@@ -16,9 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QEventLoop>
-
 #include "torrentpeermodel.h"
+#include "torrentpeermodel.moc"
+
+#include <QEventLoop>
 
 TorrentPeerModelWorker::TorrentPeerModelWorker()
 {

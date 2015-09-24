@@ -803,7 +803,7 @@ QVariant QQuickFolderListModel::get(int idx, const QString &property) const
         return QVariant();
 }
 
-#include "moc_qquickfolderlistmodel.cpp"
+#include "qquickfolderlistmodel.moc"
 
 //![code]
 QT_END_NAMESPACE

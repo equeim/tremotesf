@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "torrentfilemodel.moc"
+
 #include <QCollator>
 #include <QEventLoop>
-
-#include "torrentfilemodel.h"
 
 TorrentFileModelWorker::TorrentFileModelWorker(TorrentFile *rootEntry, QMap<QString, TorrentFile *> *allEntries)
 {

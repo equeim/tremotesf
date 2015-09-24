@@ -16,10 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "proxytorrentmodel.h"
+#include "proxytorrentmodel.moc"
+
 #include "appsettings.h"
 #include "torrentmodel.h"
-
-#include "proxytorrentmodel.h"
 
 ProxyTorrentModel::ProxyTorrentModel()
 {

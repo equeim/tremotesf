@@ -16,9 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QQuickView>
-
 #include "dbusproxy.h"
+#include "dbusproxy.moc"
+
+#include <QQuickView>
 
 DBusProxy::DBusProxy(QQuickView *view)
 {

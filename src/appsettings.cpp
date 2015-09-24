@@ -16,12 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "appsettings.h"
+#include "appsettings.moc"
+
 #include <QJsonDocument>
 #include <QSettings>
 
 #include "torrentmodel.h"
-
-#include "appsettings.h"
 
 ServerStatsWorker::ServerStatsWorker()
 {

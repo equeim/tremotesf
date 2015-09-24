@@ -16,6 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "torrentmodel.h"
+#include "torrentmodel.moc"
+
 #include <MNotification>
 #include <MRemoteAction>
 #include <QEventLoop>
@@ -30,8 +33,6 @@
 #include "torrentfilemodel.h"
 #include "torrentpeermodel.h"
 #include "torrenttrackermodel.h"
-
-#include "torrentmodel.h"
 
 TorrentModelWorker::TorrentModelWorker()
 {
