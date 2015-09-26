@@ -57,7 +57,7 @@ Page {
 
             CommonTextSwitch {
                 id: downloadQueueSwitch
-                checked: appSettings.getServerValue("download-queue-enabled")
+                checked: appSettings.serverValue("download-queue-enabled")
                 text: qsTr("Enable download queue")
             }
 
@@ -65,13 +65,13 @@ Page {
                 id: downloadQueueField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("Maximum active downloads")
-                text: appSettings.getServerValue("download-queue-size")
+                text: appSettings.serverValue("download-queue-size")
                 visible: downloadQueueSwitch.checked
             }
 
             CommonTextSwitch {
                 id: seedQueueSwitch
-                checked: appSettings.getServerValue("seed-queue-enabled")
+                checked: appSettings.serverValue("seed-queue-enabled")
                 text: qsTr("Enable seed queue")
             }
 
@@ -79,7 +79,7 @@ Page {
                 id: seedQueueField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("Maximum active uploads")
-                text: appSettings.getServerValue("seed-queue-size")
+                text: appSettings.serverValue("seed-queue-size")
                 visible: seedQueueSwitch.checked
             }
         }

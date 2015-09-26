@@ -19,6 +19,7 @@
 #ifndef TRANSMISSION_H
 #define TRANSMISSION_H
 
+#include <QSslConfiguration>
 #include <QUrl>
 #include <QQmlParserStatus>
 
@@ -42,7 +43,8 @@ public:
     enum Error {
         NoError,
         AuthenticationError,
-        ConnectionError
+        ConnectionError,
+        RpcVersionError
     };
 
     Transmission();
@@ -58,46 +60,54 @@ public:
 
     Q_INVOKABLE bool isLocal() const;
 
-    Q_INVOKABLE void addTorrent(QString link, QString downloadDirectoryPath, bool paused);
-    Q_INVOKABLE void changeServerSettings(QString key, const QVariant &value);
-    Q_INVOKABLE void changeTorrent(int id, QString key, const QVariant &value);
+    Q_INVOKABLE void addTorrent(const QString &link, const QString &downloadDirectoryPath, bool paused);
+    Q_INVOKABLE void changeServerSettings(const QString &key, const QVariant &value);
+    Q_INVOKABLE void changeTorrent(int id, const QString &key, const QVariant &value);
     Q_INVOKABLE void removeTorrent(int id, bool deleteLocalData);
     Q_INVOKABLE void stopTorrent(int id);
     Q_INVOKABLE void startTorrent(int id);
     Q_INVOKABLE void verifyTorrent(int id);
-public slots:
-    void authenticate(const QNetworkReply *reply, QAuthenticator *authenticator);
-    void getData();
-    void endGetModelData();
-    void endGetServerSettings();
-    void endGetServerStats();
-    void updateAccount();
+
+    Q_INVOKABLE void updateAccount();
 private:
-    void beginGetModelData();
-    void beginGetServerSettings();
-    void beginGetServerStats();
-    static const QByteArray ModelDataRequest;
-    static const QByteArray ServerSettingsRequest;
-    static const QByteArray ServerStatsRequest;
+    void checkRpcVersion();
+    void getData();
+
+    void beginGettingModelData();
+    void endGettingModelData();
+
+    void beginGettingServerSettings();
+    void endGettingServerSettings();
+
+    void beginGettingServerStats();
+    void endGettingServerStats();
+
+    void timeoutTimer(const QNetworkReply *reply);
     bool checkSessionId(const QNetworkReply *reply);
-    void getError(const QNetworkReply *reply);
+    bool checkError(const QNetworkReply *reply);
     QNetworkReply* rpcPost(const QByteArray &data);
 
-    QNetworkAccessManager *m_netMan;
+    void authenticate(const QNetworkReply *reply, QAuthenticator *authenticator);
+private:
+    QNetworkAccessManager *m_network;
     bool m_authenticationRequested;
+    int m_error;
     QTimer *m_updateTimer;
 
     AppSettings *m_appSettings;
     TorrentModel *m_torrentModel;
-    int m_error;
 
     QByteArray m_sessionId;
+
     QString m_currentAccount;
     QUrl m_serverUrl;
     int m_timeout;
     bool m_authentication;
     QString m_username;
     QString m_password;
+    bool m_https;
+
+    QSslConfiguration m_sslConfiguration;
 signals:
     void errorChanged();
 };

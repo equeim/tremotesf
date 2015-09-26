@@ -22,6 +22,7 @@
 #include <QJsonDocument>
 #include <QSettings>
 
+#include "proxytorrentmodel.h"
 #include "torrentmodel.h"
 
 ServerStatsWorker::ServerStatsWorker()
@@ -78,21 +79,6 @@ AppSettings::~AppSettings()
     m_statsWorker->deleteLater();
 }
 
-void AppSettings::checkClientSettings()
-{
-    if (!accounts().contains(currentAccount()))
-        m_clientSettings->setValue("currentAccount", QString());
-
-    if (!m_clientSettings->value("fileterMode").isValid())
-        m_clientSettings->setValue("filterMode", 0);
-
-    if (!m_clientSettings->value("sortOrder").isValid())
-        m_clientSettings->setValue("sortOrder", Qt::AscendingOrder);
-
-    if (!m_clientSettings->value("sortRole").isValid())
-        m_clientSettings->setValue("sortRole", TorrentModel::NameRole);
-}
-
 QStringList AppSettings::accounts() const
 {
     return m_clientSettings->childGroups();
@@ -103,6 +89,168 @@ QString AppSettings::currentAccount() const
     return m_clientSettings->value("currentAccount").toString();
 }
 
+void AppSettings::setCurrentAccount(QString name)
+{
+    m_clientSettings->setValue("currentAccount", name);
+    emit currentAccountChanged();
+}
+
+void AppSettings::removeAccount(QString name)
+{
+    m_clientSettings->remove(name);
+}
+
+void AppSettings::checkClientSettings()
+{
+    if (!m_clientSettings->value("fileterMode").isValid())
+        m_clientSettings->setValue("filterMode", ProxyTorrentModel::AllMode);
+
+    if (!m_clientSettings->value("sortOrder").isValid())
+        m_clientSettings->setValue("sortOrder", Qt::AscendingOrder);
+
+    if (!m_clientSettings->value("sortRole").isValid())
+        m_clientSettings->setValue("sortRole", TorrentModel::NameRole);
+}
+
+QString AppSettings::accountAddress(const QString &account) const
+{
+    return m_clientSettings->value(account + "/address").toString();
+}
+
+void AppSettings::setAccountAddress(const QString &account, const QString &address)
+{
+    m_clientSettings->setValue(account + "/address", address);
+}
+
+QString AppSettings::accountApiPath(const QString &account) const
+{
+    return m_clientSettings->value(account + "/apiPath").toString();
+}
+
+void AppSettings::setAccountApiPath(const QString &account, const QString &apiPath)
+{
+    m_clientSettings->setValue(account + "/apiPath", apiPath);
+}
+
+bool AppSettings::accountAuthentication(const QString &account) const
+{
+    return m_clientSettings->value(account + "/authentication").toBool();
+}
+
+void AppSettings::setAccountAuthentication(const QString &account, bool authentication)
+{
+    m_clientSettings->setValue(account + "/authentication", authentication);
+}
+
+bool AppSettings::accountHttps(const QString &account) const
+{
+    return m_clientSettings->value(account + "/https").toBool();
+}
+
+void AppSettings::setAccountHttps(const QString &account, bool https)
+{
+    m_clientSettings->setValue(account + "/https", https);
+}
+
+bool AppSettings::accountLocalCertificate(const QString &account) const
+{
+    return m_clientSettings->value(account + "/localCertificate").toBool();
+}
+
+void AppSettings::setAccountLocalCertificate(const QString &account, bool localCertificate)
+{
+    m_clientSettings->setValue(account + "/localCertificate", localCertificate);
+}
+
+QString AppSettings::accountPassword(const QString &account) const
+{
+    return m_clientSettings->value(account + "/password").toString();
+}
+
+void AppSettings::setAccountPassword(const QString &account, const QString &password)
+{
+    m_clientSettings->setValue(account + "/password", password);
+}
+
+int AppSettings::accountPort(const QString &account) const
+{
+    return m_clientSettings->value(account + "/port").toInt();
+}
+
+void AppSettings::setAccountPort(const QString &account, int port)
+{
+    m_clientSettings->setValue(account + "/port", port);
+}
+
+int AppSettings::accountTimeout(const QString &account) const
+{
+    return m_clientSettings->value(account + "/timeout").toInt();
+}
+
+void AppSettings::setAccountTimeout(const QString &account, int timeout)
+{
+    m_clientSettings->setValue(account + "/timeout", timeout);
+}
+
+int AppSettings::accountUpdateInterval(const QString &account) const
+{
+    return m_clientSettings->value(account + "/updateInterval").toInt();
+}
+
+void AppSettings::setAccountUpdateInterval(const QString &account, int updateInterval)
+{
+    m_clientSettings->setValue(account + "/updateInterval", updateInterval);
+}
+
+QString AppSettings::accountUsername(const QString &account) const
+{
+    return m_clientSettings->value(account + "/username").toString();
+}
+
+void AppSettings::setAccountUsername(const QString &account, const QString &username)
+{
+    m_clientSettings->setValue(account + "/username", username);
+}
+
+int AppSettings::filterMode() const {
+    return m_clientSettings->value("filterMode").toInt();
+}
+
+void AppSettings::setFilterMode(int filterMode)
+{
+    m_clientSettings->setValue("filterMode", filterMode);
+}
+
+Qt::SortOrder AppSettings::sortOrder() const
+{
+    return static_cast<Qt::SortOrder>(m_clientSettings->value("sortOrder").toInt());
+}
+
+void AppSettings::setSortOrder(Qt::SortOrder sortOrder)
+{
+    m_clientSettings->setValue("sortOrder", sortOrder);
+}
+
+int AppSettings::sortRole() const
+{
+    return m_clientSettings->value("sortRole").toInt();
+}
+
+void AppSettings::setSortRole(int sortRole)
+{
+    m_clientSettings->setValue("sortRole", sortRole);
+}
+
+int AppSettings::rpcVersion() const
+{
+    return m_serverSettings.value("rpc-version").toInt();
+}
+
+QVariant AppSettings::serverValue(QString key) const
+{
+    return m_serverSettings.value(key);
+}
+
 int AppSettings::downloadSpeed() const
 {
     return m_downloadSpeed;
@@ -111,12 +259,6 @@ int AppSettings::downloadSpeed() const
 int AppSettings::uploadSpeed() const
 {
     return m_uploadSpeed;
-}
-
-void AppSettings::setCurrentAccount(QString name)
-{
-    m_clientSettings->setValue("currentAccount", name);
-    emit currentAccountChanged();
 }
 
 void AppSettings::beginUpdateServerSettings(const QByteArray &replyData)
@@ -131,29 +273,10 @@ void AppSettings::beginUpdateServerStats(const QByteArray &replyData)
     m_statsWorker->start(QThread::LowPriority);
 }
 
-void AppSettings::removeAccount(QString name)
-{
-    m_clientSettings->remove(name);
-}
-
-QVariant AppSettings::getClientValue(QString key) const
-{
-    return m_clientSettings->value(key);
-}
-
-void AppSettings::setClientValue(QString key, const QVariant &value)
-{
-    m_clientSettings->setValue(key, value);
-}
-
-QVariant AppSettings::getServerValue(QString key) const
-{
-    return m_serverSettings.value(key);
-}
-
 void AppSettings::endUpdateServerSettings(const QVariantMap &serverSettings)
 {
     m_serverSettings = serverSettings;
+    emit serverSettingsUpdated();
 }
 
 void AppSettings::endUpdateServerStats(int downloadSpeed, int uploadSpeed)

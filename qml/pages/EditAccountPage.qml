@@ -87,14 +87,14 @@ Page {
 
                 Component.onCompleted: {
                     accountName = model.name
-                    address = appSettings.getClientValue(model.name + "/address")
-                    port = appSettings.getClientValue(model.name + "/port")
-                    apiPath = appSettings.getClientValue(model.name + "/apiPath")
-                    updateInterval = appSettings.getClientValue(model.name + "/updateInterval")
-                    timeout = appSettings.getClientValue(model.name + "/timeout")
-                    authentication = appSettings.getClientValue(model.name + "/authentication") === "true"
-                    username = appSettings.getClientValue(model.name + "/username")
-                    password = appSettings.getClientValue(model.name + "/password")
+                    address = appSettings.accountAddress(model.name)
+                    port = appSettings.accountPort(model.name)
+                    apiPath = appSettings.accountApiPath(model.name)
+                    updateInterval = appSettings.accountUpdateInterval(model.name)
+                    timeout = appSettings.accountTimeout(model.name)
+                    authentication = appSettings.accountAuthentication(model.name)
+                    username = appSettings.accountUsername(model.name)
+                    password = appSettings.accountPassword(model.name)
                 }
             }
         }

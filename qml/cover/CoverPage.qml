@@ -102,7 +102,7 @@ CoverBackground {
                 color: Theme.secondaryColor
                 text: {
                     if (accountLabel.text)
-                        return appSettings.getClientValue(accountLabel.text + "/address")
+                        return appSettings.accountAddress(accountLabel.text)
                     return String()
                 }
                 truncationMode: TruncationMode.Fade

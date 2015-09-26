@@ -51,9 +51,9 @@ public:
     int filterMode() const;
 
     void setAppSettings(AppSettings *appSettings);
-    void setFilterMode(int mode);
-    void setSortOrder(Qt::SortOrder order);
-    void setSortRole(int role);
+    void setFilterMode(int filterMode);
+    void setSortOrder(Qt::SortOrder sortOrder);
+    void setSortRole(int sortRole);
 
     Q_INVOKABLE int getSourceIndex(int proxyIndex) const;
 private:

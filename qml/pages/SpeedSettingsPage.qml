@@ -106,7 +106,7 @@ Page {
 
             CommonTextSwitch {
                 id: downloadLimitSwitch
-                checked: appSettings.getServerValue("speed-limit-down-enabled")
+                checked: appSettings.serverValue("speed-limit-down-enabled")
                 text: qsTr("Limit download speed")
             }
 
@@ -114,13 +114,13 @@ Page {
                 id: downloadLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("kB/s")
-                text: appSettings.getServerValue("speed-limit-down")
+                text: appSettings.serverValue("speed-limit-down")
                 visible: downloadLimitSwitch.checked
             }
 
             CommonTextSwitch {
                 id: uploadLimitSwitch
-                checked: appSettings.getServerValue("speed-limit-up-enabled")
+                checked: appSettings.serverValue("speed-limit-up-enabled")
                 text: qsTr("Limit upload speed")
             }
 
@@ -128,7 +128,7 @@ Page {
                 id: uploadLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("kB/s")
-                text: appSettings.getServerValue("speed-limit-up")
+                text: appSettings.serverValue("speed-limit-up")
                 visible: uploadLimitSwitch.checked
             }
 
@@ -138,7 +138,7 @@ Page {
 
             CommonTextSwitch {
                 id: alternativeLimitsSwitch
-                checked: appSettings.getServerValue("alt-speed-enabled")
+                checked: appSettings.serverValue("alt-speed-enabled")
                 text: qsTr("Enable alternative speed limits")
             }
 
@@ -146,7 +146,7 @@ Page {
                 id: alternativeDownloadLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("Alternative download speed, kB/s")
-                text: appSettings.getServerValue("alt-speed-down")
+                text: appSettings.serverValue("alt-speed-down")
                 visible: alternativeLimitsSwitch.checked
             }
 
@@ -154,13 +154,13 @@ Page {
                 id: alternativeUploadLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("Alternative upload speed, kB/s")
-                text: appSettings.getServerValue("alt-speed-up")
+                text: appSettings.serverValue("alt-speed-up")
                 visible: alternativeLimitsSwitch.checked
             }
 
             CommonTextSwitch {
                 id: scheduleSwitch
-                checked: appSettings.getServerValue("alt-speed-time-enabled")
+                checked: appSettings.serverValue("alt-speed-time-enabled")
                 text: qsTr("Schedule")
                 visible: alternativeLimitsSwitch.checked
             }
@@ -172,14 +172,14 @@ Page {
                 AlternativeLimitsTimeButton {
                     id: beginTimeButton
                     label: qsTr("From")
-                    timeInMinutes: appSettings.getServerValue("alt-speed-time-begin")
+                    timeInMinutes: appSettings.serverValue("alt-speed-time-begin")
                     width: column.width / 2
                 }
 
                 AlternativeLimitsTimeButton {
                     id: endTimeButton
                     label: qsTr("to")
-                    timeInMinutes: appSettings.getServerValue("alt-speed-time-end")
+                    timeInMinutes: appSettings.serverValue("alt-speed-time-end")
                     width: column.width / 2
                 }
             }
@@ -188,7 +188,7 @@ Page {
                 id: dayComboBox
 
                 currentIndex: {
-                    switch (appSettings.getServerValue("alt-speed-time-day")) {
+                    switch (appSettings.serverValue("alt-speed-time-day")) {
                     case 127: // every day
                         return 0
                     case 62: // weekdays

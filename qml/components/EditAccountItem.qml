@@ -31,14 +31,14 @@ Column {
     property alias password: passwordField.text
 
     function saveAll() {
-        appSettings.setClientValue(accountName + "/address", address)
-        appSettings.setClientValue(accountName + "/port", port)
-        appSettings.setClientValue(accountName + "/apiPath", apiPath)
-        appSettings.setClientValue(accountName + "/updateInterval", updateInterval)
-        appSettings.setClientValue(accountName + "/timeout", timeout)
-        appSettings.setClientValue(accountName + "/authentication", authentication)
-        appSettings.setClientValue(accountName + "/username", username)
-        appSettings.setClientValue(accountName + "/password", password)
+        appSettings.setAccountAddress(accountName, address);
+        appSettings.setAccountPort(accountName, port);
+        appSettings.setAccountApiPath(accountName, apiPath);
+        appSettings.setAccountUpdateInterval(accountName, updateInterval);
+        appSettings.setAccountTimeout(accountName, timeout);
+        appSettings.setAccountAuthentication(accountName, authentication);
+        appSettings.setAccountUsername(accountName, username);
+        appSettings.setAccountPassword(accountName, password);
     }
 
     function saveIfChanged() {
@@ -46,35 +46,35 @@ Column {
 
         if (addressField.changed()) {
             changed = true
-            appSettings.setClientValue(accountName + "/address", address)
+            appSettings.setAccountAddress(accountName, address);
         }
         if (portField.changed()) {
             changed = true
-            appSettings.setClientValue(accountName + "/port", port)
+            appSettings.setAccountPort(accountName, port);
         }
         if (apiField.changed()) {
             changed = true
-            appSettings.setClientValue(accountName + "/apiPath", apiPath)
+            appSettings.setAccountApiPath(accountName, apiPath);
         }
         if (updateField.changed()) {
             changed = true
-            appSettings.setClientValue(accountName + "/updateInterval", updateInterval)
+            appSettings.setAccountUpdateInterval(accountName, updateInterval);
         }
         if (timeoutField.changed()) {
             changed = true
-            appSettings.setClientValue(accountName + "/timeout", timeout)
+            appSettings.setAccountTimeout(accountName, timeout);
         }
         if (authenticationSwitch.changed()) {
             changed = true
-            appSettings.setClientValue(accountName + "/authentication", authentication)
+            appSettings.setAccountAuthentication(accountName, authentication);
         }
         if (usernameField.changed()) {
             changed = true
-            appSettings.setClientValue(accountName + "/username", username)
+            appSettings.setAccountUsername(accountName, username);
         }
         if (passwordField.changed()) {
             changed = true
-            appSettings.setClientValue(accountName + "/password", password)
+            appSettings.setAccountPassword(accountName, password);
         }
 
         return changed

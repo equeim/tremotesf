@@ -30,7 +30,7 @@ Page {
     function getData(index) {
         var accountName = appSettings.accounts[index]
         return {
-            address: appSettings.getClientValue(accountName + "/address"),
+            address: appSettings.accountAddress(accountName),
             isCurrent: currentAccount === accountName,
             name: accountName
         }

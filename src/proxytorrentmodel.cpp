@@ -34,10 +34,10 @@ void ProxyTorrentModel::classBegin()
 
 void ProxyTorrentModel::componentComplete()
 {
-    setSortRole(m_appSettings->getClientValue("sortRole").toInt());
-    sort(0, static_cast<Qt::SortOrder>(m_appSettings->getClientValue("sortOrder").toInt()));
+    setSortRole(m_appSettings->sortRole());
+    sort(0, m_appSettings->sortOrder());
 
-    setFilterMode(m_appSettings->getClientValue("filterMode").toInt());
+    setFilterMode(m_appSettings->filterMode());
 }
 
 AppSettings* ProxyTorrentModel::appSettings() const
@@ -55,13 +55,13 @@ void ProxyTorrentModel::setAppSettings(AppSettings *appSettings)
     m_appSettings = appSettings;
 }
 
-void ProxyTorrentModel::setFilterMode(int mode)
+void ProxyTorrentModel::setFilterMode(int filterMode)
 {
-    m_filterMode = mode;
+    m_filterMode = filterMode;
     setFilterRegExp(QRegExp());
-    m_appSettings->setClientValue("filterMode", mode);
+    m_appSettings->setFilterMode(filterMode);
 
-    switch (mode) {
+    switch (filterMode) {
     case AllMode:
         break;
     case ActiveMode:
@@ -88,16 +88,16 @@ void ProxyTorrentModel::setFilterMode(int mode)
     emit filterModeChanged();
 }
 
-void ProxyTorrentModel::setSortOrder(Qt::SortOrder order)
+void ProxyTorrentModel::setSortOrder(Qt::SortOrder sortOrder)
 {
-    sort(0, order);
-    m_appSettings->setClientValue("sortOrder", order);
+    sort(0, sortOrder);
+    m_appSettings->setSortOrder(sortOrder);
 }
 
-void ProxyTorrentModel::setSortRole(int role)
+void ProxyTorrentModel::setSortRole(int sortRole)
 {
-    QSortFilterProxyModel::setSortRole(role);
-    m_appSettings->setClientValue("sortRole", role);
+    QSortFilterProxyModel::setSortRole(sortRole);
+    m_appSettings->setSortRole(sortRole);
     emit sortRoleChanged();
 }
 

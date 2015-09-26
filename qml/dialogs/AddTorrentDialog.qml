@@ -79,7 +79,7 @@ Dialog {
             SelectDirectoryTextField {
                 id: downloadDirectoryTextField
                 label: qsTr("Download directory")
-                text: appSettings.getServerValue("download-dir")
+                text: appSettings.serverValue("download-dir")
             }
 
             TextSwitch {

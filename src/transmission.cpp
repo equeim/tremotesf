@@ -20,18 +20,26 @@
 #include "transmission.moc"
 
 #include <QAuthenticator>
+#include <QByteArray>
 #include <QFile>
+#include <QHostAddress>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
+#include <QNetworkInterface>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QStandardPaths>
 #include <QTimer>
+#include <QSsl>
+#include <QSslCertificate>
+#include <QSslKey>
+#include <QSslSocket>
 #include <QVariantMap>
 
 #include "appsettings.h"
 #include "torrentmodel.h"
 
-const QByteArray Transmission::ModelDataRequest =
+static const QByteArray ModelDataRequest =
         "{\n"
         "    \"arguments\": {\n"
         "        \"fields\": [\n"
@@ -74,26 +82,29 @@ const QByteArray Transmission::ModelDataRequest =
         "    \"method\": \"torrent-get\"\n"
         "}";
 
-const QByteArray Transmission::ServerSettingsRequest =
+static const QByteArray ServerSettingsRequest =
         "{\n"
         "    \"method\": \"session-get\"\n"
         "}";
 
-const QByteArray Transmission::ServerStatsRequest =
+static const QByteArray ServerStatsRequest =
         "{\n"
         "    \"method\": \"session-stats\"\n"
         "}";
 
+static const QByteArray SessionHeader = "X-Transmission-Session-Id";
+
 Transmission::Transmission()
 {
-    m_netMan = new QNetworkAccessManager(this);
-    connect(m_netMan, &QNetworkAccessManager::authenticationRequired, this, &Transmission::authenticate);
+    m_network = new QNetworkAccessManager(this);
+    connect(m_network, &QNetworkAccessManager::authenticationRequired, this, &Transmission::authenticate);
+
     m_authenticationRequested = false;
+    m_error = ConnectionError;
 
     m_updateTimer = new QTimer(this);
+    m_updateTimer->setSingleShot(true);
     connect(m_updateTimer, &QTimer::timeout, this, &Transmission::getData);
-
-    m_error = ConnectionError;
 }
 
 void Transmission::classBegin()
@@ -134,39 +145,13 @@ void Transmission::setTorrentModel(TorrentModel *torrentModel)
 
 bool Transmission::isLocal() const
 {
-    if (m_serverUrl.host() == "localhost" || m_serverUrl.host() == "127.0.0.1")
+    const QString host = m_serverUrl.host();
+    if (host == "localhost" || QNetworkInterface::allAddresses().contains(QHostAddress(host)))
         return true;
     return false;
 }
 
-void Transmission::updateAccount()
-{
-    m_currentAccount = m_appSettings->currentAccount();
-
-    if (m_currentAccount.isEmpty())
-        return;
-
-    QUrl serverUrl = QUrl::fromUserInput(m_appSettings->getClientValue(m_currentAccount + "/address").toString()
-                                         + ":" + m_appSettings->getClientValue(m_currentAccount + "/port").toString()
-                                         + m_appSettings->getClientValue(m_currentAccount + "/apiPath").toString());
-    if (m_serverUrl != serverUrl) {
-        m_serverUrl = serverUrl;
-        m_torrentModel->resetModel();
-    }
-
-    m_timeout = m_appSettings->getClientValue(m_currentAccount + "/timeout").toInt() * 1000;
-    m_authentication = m_appSettings->getClientValue(m_currentAccount + "/authentication").toBool();
-    m_username = m_appSettings->getClientValue(m_currentAccount + "/username").toString();
-    m_password = m_appSettings->getClientValue(m_currentAccount + "/password").toString();
-
-    m_updateTimer->stop();
-    m_updateTimer->setInterval(m_appSettings->getClientValue(m_currentAccount + "/updateInterval").toInt() * 1000);
-    m_updateTimer->start();
-
-    getData();
-}
-
-void Transmission::addTorrent(QString link, QString downloadDirectoryPath, bool paused)
+void Transmission::addTorrent(const QString &link, const QString &downloadDirectoryPath, bool paused)
 {
     QVariantMap request;
     request.insert("method", "torrent-add");
@@ -190,7 +175,7 @@ void Transmission::addTorrent(QString link, QString downloadDirectoryPath, bool 
     QTimer::singleShot(m_timeout, reply, SLOT(abort()));
 }
 
-void Transmission::changeServerSettings(QString key, const QVariant &value)
+void Transmission::changeServerSettings(const QString &key, const QVariant &value)
 {
     QVariantMap request;
     request.insert("method", "session-set");
@@ -203,7 +188,7 @@ void Transmission::changeServerSettings(QString key, const QVariant &value)
     QTimer::singleShot(m_timeout, reply, SLOT(abort()));
 }
 
-void Transmission::changeTorrent(int id, QString key, const QVariant &value)
+void Transmission::changeTorrent(int id, const QString &key, const QVariant &value)
 {
     QVariantMap request;
     request.insert("method", "torrent-set");
@@ -270,6 +255,206 @@ void Transmission::verifyTorrent(int id)
     QTimer::singleShot(m_timeout, reply, SLOT(abort()));
 }
 
+void Transmission::updateAccount()
+{
+    m_currentAccount = m_appSettings->currentAccount();
+
+    if (m_currentAccount.isEmpty())
+        return;
+
+    QUrl serverUrl;
+    serverUrl.setHost(m_appSettings->accountAddress(m_currentAccount));
+    serverUrl.setPath(m_appSettings->accountApiPath(m_currentAccount));
+    serverUrl.setPort(m_appSettings->accountPort(m_currentAccount));
+
+    m_https = m_appSettings->accountHttps(m_currentAccount);
+    if (m_https) {
+        serverUrl.setScheme("https");
+
+        m_sslConfiguration = QSslConfiguration::defaultConfiguration();
+        m_sslConfiguration.setPeerVerifyMode(QSslSocket::QueryPeer);
+
+        if (m_appSettings->accountLocalCertificate(m_currentAccount)) {
+            QString pemFilePath = QString("%1/%2.pem")
+                    .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+                    .arg(m_currentAccount);
+
+            QFile pemFile(pemFilePath);
+            if (pemFile.open(QIODevice::ReadOnly)) {
+                QByteArray pemFileData = pemFile.readAll();
+                m_sslConfiguration.setLocalCertificate(QSslCertificate(pemFileData));
+                m_sslConfiguration.setPrivateKey(QSslKey(pemFileData, QSsl::Rsa));
+                pemFile.close();
+            }
+        }
+    } else {
+        serverUrl.setScheme("http");
+    }
+
+    if (m_serverUrl != serverUrl) {
+        m_serverUrl = serverUrl;
+        m_torrentModel->resetModel();
+    }
+
+    m_authentication = m_appSettings->accountAuthentication(m_currentAccount);
+    m_username = m_appSettings->accountUsername(m_currentAccount);
+    m_password = m_appSettings->accountPassword(m_currentAccount);
+
+    m_timeout = m_appSettings->accountTimeout(m_currentAccount) * 1000;
+
+    m_updateTimer->setInterval(m_appSettings->accountUpdateInterval(m_currentAccount) * 1000);
+
+    connect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::checkRpcVersion);
+    beginGettingServerSettings();
+}
+
+void Transmission::checkRpcVersion()
+{
+    disconnect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::checkRpcVersion);
+
+    if (m_appSettings->rpcVersion() < 14) {
+        m_error = RpcVersionError;
+        emit errorChanged();
+    } else {
+        getData();
+    }
+}
+
+void Transmission::getData()
+{
+    beginGettingModelData();
+    beginGettingServerStats();
+}
+
+void Transmission::beginGettingModelData()
+{
+    QNetworkReply *reply = rpcPost(ModelDataRequest);
+    connect(reply, &QNetworkReply::finished, this, &Transmission::endGettingModelData);
+    timeoutTimer(reply);
+}
+
+void Transmission::endGettingModelData()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+
+    if (!checkSessionId(reply)) {
+        reply->deleteLater();
+        return beginGettingModelData();
+    }
+    if (!checkError(reply))
+        return reply->deleteLater();
+
+    m_torrentModel->beginUpdateModel(reply->readAll());
+    reply->deleteLater();
+    m_updateTimer->start();
+}
+
+void Transmission::beginGettingServerSettings()
+{
+    QNetworkReply *reply = rpcPost(ServerSettingsRequest);
+    connect(reply, &QNetworkReply::finished, this, &Transmission::endGettingServerSettings);
+    timeoutTimer(reply);
+}
+
+void Transmission::endGettingServerSettings()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+
+    if (!checkSessionId(reply)) {
+        reply->deleteLater();
+        return beginGettingServerSettings();
+    }
+    if (!checkError(reply))
+        return reply->deleteLater();
+
+    m_appSettings->beginUpdateServerSettings(reply->readAll());
+    reply->deleteLater();
+}
+
+void Transmission::beginGettingServerStats()
+{
+    QNetworkReply *reply = rpcPost(ServerStatsRequest);
+    connect(reply, &QNetworkReply::finished, this, &Transmission::endGettingServerStats);
+    timeoutTimer(reply);
+}
+
+void Transmission::endGettingServerStats()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+
+    if (!checkSessionId(reply)) {
+        reply->deleteLater();
+        return beginGettingServerStats();
+    }
+    if (!checkError(reply))
+        return reply->deleteLater();
+
+    m_appSettings->beginUpdateServerStats(reply->readAll());
+    reply->deleteLater();
+}
+
+void Transmission::timeoutTimer(const QNetworkReply *reply)
+{
+    QTimer *timer = new QTimer;
+    timer->setInterval(m_timeout);
+    timer->setSingleShot(true);
+    QObject::connect(timer, &QTimer::timeout, reply, &QNetworkReply::abort);
+    QObject::connect(timer, &QTimer::timeout, timer, &QObject::deleteLater);
+    timer->start();
+}
+
+
+bool Transmission::checkSessionId(const QNetworkReply *reply)
+{   
+    if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 409 &&
+            reply->hasRawHeader(SessionHeader)) {
+        m_sessionId = reply->rawHeader(SessionHeader);
+        return false;
+    }
+    return true;
+}
+
+bool Transmission::checkError(const QNetworkReply *reply)
+{
+    switch (reply->error()) {
+    case QNetworkReply::NoError:
+        if (m_error != NoError) {
+            m_error = NoError;
+            emit errorChanged();
+        }
+        return true;
+    case QNetworkReply::AuthenticationRequiredError:
+        qWarning() << "authentication error";
+        m_authenticationRequested = false;
+        if (m_error != AuthenticationError) {
+            m_error = AuthenticationError;
+            emit errorChanged();
+        }
+        break;
+    default:
+        qWarning() << reply->errorString();
+        if (m_error != ConnectionError) {
+            m_error = ConnectionError;
+            emit errorChanged();
+        }
+    }
+
+    return false;
+}
+
+QNetworkReply *Transmission::rpcPost(const QByteArray &data)
+{
+    QNetworkRequest request(m_serverUrl);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader(SessionHeader, m_sessionId);
+
+    if(m_https)
+        request.setSslConfiguration(m_sslConfiguration);
+
+    return m_network->post(request, data);
+}
+
 void Transmission::authenticate(const QNetworkReply *reply, QAuthenticator *authenticator)
 {
     Q_UNUSED(reply);
@@ -281,138 +466,4 @@ void Transmission::authenticate(const QNetworkReply *reply, QAuthenticator *auth
         }
         m_authenticationRequested = true;
     }
-}
-
-void Transmission::getData()
-{
-    beginGetModelData();
-    beginGetServerSettings();
-    beginGetServerStats();
-}
-
-void Transmission::endGetModelData()
-{
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-
-    if (reply->error() != QNetworkReply::NoError) {
-        if (!checkSessionId(reply)) {
-            reply->deleteLater();
-            return beginGetModelData();
-        }
-        getError(reply);
-        reply->deleteLater();
-        return;
-    }
-    if (m_error != NoError) {
-        m_error = NoError;
-        emit errorChanged();
-    }
-
-    const QByteArray &replyData = reply->readAll();
-    m_torrentModel->beginUpdateModel(replyData);
-    reply->deleteLater();
-}
-
-void Transmission::endGetServerSettings()
-{
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-
-    if (reply->error() != QNetworkReply::NoError) {
-        if (!checkSessionId(reply)) {
-            reply->deleteLater();
-            return beginGetServerSettings();
-        }
-        getError(reply);
-        reply->deleteLater();
-        return;
-    }
-    if (m_error != NoError) {
-        m_error = NoError;
-        emit errorChanged();
-    }
-
-    const QByteArray &replyData = reply->readAll();
-    m_appSettings->beginUpdateServerSettings(replyData);
-    reply->deleteLater();
-}
-
-void Transmission::endGetServerStats()
-{
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-
-    if (reply->error() != QNetworkReply::NoError) {
-        if (!checkSessionId(reply)) {
-            reply->deleteLater();
-            return beginGetServerStats();
-        }
-        getError(reply);
-        reply->deleteLater();
-        return;
-    }
-    if (m_error != NoError) {
-        m_error = NoError;
-        emit errorChanged();
-    }
-
-    const QByteArray &replyData = reply->readAll();
-    m_appSettings->beginUpdateServerStats(replyData);
-    reply->deleteLater();
-}
-
-void Transmission::beginGetModelData()
-{
-    QNetworkReply *reply = rpcPost(ModelDataRequest);
-    connect(reply, &QNetworkReply::finished, this, &Transmission::endGetModelData);
-    QTimer::singleShot(m_timeout, reply, SLOT(abort()));
-}
-
-void Transmission::beginGetServerSettings()
-{
-    QNetworkReply *reply = rpcPost(ServerSettingsRequest);
-    connect(reply, &QNetworkReply::finished, this, &Transmission::endGetServerSettings);
-    QTimer::singleShot(m_timeout, reply, SLOT(abort()));
-}
-
-void Transmission::beginGetServerStats()
-{
-    QNetworkReply *reply = rpcPost(ServerStatsRequest);
-    connect(reply, &QNetworkReply::finished, this, &Transmission::endGetServerStats);
-    QTimer::singleShot(m_timeout, reply, SLOT(abort()));
-}
-
-bool Transmission::checkSessionId(const QNetworkReply *reply)
-{   
-    if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 409 && reply->hasRawHeader("X-Transmission-Session-Id")) {
-        m_sessionId = reply->rawHeader("X-Transmission-Session-Id");
-        return false;
-    }
-    return true;
-}
-
-void Transmission::getError(const QNetworkReply *reply)
-{
-    if (reply->error() == QNetworkReply::AuthenticationRequiredError) {
-        m_authenticationRequested = false;
-        qWarning() << "authentication error";
-        if (m_error != AuthenticationError) {
-            m_error = AuthenticationError;
-            emit errorChanged();
-        }
-    } else {
-        qWarning() << reply->errorString();
-        if (m_error != ConnectionError) {
-            m_error = ConnectionError;
-            emit errorChanged();
-        }
-    }
-}
-
-QNetworkReply *Transmission::rpcPost(const QByteArray &data)
-{
-    QNetworkRequest request(m_serverUrl);
-
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("X-Transmission-Session-Id", m_sessionId);
-
-    return m_netMan->post(request, data);
 }

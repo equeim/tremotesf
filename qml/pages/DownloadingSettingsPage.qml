@@ -64,36 +64,36 @@ Page {
             SelectDirectoryTextField {
                 id: downloadDirectoryField
                 label: qsTr("Download directory")
-                text: appSettings.getServerValue("download-dir")
+                text: appSettings.serverValue("download-dir")
             }
 
             CommonTextSwitch {
                 id: renamePartialSwitch
-                checked: appSettings.getServerValue("rename-partial-files")
+                checked: appSettings.serverValue("rename-partial-files")
                 text: qsTr("Append \".part\" to names of incomplete files")
             }
 
             CommonTextSwitch {
                 id: incompleteDirectorySwitch
-                checked: appSettings.getServerValue("incomplete-dir-enabled")
+                checked: appSettings.serverValue("incomplete-dir-enabled")
                 text: qsTr("Separate directory fo incomplete files")
             }
 
             SelectDirectoryTextField {
                 id: incompleteDirectoryField
-                text: appSettings.getServerValue("incomplete-dir")
+                text: appSettings.serverValue("incomplete-dir")
                 visible: incompleteDirectorySwitch.checked
             }
 
             CommonTextSwitch {
                 id: trashTorrentSwitch
-                checked: appSettings.getServerValue("trash-original-torrent-files")
+                checked: appSettings.serverValue("trash-original-torrent-files")
                 text: qsTr("Trash .torrent files")
             }
 
             CommonTextSwitch {
                 id: seedRatioLimitSwitch
-                checked: appSettings.getServerValue("seedRatioLimited")
+                checked: appSettings.serverValue("seedRatioLimited")
                 text: qsTr("Ratio limit")
             }
 
@@ -101,7 +101,7 @@ Page {
                 id: seedRatioLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("Stop seeding at ratio")
-                text: qsTr("%L1").arg(Math.ceil(appSettings.getServerValue("seedRatioLimit") * 100) / 100)
+                text: qsTr("%L1").arg(Math.ceil(appSettings.serverValue("seedRatioLimit") * 100) / 100)
                 visible: seedRatioLimitSwitch.checked
             }
         }

@@ -65,23 +65,66 @@ public:
     AppSettings();
     ~AppSettings();
 
-    void checkClientSettings();
-
     QStringList accounts() const;
     QString currentAccount() const;
+    void setCurrentAccount(QString name);
+    Q_INVOKABLE void removeAccount(QString name);
+
+    //
+    // Client settings
+    //
+    void checkClientSettings();
+
+    Q_INVOKABLE QString accountAddress(const QString &account) const;
+    Q_INVOKABLE void setAccountAddress(const QString &account, const QString &address);
+
+    Q_INVOKABLE QString accountApiPath(const QString &account) const;
+    Q_INVOKABLE void setAccountApiPath(const QString &account, const QString &apiPath);
+
+    Q_INVOKABLE bool accountAuthentication(const QString &account) const;
+    Q_INVOKABLE void setAccountAuthentication(const QString &account, bool authentication);
+
+    Q_INVOKABLE bool accountHttps(const QString &account) const;
+    Q_INVOKABLE void setAccountHttps(const QString &account, bool https);
+
+    Q_INVOKABLE bool accountLocalCertificate(const QString &account) const;
+    Q_INVOKABLE void setAccountLocalCertificate(const QString &account, bool localCertificate);
+
+    Q_INVOKABLE QString accountPassword(const QString &account) const;
+    Q_INVOKABLE void setAccountPassword(const QString &account, const QString &password);
+
+    Q_INVOKABLE int accountPort(const QString &account) const;
+    Q_INVOKABLE void setAccountPort(const QString &account, int port);
+
+    Q_INVOKABLE int accountTimeout(const QString &account) const;
+    Q_INVOKABLE void setAccountTimeout(const QString &account, int timeout);
+
+    Q_INVOKABLE int accountUpdateInterval(const QString &account) const;
+    Q_INVOKABLE void setAccountUpdateInterval(const QString &account, int updateInterval);
+
+    Q_INVOKABLE QString accountUsername(const QString &account) const;
+    Q_INVOKABLE void setAccountUsername(const QString &account, const QString &username);
+
+    int filterMode() const;
+    void setFilterMode(int filterMode);
+
+    Qt::SortOrder sortOrder() const;
+    void setSortOrder(Qt::SortOrder sortOrder);
+
+    int sortRole() const;
+    void setSortRole(int sortRole);
+
+    // Server settings
+    int rpcVersion() const;
+    Q_INVOKABLE QVariant serverValue(QString key) const;
+
+    // Server stats
     int downloadSpeed() const;
     int uploadSpeed() const;
 
-    void setCurrentAccount(QString name);
-
     void beginUpdateServerSettings(const QByteArray &replyData);
     void beginUpdateServerStats(const QByteArray &replyData);
-
-    Q_INVOKABLE void removeAccount(QString name);
-    Q_INVOKABLE QVariant getClientValue(QString key) const;
-    Q_INVOKABLE void setClientValue(QString key, const QVariant &value);
-    Q_INVOKABLE QVariant getServerValue(QString key) const;
-public slots:
+private:
     void endUpdateServerSettings(const QVariantMap &serverSettings);
     void endUpdateServerStats(int downloadSpeed, int uploadSpeed);
 private:
@@ -95,6 +138,7 @@ private:
 signals:
     void currentAccountChanged();
     void serverStatsUpdated();
+    void serverSettingsUpdated();
 };
 
 #endif // APPSETTINGS_H

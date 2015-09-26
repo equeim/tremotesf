@@ -85,18 +85,18 @@ Page {
                 id: portField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("Peer port")
-                text: appSettings.getServerValue("peer-port")
+                text: appSettings.serverValue("peer-port")
             }
 
             CommonTextSwitch {
                 id: randomPortSwitch
-                checked: appSettings.getServerValue("peer-port-random-on-start")
+                checked: appSettings.serverValue("peer-port-random-on-start")
                 text: qsTr("Random port on Transmission start")
             }
 
             CommonTextSwitch {
                 id: forwardingSwitch
-                checked: appSettings.getServerValue("port-forwarding-enabled")
+                checked: appSettings.serverValue("port-forwarding-enabled")
                 text: qsTr("Enable port forwarding")
             }
 
@@ -104,7 +104,7 @@ Page {
                 id: encryptionCombo
 
                 currentIndex: {
-                    switch (appSettings.getServerValue("encryption")) {
+                    switch (appSettings.serverValue("encryption")) {
                     case "tolerated":
                         return 0
                     case "preferred":
@@ -129,25 +129,25 @@ Page {
 
             CommonTextSwitch {
                 id: utpSwitch
-                checked: appSettings.getServerValue("utp-enabled")
+                checked: appSettings.serverValue("utp-enabled")
                 text: qsTr("Enable uTP")
             }
 
             CommonTextSwitch {
                 id: pexSwitch
-                checked: appSettings.getServerValue("pex-enabled")
+                checked: appSettings.serverValue("pex-enabled")
                 text: qsTr("Enable PEX")
             }
 
             CommonTextSwitch {
                 id: dhtSwitch
-                checked: appSettings.getServerValue("dht-enabled")
+                checked: appSettings.serverValue("dht-enabled")
                 text: qsTr("Enable DHT")
             }
 
             CommonTextSwitch {
                 id: lpdSwitch
-                checked: appSettings.getServerValue("lpd-enabled")
+                checked: appSettings.serverValue("lpd-enabled")
                 text: qsTr("Enable LPD")
             }
 
@@ -159,14 +159,14 @@ Page {
                 id: peerLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("Maximum peers per torrent")
-                text: appSettings.getServerValue("peer-limit-per-torrent")
+                text: appSettings.serverValue("peer-limit-per-torrent")
             }
 
             CommonTextField {
                 id: globalPeerLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("Maximum peers globally")
-                text: appSettings.getServerValue("peer-limit-global")
+                text: appSettings.serverValue("peer-limit-global")
             }
         }
 
