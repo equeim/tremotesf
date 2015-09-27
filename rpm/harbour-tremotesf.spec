@@ -7,7 +7,7 @@ License: GPLv3
 URL: https://github.com/equeim/tremotesf
 Source0: %{name}-%{version}.tar.xz
 Requires: sailfishsilica-qt5
-BuildRequires: pkgconfig(mlite5)
+BuildRequires: pkgconfig(nemonotifications-qt5)
 BuildRequires: pkgconfig(Qt5Quick)
 BuildRequires: pkgconfig(sailfishapp)
 BuildRequires: desktop-file-utils

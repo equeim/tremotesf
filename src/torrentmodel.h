@@ -150,7 +150,7 @@ public slots:
 protected:
     QHash<int, QByteArray> roleNames() const;
 private:
-    void finishedNotification(QString torrentName);
+
 
     QList<Torrent> m_torrents;
     QList<int> m_torrentIds;

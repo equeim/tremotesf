@@ -19,17 +19,12 @@
 #include "torrentmodel.h"
 #include "torrentmodel.moc"
 
-#include <MNotification>
-#include <MRemoteAction>
 #include <QEventLoop>
-#include <QDBusConnection>
-#include <QGuiApplication>
 #include <QJsonDocument>
 
-#ifndef NDEBUG
 #include <QDebug>
-#endif
 
+#include "notifications.h"
 #include "torrentfilemodel.h"
 #include "torrentpeermodel.h"
 #include "torrenttrackermodel.h"
@@ -354,9 +349,7 @@ void TorrentModel::endUpdateModel(const QList<Torrent> &torrents, const QList<in
     }
     m_changingModel = true;
 
-#ifndef NDEBUG
     qDebug() << "update";
-#endif
 
     for (int i = 0; i < m_torrentIds.length(); i++) {
         if (!torrentIds.contains(m_torrentIds.at(i))) {
@@ -392,7 +385,7 @@ void TorrentModel::endUpdateModel(const QList<Torrent> &torrents, const QList<in
             int index = m_torrentIds.indexOf(torrentIds.at(i));
 
             if (torrents.at(i).percentDone == 100 && m_torrents.at(index).percentDone != 100)
-                finishedNotification(m_torrents.at(index).name);
+                Notifications::torrentFinished(m_torrents.at(index).name);
 
             m_torrents[index] = torrents.at(i);
         }
@@ -456,16 +449,4 @@ QHash<int, QByteArray> TorrentModel::roleNames() const
     roles.insert(UploadRatioRole, "uploadRatio");
 
     return roles;
-}
-
-void TorrentModel::finishedNotification(QString torrentName)
-{
-    if (QGuiApplication::applicationState() == Qt::ApplicationActive)
-        return;
-
-    MRemoteAction action(QDBusConnection::sessionBus().baseService(), "/", "harbour.tremotesf.DBusProxy", "activate");
-    MNotification notification(MNotification::TransferCompleteEvent, tr("Torrent finished"), torrentName);
-    notification.setAction(action);
-    notification.setImage("icon-m-share");
-    notification.publish();
 }

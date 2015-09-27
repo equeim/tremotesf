@@ -4,7 +4,7 @@ def options(context):
 
 def configure(context):
     context.load("compiler_cxx gnu_dirs qt5")
-    context.check_cfg(package="mlite5", args="--libs --cflags")
+    context.check_cfg(package="nemonotifications-qt5", args="--libs --cflags")
     context.check_cfg(package="sailfishapp", args="--libs --cflags")
 
 
@@ -13,10 +13,11 @@ def build(context):
         target="harbour-tremotesf",
         features="qt5",
         includes="src src/folderlistmodel",
-        uselib="MLITE5 QT5QUICK SAILFISHAPP",
+        uselib="NEMONOTIFICATIONS-QT5 QT5DBUS QT5QUICK SAILFISHAPP",
         source=[
             "src/appsettings.cpp",
             "src/dbusproxy.cpp",
+            "src/notifications.cpp",
             "src/proxytorrentmodel.cpp",
             "src/transmission.cpp",
             "src/tremotesf.cpp",

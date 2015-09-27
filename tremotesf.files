@@ -8,6 +8,8 @@ src/appsettings.cpp
 src/appsettings.h
 src/dbusproxy.cpp
 src/dbusproxy.h
+src/notifications.cpp
+src/notifications.h
 src/proxytorrentmodel.cpp
 src/proxytorrentmodel.h
 src/torrentfilemodel.cpp
