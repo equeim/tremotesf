@@ -44,7 +44,9 @@ public:
         NoError,
         AuthenticationError,
         ConnectionError,
-        RpcVersionError
+        RpcVersionError,
+        SslHandshakeFailedError,
+        TimeoutError
     };
 
     Transmission();
@@ -73,29 +75,33 @@ private:
     void checkRpcVersion();
     void getData();
 
-    void beginGettingModelData();
-    void endGettingModelData();
-
     void beginGettingServerSettings();
     void endGettingServerSettings();
+
+    void beginGettingModelData();
+    void endGettingModelData();
 
     void beginGettingServerStats();
     void endGettingServerStats();
 
     void timeoutTimer(const QNetworkReply *reply);
     bool checkSessionId(const QNetworkReply *reply);
-    bool checkError(const QNetworkReply *reply);
+
+    void checkError(const QNetworkReply *reply);
+    void setError(int error);
+
     QNetworkReply* rpcPost(const QByteArray &data);
 
     void authenticate(const QNetworkReply *reply, QAuthenticator *authenticator);
 private:
     QNetworkAccessManager *m_network;
     bool m_authenticationRequested;
-    int m_error;
+
     QTimer *m_updateTimer;
 
     AppSettings *m_appSettings;
     TorrentModel *m_torrentModel;
+    int m_error;
 
     QByteArray m_sessionId;
 

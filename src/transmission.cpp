@@ -304,6 +304,7 @@ void Transmission::updateAccount()
 
     m_updateTimer->setInterval(m_appSettings->accountUpdateInterval(m_currentAccount) * 1000);
 
+    disconnect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::checkRpcVersion);
     connect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::checkRpcVersion);
     beginGettingServerSettings();
 }
@@ -326,29 +327,6 @@ void Transmission::getData()
     beginGettingServerStats();
 }
 
-void Transmission::beginGettingModelData()
-{
-    QNetworkReply *reply = rpcPost(ModelDataRequest);
-    connect(reply, &QNetworkReply::finished, this, &Transmission::endGettingModelData);
-    timeoutTimer(reply);
-}
-
-void Transmission::endGettingModelData()
-{
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-
-    if (!checkSessionId(reply)) {
-        reply->deleteLater();
-        return beginGettingModelData();
-    }
-    if (!checkError(reply))
-        return reply->deleteLater();
-
-    m_torrentModel->beginUpdateModel(reply->readAll());
-    reply->deleteLater();
-    m_updateTimer->start();
-}
-
 void Transmission::beginGettingServerSettings()
 {
     QNetworkReply *reply = rpcPost(ServerSettingsRequest);
@@ -364,11 +342,40 @@ void Transmission::endGettingServerSettings()
         reply->deleteLater();
         return beginGettingServerSettings();
     }
-    if (!checkError(reply))
-        return reply->deleteLater();
+    checkError(reply);
 
-    m_appSettings->beginUpdateServerSettings(reply->readAll());
+    if (m_error == NoError)
+        m_appSettings->beginUpdateServerSettings(reply->readAll());
+
     reply->deleteLater();
+}
+
+void Transmission::beginGettingModelData()
+{
+    QNetworkReply *reply = rpcPost(ModelDataRequest);
+    connect(reply, &QNetworkReply::finished, this, &Transmission::endGettingModelData);
+    timeoutTimer(reply);
+}
+
+void Transmission::endGettingModelData()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+
+    if (!checkSessionId(reply)) {
+        reply->deleteLater();
+        return beginGettingModelData();
+    }
+    checkError(reply);
+
+    if (m_error == NoError)
+        m_torrentModel->beginUpdateModel(reply->readAll());
+
+    reply->deleteLater();
+
+    if (m_error == NoError ||
+            m_error == TimeoutError) {
+        m_updateTimer->start();
+    }
 }
 
 void Transmission::beginGettingServerStats()
@@ -386,10 +393,11 @@ void Transmission::endGettingServerStats()
         reply->deleteLater();
         return beginGettingServerStats();
     }
-    if (!checkError(reply))
-        return reply->deleteLater();
+    checkError(reply);
 
-    m_appSettings->beginUpdateServerStats(reply->readAll());
+    if (m_error == NoError)
+        m_appSettings->beginUpdateServerStats(reply->readAll());
+
     reply->deleteLater();
 }
 
@@ -414,32 +422,37 @@ bool Transmission::checkSessionId(const QNetworkReply *reply)
     return true;
 }
 
-bool Transmission::checkError(const QNetworkReply *reply)
+void Transmission::checkError(const QNetworkReply *reply)
 {
     switch (reply->error()) {
     case QNetworkReply::NoError:
-        if (m_error != NoError) {
-            m_error = NoError;
-            emit errorChanged();
-        }
-        return true;
+        setError(NoError);
+        break;
     case QNetworkReply::AuthenticationRequiredError:
-        qWarning() << "authentication error";
+        qWarning() << reply->errorString();
         m_authenticationRequested = false;
-        if (m_error != AuthenticationError) {
-            m_error = AuthenticationError;
-            emit errorChanged();
-        }
+        setError(AuthenticationError);
+        break;
+    case QNetworkReply::SslHandshakeFailedError:
+        qWarning() << reply->errorString();
+        setError(SslHandshakeFailedError);
+        break;
+    case QNetworkReply::OperationCanceledError:
+        qWarning() << "timeout error";
+        setError(TimeoutError);
         break;
     default:
-        qWarning() << reply->errorString();
-        if (m_error != ConnectionError) {
-            m_error = ConnectionError;
-            emit errorChanged();
-        }
+        qWarning() << reply->error() << reply->errorString();
+        setError(ConnectionError);
     }
+}
 
-    return false;
+void Transmission::setError(int error)
+{
+    if (m_error != error) {
+        m_error = error;
+        emit errorChanged();
+    }
 }
 
 QNetworkReply *Transmission::rpcPost(const QByteArray &data)
