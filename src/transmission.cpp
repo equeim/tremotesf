@@ -100,7 +100,9 @@ Transmission::Transmission()
     connect(m_network, &QNetworkAccessManager::authenticationRequired, this, &Transmission::authenticate);
 
     m_authenticationRequested = false;
-    m_error = ConnectionError;
+    m_accountConfigured = false;
+
+    m_error = NoError;
 
     m_updateTimer = new QTimer(this);
     m_updateTimer->setSingleShot(true);
@@ -128,9 +130,32 @@ TorrentModel* Transmission::torrentModel() const
     return m_torrentModel;
 }
 
+bool Transmission::accountConnected() const
+{
+    return (m_error == NoError || m_error == TimeoutError) && m_accountConfigured;
+}
+
 int Transmission::error() const
 {
     return m_error;
+}
+
+QString Transmission::errorString() const
+{
+    switch (m_error) {
+    case AuthenticationError:
+        return tr("Authentication error");
+    case ConnectionError:
+        return tr("Connection error");
+    case RpcVersionError:
+        return tr("Legacy RPC protocol version");
+    case SslHandshakeFailedError:
+        return tr("SSL handshake failed");
+    case TimeoutError:
+        return tr("Connection timed out");
+    default:
+        return QString();
+    }
 }
 
 void Transmission::setAppSettings(AppSettings *appSettings)
@@ -304,21 +329,47 @@ void Transmission::updateAccount()
 
     m_updateTimer->setInterval(m_appSettings->accountUpdateInterval(m_currentAccount) * 1000);
 
-    disconnect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::checkRpcVersion);
-    connect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::checkRpcVersion);
-    beginGettingServerSettings();
+    checkRpcVersion();
 }
 
 void Transmission::checkRpcVersion()
 {
-    disconnect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::checkRpcVersion);
+    QNetworkReply *reply = rpcPost(ServerSettingsRequest);
+    connect(reply, &QNetworkReply::finished, this, &Transmission::beginCheckingRpcVersion);
+    timeoutTimer(reply);
+}
 
-    if (m_appSettings->rpcVersion() < 14) {
-        m_error = RpcVersionError;
-        emit errorChanged();
-    } else {
-        getData();
+void Transmission::beginCheckingRpcVersion()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+
+    if (!checkSessionId(reply)) {
+        reply->deleteLater();
+        return checkRpcVersion();
     }
+    checkError(reply);
+
+    m_accountConfigured = true;
+    emit accountConnectedChanged();
+
+    if (m_error == NoError) {
+        disconnect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::endCheckingRpcVersion);
+        connect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::endCheckingRpcVersion);
+
+        m_appSettings->beginUpdateServerSettings(reply->readAll());
+    }
+
+    reply->deleteLater();
+}
+
+void Transmission::endCheckingRpcVersion()
+{
+    disconnect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::endCheckingRpcVersion);
+
+    if (m_appSettings->rpcVersion() < 14)
+        setError(RpcVersionError);
+    else
+        getData();
 }
 
 void Transmission::getData()
@@ -375,6 +426,8 @@ void Transmission::endGettingModelData()
     if (m_error == NoError ||
             m_error == TimeoutError) {
         m_updateTimer->start();
+    } else {
+        m_torrentModel->resetModel();
     }
 }
 
@@ -452,6 +505,7 @@ void Transmission::setError(int error)
     if (m_error != error) {
         m_error = error;
         emit errorChanged();
+        emit accountConnectedChanged();
     }
 }
 

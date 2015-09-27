@@ -43,13 +43,7 @@ CoverBackground {
 
         Label {
             id: errorLabel
-            text: {
-                if (transmission.error === Transmission.AuthenticationError)
-                    return qsTr("Authentication error")
-                if (transmission.error === Transmission.ConnectionError)
-                    return qsTr("Connection error")
-                return String()
-            }
+            text: transmission.errorString
             elide: Text.ElideRight
             font.pixelSize: Theme.fontSizeLarge
             maximumLineCount: 2

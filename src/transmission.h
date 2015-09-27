@@ -38,7 +38,9 @@ class Transmission : public QObject, public QQmlParserStatus
     Q_INTERFACES(QQmlParserStatus)
     Q_PROPERTY(AppSettings* appSettings READ appSettings WRITE setAppSettings)
     Q_PROPERTY(TorrentModel* torrentModel READ torrentModel WRITE setTorrentModel)
+    Q_PROPERTY(bool accountConnected READ accountConnected NOTIFY accountConnectedChanged)
     Q_PROPERTY(int error READ error NOTIFY errorChanged)
+    Q_PROPERTY(QString errorString READ errorString NOTIFY errorChanged)
 public:
     enum Error {
         NoError,
@@ -55,7 +57,9 @@ public:
 
     AppSettings* appSettings() const;
     TorrentModel* torrentModel() const;
+    bool accountConnected() const;
     int error() const;
+    QString errorString() const;
 
     void setAppSettings(AppSettings *appSettings);
     void setTorrentModel(TorrentModel *torrentModel);
@@ -71,8 +75,12 @@ public:
     Q_INVOKABLE void verifyTorrent(int id);
 
     Q_INVOKABLE void updateAccount();
+
+    Q_INVOKABLE void checkRpcVersion();
 private:
-    void checkRpcVersion();
+    void beginCheckingRpcVersion();
+    void endCheckingRpcVersion();
+
     void getData();
 
     void beginGettingServerSettings();
@@ -96,6 +104,7 @@ private:
 private:
     QNetworkAccessManager *m_network;
     bool m_authenticationRequested;
+    bool m_accountConfigured;
 
     QTimer *m_updateTimer;
 
@@ -115,6 +124,7 @@ private:
 
     QSslConfiguration m_sslConfiguration;
 signals:
+    void accountConnectedChanged();
     void errorChanged();
 };
 

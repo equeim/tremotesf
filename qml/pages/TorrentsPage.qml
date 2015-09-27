@@ -36,13 +36,11 @@ Page {
         header: PageHeader {
             title: "Tremotesf"
             description: {
-                if (transmission.error !== Transmission.NoError) {
-                    if (transmission.error === Transmission.AuthenticationError)
-                        return qsTr("Authentication error")
-                    if (transmission.error === Transmission.ConnectionError)
-                        return qsTr("Connection error")
-                }
-                return "↓ %1/s  ↑ %2/s".arg(Format.formatFileSize(appSettings.downloadSpeed)).arg(Format.formatFileSize(appSettings.uploadSpeed))
+                if (transmission.error == Transmission.NoError)
+                    return "↓ %1/s  ↑ %2/s".arg(Format.formatFileSize(appSettings.downloadSpeed))
+                    .arg(Format.formatFileSize(appSettings.uploadSpeed))
+
+                return transmission.errorString
             }
         }
         delegate: ListItem {
@@ -110,6 +108,7 @@ Page {
         model: proxyModel
 
         PullDownMenu {
+            id: pullDownMenu
             MenuItem {
                 text: qsTr("Accounts")
                 onClicked: pageStack.push(accountsPage)
@@ -121,6 +120,7 @@ Page {
             }
 
             MenuItem {
+                enabled: transmission.accountConnected
                 text: qsTr("Server settings")
                 onClicked: pageStack.push(serverSettingsPage)
 
@@ -151,6 +151,7 @@ Page {
             }
 
             MenuItem {
+                enabled: transmission.accountConnected
                 text: qsTr("Add torrent...")
                 onClicked: pageStack.push(addTorrentDialog)
 
@@ -161,8 +162,18 @@ Page {
             }
         }
 
+        Button {
+            id: reconnectButton
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: qsTr("Reconnect")
+            visible: !transmission.accountConnected
+            y: parent.height / 2 - parent.headerItem.height - parent.contentY - height / 2
+            onClicked: transmission.checkRpcVersion()
+        }
+
         ViewPlaceholder {
-            enabled: listView.count === 0
+            id: placeholder
+            enabled: listView.count === 0 && !reconnectButton.visible
             text: qsTr("No items")
         }
 
