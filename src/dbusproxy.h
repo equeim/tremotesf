@@ -21,18 +21,18 @@
 
 #include <QObject>
 
-class QQuickView;
+class QWindow;
 
 class DBusProxy : public QObject
 {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "harbour.tremotesf.DBusProxy")
 public:
-    DBusProxy(QQuickView *view);
+    DBusProxy(QWindow *view, QObject *parent = 0);
 public slots:
     void activate();
 private:
-    QQuickView *m_view;
+    QWindow *m_window;
 };
 
 #endif // DBUSPROXY_H

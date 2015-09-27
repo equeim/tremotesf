@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QDBusConnection>
 #include <QGuiApplication>
 #include <QQuickView>
+#include <QScopedPointer>
 #include <sailfishapp.h>
 
 #include "appsettings.h"
-#include "transmission.h"
-#include "torrentmodel.h"
 #include "proxytorrentmodel.h"
+#include "transmission.h"
 #include "torrentfilemodel.h"
+#include "torrentmodel.h"
 #include "torrentpeermodel.h"
 #include "torrenttrackermodel.h"
 #include "folderlistmodel/qquickfolderlistmodel.h"
@@ -34,11 +34,9 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication *app = SailfishApp::application(argc, argv);
-    QQuickView *view = SailfishApp::createView();
-
-    DBusProxy *proxy = new DBusProxy(view);
-    QDBusConnection::sessionBus().registerObject("/", proxy, QDBusConnection::ExportAllSlots);
+    QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
+    QScopedPointer<QQuickView> view(SailfishApp::createView());
+    new DBusProxy(view.data(), view.data());
 
     qmlRegisterType<AppSettings>("harbour.tremotesf", 0, 1, "AppSettings");
     qmlRegisterType<Transmission>("harbour.tremotesf", 0, 1, "Transmission");
@@ -47,17 +45,11 @@ int main(int argc, char *argv[])
     qmlRegisterType<TorrentFileModel>("harbour.tremotesf", 0, 1, "TorrentFileModel");
     qmlRegisterType<TorrentPeerModel>("harbour.tremotesf", 0, 1, "TorrentPeerModel");
     qmlRegisterType<TorrentTrackerModel>("harbour.tremotesf", 0, 1, "TorrentTrackerModel");
-    qmlRegisterType<QQuickFolderListModel,1>("harbour.tremotesf", 0, 1, "FolderListModel");
+    qmlRegisterType<QQuickFolderListModel, 1>("harbour.tremotesf", 0, 1, "FolderListModel");
     qmlRegisterType<QAbstractItemModel>();
 
-    view->setSource(SailfishApp::pathTo("qml/tremotesf.qml"));
-    view->show();
+    view.data()->setSource(SailfishApp::pathTo("qml/tremotesf.qml"));
+    view.data()->show();
 
-    int result = app->exec();
-
-    proxy->deleteLater();
-    view->deleteLater();
-    app->deleteLater();
-
-    return result;
+    return app.data()->exec();
 }

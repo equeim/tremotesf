@@ -19,14 +19,16 @@
 #include "dbusproxy.h"
 #include "dbusproxy.moc"
 
-#include <QQuickView>
+#include <QDBusConnection>
+#include <QWindow>
 
-DBusProxy::DBusProxy(QQuickView *view)
+DBusProxy::DBusProxy(QWindow *window, QObject *parent) : QObject(parent)
 {
-    m_view = view;
+    m_window = window;
+    QDBusConnection::sessionBus().registerObject("/", this, QDBusConnection::ExportAllSlots);
 }
 
 void DBusProxy::activate()
 {
-    m_view->raise();
+    m_window->raise();
 }
