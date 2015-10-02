@@ -4,6 +4,8 @@ wscript
 rpm/harbour-tremotesf.spec
 
 
+src/accountmodel.cpp
+src/accountmodel.h
 src/appsettings.cpp
 src/appsettings.h
 src/dbusproxy.cpp

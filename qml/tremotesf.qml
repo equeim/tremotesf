@@ -25,18 +25,33 @@ import "pages"
 
 ApplicationWindow
 {
-    id: window
+    id: root
+
+    property alias appSettings: appSettings
+    property alias transmission: transmission
+    property alias torrentModel: torrentModel
+    property alias proxyModel: proxyModel
+    property alias fileModel: fileModel
+    property alias peerModel: peerModel
+    property alias trackerModel: trackerModel
 
     initialPage: Component { TorrentsPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
 
+    function addFirstAccount(immediate) {
+        var dialog
+        if (immediate)
+            dialog = pageStack.push(addAccountDialog, {}, PageStackAction.Immediate)
+        else
+            dialog = pageStack.push(addAccountDialog)
+        dialog.accepted.connect(function() {
+            appSettings.currentAccount = dialog.name
+        })
+    }
+
     Component.onCompleted: {
-        if (appSettings.accounts.length === 0) {
-            var dialog = pageStack.push(addAccountDialog, {}, PageStackAction.Immediate)
-            dialog.accepted.connect(function() {
-                appSettings.currentAccount = dialog.accountName
-            })
-        }
+        if (root.appSettings.accountCount === 0)
+            addFirstAccount(true)
     }
 
     Component {
@@ -50,21 +65,21 @@ ApplicationWindow
 
     Transmission {
         id: transmission
-        appSettings: appSettings
-        torrentModel: torrentModel
+        appSettings: root.appSettings
+        torrentModel: root.torrentModel
     }
 
     TorrentModel {
         id: torrentModel
-        fileModel: fileModel
-        peerModel: peerModel
-        trackerModel: trackerModel
+        fileModel: root.fileModel
+        peerModel: root.peerModel
+        trackerModel: root.trackerModel
     }
 
     ProxyTorrentModel {
         id: proxyModel
-        appSettings: appSettings
-        sourceModel: torrentModel
+        appSettings: root.appSettings
+        sourceModel: root.torrentModel
     }
 
     TorrentFileModel {

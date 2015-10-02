@@ -18,6 +18,7 @@
 
 import QtQuick 2.1
 import Sailfish.Silica 1.0
+import harbour.tremotesf 0.1
 
 import "../dialogs"
 import "../components"
@@ -25,37 +26,21 @@ import "../components"
 Page {
     id: accountsPage
 
-    property string currentAccount: appSettings.currentAccount
-
-    function getData(index) {
-        var accountName = appSettings.accounts[index]
-        return {
-            address: appSettings.accountAddress(accountName),
-            isCurrent: currentAccount === accountName,
-            name: accountName
-        }
-    }
-
-    function updateModel() {
-        var allCount = appSettings.accounts.length
-
-        for (var i = 0; i < Math.min(allCount, accountModel.count); i++)
-            accountModel.set(i, getData(i))
-
-        if (allCount > accountModel.count) {
-            for (i = accountModel.count; i < allCount; i++)
-                accountModel.append(getData(i))
-        } else if (allCount < accountModel.count) {
-            for (i = accountModel.count; i > allCount; i--)
-                accountModel.remove(i - 1)
-        }
-    }
+    property string currentAccount: root.appSettings.currentAccount
 
     allowedOrientations: Orientation.All
 
-    ListModel {
+    Connections {
+        target: root.appSettings
+        onAccountRemoved: {
+            if (root.appSettings.accountCount === 0)
+                addFirstAccount(false)
+        }
+    }
+
+    AccountModel {
         id: accountModel
-        Component.onCompleted: updateModel()
+        appSettings: root.appSettings
     }
 
     SilicaListView {
@@ -67,26 +52,7 @@ Page {
         }
         delegate: ListItem {
             function removeAccount() {
-                appSettings.removeAccount(model.name)
-                if (model.isCurrent) {
-                    if (accountModel.count === 1) {
-                        var dialog = pageStack.push(addAccountDialog)
-                        dialog.accepted.connect(function() {
-                            appSettings.currentAccount = dialog.accountName
-                            accountModel.append({
-                                                    address: dialog.address,
-                                                    isCurrent: true,
-                                                    name: dialog.accountName
-                                                })
-                            accountModel.remove(model.index)
-                        })
-                        return
-                    } else {
-                        appSettings.currentAccount = appSettings.accounts[0]
-                        accountModel.setProperty(0, "isCurrent", true)
-                    }
-                }
-                accountModel.remove(model.index)
+                root.appSettings.removeAccount(model.name)
             }
 
             contentHeight: Theme.itemSizeMedium
@@ -103,21 +69,11 @@ Page {
                 id: currentSwitch
                 anchors.verticalCenter: parent.verticalCenter
                 automaticCheck: false
-                checked: model.isCurrent
+                checked: model.name === currentAccount
 
                 onClicked: {
-                    if (!checked) {
-                        appSettings.currentAccount = model.name
-                        var currentIndex
-                        for (var i = 0; i < accountModel.count; i++) {
-                            if (accountModel.get(i).isCurrent) {
-                                currentIndex = i
-                                break
-                            }
-                        }
-                        accountModel.setProperty(currentIndex, "isCurrent", false)
-                        accountModel.setProperty(model.index, "isCurrent", true)
-                    }
+                    if (!checked)
+                        root.appSettings.currentAccount = model.name
                 }
             }
 
@@ -161,13 +117,10 @@ Page {
         PullDownMenu {
             MenuItem {
                 text: qsTr("Add account...")
-                onClicked: {
-                    var dialog = pageStack.push(addAccountDialog)
-                    dialog.accepted.connect(updateModel)
-                }
+                onClicked: pageStack.push(addAccountDialog)
             }
         }
-    }
 
-    VerticalScrollDecorator { }
+        VerticalScrollDecorator { }
+    }
 }

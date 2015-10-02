@@ -280,58 +280,6 @@ void Transmission::verifyTorrent(int id)
     QTimer::singleShot(m_timeout, reply, SLOT(abort()));
 }
 
-void Transmission::updateAccount()
-{
-    m_currentAccount = m_appSettings->currentAccount();
-
-    if (m_currentAccount.isEmpty())
-        return;
-
-    QUrl serverUrl;
-    serverUrl.setHost(m_appSettings->accountAddress(m_currentAccount));
-    serverUrl.setPath(m_appSettings->accountApiPath(m_currentAccount));
-    serverUrl.setPort(m_appSettings->accountPort(m_currentAccount));
-
-    m_https = m_appSettings->accountHttps(m_currentAccount);
-    if (m_https) {
-        serverUrl.setScheme("https");
-
-        m_sslConfiguration = QSslConfiguration::defaultConfiguration();
-        m_sslConfiguration.setPeerVerifyMode(QSslSocket::QueryPeer);
-
-        if (m_appSettings->accountLocalCertificate(m_currentAccount)) {
-            QString pemFilePath = QString("%1/%2.pem")
-                    .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
-                    .arg(m_currentAccount);
-
-            QFile pemFile(pemFilePath);
-            if (pemFile.open(QIODevice::ReadOnly)) {
-                QByteArray pemFileData = pemFile.readAll();
-                m_sslConfiguration.setLocalCertificate(QSslCertificate(pemFileData));
-                m_sslConfiguration.setPrivateKey(QSslKey(pemFileData, QSsl::Rsa));
-                pemFile.close();
-            }
-        }
-    } else {
-        serverUrl.setScheme("http");
-    }
-
-    if (m_serverUrl != serverUrl) {
-        m_serverUrl = serverUrl;
-        m_torrentModel->resetModel();
-    }
-
-    m_authentication = m_appSettings->accountAuthentication(m_currentAccount);
-    m_username = m_appSettings->accountUsername(m_currentAccount);
-    m_password = m_appSettings->accountPassword(m_currentAccount);
-
-    m_timeout = m_appSettings->accountTimeout(m_currentAccount) * 1000;
-
-    m_updateTimer->setInterval(m_appSettings->accountUpdateInterval(m_currentAccount) * 1000);
-
-    checkRpcVersion();
-}
-
 void Transmission::checkRpcVersion()
 {
     QNetworkReply *reply = rpcPost(ServerSettingsRequest);
@@ -452,6 +400,65 @@ void Transmission::endGettingServerStats()
         m_appSettings->beginUpdateServerStats(reply->readAll());
 
     reply->deleteLater();
+}
+
+void Transmission::updateAccount()
+{
+    if (m_updateTimer->isActive())
+        m_updateTimer->stop();
+
+    m_torrentModel->resetModel();
+
+    m_accountConfigured = false;
+    emit accountConnectedChanged();
+
+    m_currentAccount = m_appSettings->currentAccount();
+    if (m_currentAccount.isEmpty())
+        return;
+
+    QUrl serverUrl;
+    serverUrl.setHost(m_appSettings->accountAddress(m_currentAccount));
+    serverUrl.setPath(m_appSettings->accountApiPath(m_currentAccount));
+    serverUrl.setPort(m_appSettings->accountPort(m_currentAccount));
+
+    m_https = m_appSettings->accountHttps(m_currentAccount);
+    if (m_https) {
+        serverUrl.setScheme("https");
+
+        m_sslConfiguration = QSslConfiguration::defaultConfiguration();
+        m_sslConfiguration.setPeerVerifyMode(QSslSocket::QueryPeer);
+
+        if (m_appSettings->accountLocalCertificate(m_currentAccount)) {
+            QString pemFilePath = QString("%1/%2.pem")
+                    .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+                    .arg(m_currentAccount);
+
+            QFile pemFile(pemFilePath);
+            if (pemFile.open(QIODevice::ReadOnly)) {
+                QByteArray pemFileData = pemFile.readAll();
+                m_sslConfiguration.setLocalCertificate(QSslCertificate(pemFileData));
+                m_sslConfiguration.setPrivateKey(QSslKey(pemFileData, QSsl::Rsa));
+                pemFile.close();
+            }
+        }
+    } else {
+        serverUrl.setScheme("http");
+    }
+
+    if (m_serverUrl != serverUrl) {
+        m_serverUrl = serverUrl;
+        m_torrentModel->resetModel();
+    }
+
+    m_authentication = m_appSettings->accountAuthentication(m_currentAccount);
+    m_username = m_appSettings->accountUsername(m_currentAccount);
+    m_password = m_appSettings->accountPassword(m_currentAccount);
+
+    m_timeout = m_appSettings->accountTimeout(m_currentAccount) * 1000;
+
+    m_updateTimer->setInterval(m_appSettings->accountUpdateInterval(m_currentAccount) * 1000);
+
+    checkRpcVersion();
 }
 
 void Transmission::timeoutTimer(const QNetworkReply *reply)

@@ -79,27 +79,6 @@ AppSettings::~AppSettings()
     m_statsWorker->deleteLater();
 }
 
-QStringList AppSettings::accounts() const
-{
-    return m_clientSettings->childGroups();
-}
-
-QString AppSettings::currentAccount() const
-{
-    return m_clientSettings->value("currentAccount").toString();
-}
-
-void AppSettings::setCurrentAccount(QString name)
-{
-    m_clientSettings->setValue("currentAccount", name);
-    emit currentAccountChanged();
-}
-
-void AppSettings::removeAccount(QString name)
-{
-    m_clientSettings->remove(name);
-}
-
 void AppSettings::checkClientSettings()
 {
     if (!m_clientSettings->value("fileterMode").isValid())
@@ -112,14 +91,30 @@ void AppSettings::checkClientSettings()
         m_clientSettings->setValue("sortRole", TorrentModel::NameRole);
 }
 
+int AppSettings::accountCount() const
+{
+    return m_clientSettings->childGroups().length();
+}
+
+QStringList AppSettings::accounts() const
+{
+    return m_clientSettings->childGroups();
+}
+
+QString AppSettings::currentAccount() const
+{
+    return m_clientSettings->value("currentAccount").toString();
+}
+
+void AppSettings::setCurrentAccount(const QString &name)
+{
+    m_clientSettings->setValue("currentAccount", name);
+    emit currentAccountChanged();
+}
+
 QString AppSettings::accountAddress(const QString &account) const
 {
     return m_clientSettings->value(account + "/address").toString();
-}
-
-void AppSettings::setAccountAddress(const QString &account, const QString &address)
-{
-    m_clientSettings->setValue(account + "/address", address);
 }
 
 QString AppSettings::accountApiPath(const QString &account) const
@@ -127,19 +122,9 @@ QString AppSettings::accountApiPath(const QString &account) const
     return m_clientSettings->value(account + "/apiPath").toString();
 }
 
-void AppSettings::setAccountApiPath(const QString &account, const QString &apiPath)
-{
-    m_clientSettings->setValue(account + "/apiPath", apiPath);
-}
-
 bool AppSettings::accountAuthentication(const QString &account) const
 {
     return m_clientSettings->value(account + "/authentication").toBool();
-}
-
-void AppSettings::setAccountAuthentication(const QString &account, bool authentication)
-{
-    m_clientSettings->setValue(account + "/authentication", authentication);
 }
 
 bool AppSettings::accountHttps(const QString &account) const
@@ -147,19 +132,9 @@ bool AppSettings::accountHttps(const QString &account) const
     return m_clientSettings->value(account + "/https").toBool();
 }
 
-void AppSettings::setAccountHttps(const QString &account, bool https)
-{
-    m_clientSettings->setValue(account + "/https", https);
-}
-
 bool AppSettings::accountLocalCertificate(const QString &account) const
 {
     return m_clientSettings->value(account + "/localCertificate").toBool();
-}
-
-void AppSettings::setAccountLocalCertificate(const QString &account, bool localCertificate)
-{
-    m_clientSettings->setValue(account + "/localCertificate", localCertificate);
 }
 
 QString AppSettings::accountPassword(const QString &account) const
@@ -167,19 +142,9 @@ QString AppSettings::accountPassword(const QString &account) const
     return m_clientSettings->value(account + "/password").toString();
 }
 
-void AppSettings::setAccountPassword(const QString &account, const QString &password)
-{
-    m_clientSettings->setValue(account + "/password", password);
-}
-
 int AppSettings::accountPort(const QString &account) const
 {
     return m_clientSettings->value(account + "/port").toInt();
-}
-
-void AppSettings::setAccountPort(const QString &account, int port)
-{
-    m_clientSettings->setValue(account + "/port", port);
 }
 
 int AppSettings::accountTimeout(const QString &account) const
@@ -187,19 +152,9 @@ int AppSettings::accountTimeout(const QString &account) const
     return m_clientSettings->value(account + "/timeout").toInt();
 }
 
-void AppSettings::setAccountTimeout(const QString &account, int timeout)
-{
-    m_clientSettings->setValue(account + "/timeout", timeout);
-}
-
 int AppSettings::accountUpdateInterval(const QString &account) const
 {
     return m_clientSettings->value(account + "/updateInterval").toInt();
-}
-
-void AppSettings::setAccountUpdateInterval(const QString &account, int updateInterval)
-{
-    m_clientSettings->setValue(account + "/updateInterval", updateInterval);
 }
 
 QString AppSettings::accountUsername(const QString &account) const
@@ -207,9 +162,118 @@ QString AppSettings::accountUsername(const QString &account) const
     return m_clientSettings->value(account + "/username").toString();
 }
 
-void AppSettings::setAccountUsername(const QString &account, const QString &username)
+void AppSettings::addAccount(const QString &name,
+                             const QString &address,
+                             int port,
+                             const QString &apiPath,
+                             bool https,
+                             bool localCertificate,
+                             bool authentication,
+                             const QString &username,
+                             const QString &password,
+                             int updateInterval,
+                             int timeout)
 {
-    m_clientSettings->setValue(account + "/username", username);
+    m_clientSettings->setValue(name + "/address", address);
+    m_clientSettings->setValue(name + "/port", port);
+    m_clientSettings->setValue(name + "/apiPath", apiPath);
+    m_clientSettings->setValue(name + "/https", https);
+    m_clientSettings->setValue(name + "/localCertificate", localCertificate);
+    m_clientSettings->setValue(name + "/authentication", authentication);
+    m_clientSettings->setValue(name + "/username", username);
+    m_clientSettings->setValue(name + "/password", password);
+    m_clientSettings->setValue(name + "/updateInterval", updateInterval);
+    m_clientSettings->setValue(name + "/timeout", timeout);
+
+    emit accountAdded(name, accounts().indexOf(name));
+}
+
+void AppSettings::removeAccount(const QString &name)
+{
+    int index = accounts().indexOf(name);
+
+    m_clientSettings->remove(name);
+
+    if (name == currentAccount()) {
+        if (accounts().isEmpty())
+            setCurrentAccount(QString());
+        else
+            setCurrentAccount(accounts().first());
+    }
+
+    emit accountRemoved(index);
+}
+
+void AppSettings::setAccount(const QString &name,
+                             const QString &address,
+                             int port,
+                             const QString &apiPath,
+                             bool https,
+                             bool localCertificate,
+                             bool authentication,
+                             const QString &username,
+                             const QString &password,
+                             int updateInterval,
+                             int timeout)
+{
+    bool changed = false;
+
+    if (address != accountAddress(name)) {
+        m_clientSettings->setValue(name + "/address", address);
+        changed = true;
+    }
+
+    if (port != accountPort(name)) {
+        m_clientSettings->setValue(name + "/port", port);
+        changed = true;
+    }
+
+    if (apiPath != accountApiPath(name)) {
+        m_clientSettings->setValue(name + "/apiPath", apiPath);
+        changed = true;
+    }
+
+    if (https != accountHttps(name)) {
+        m_clientSettings->setValue(name + "/https", https);
+        changed = true;
+    }
+
+    if (localCertificate != accountLocalCertificate(name)) {
+        m_clientSettings->setValue(name + "/localCertificate", localCertificate);
+        changed = true;
+    }
+
+    if (authentication != accountAuthentication(name)) {
+        m_clientSettings->setValue(name + "/authentication", authentication);
+        changed = true;
+    }
+
+    if (username != accountUsername(name)) {
+        m_clientSettings->setValue(name + "/username", username);
+        changed = true;
+    }
+
+    if (password != accountPassword(name)) {
+        m_clientSettings->setValue(name + "/password", password);
+        changed = true;
+    }
+
+    if (updateInterval != accountUpdateInterval(name)) {
+        m_clientSettings->setValue(name + "/updateInterval", updateInterval);
+        changed = true;
+    }
+
+    if (timeout != accountTimeout(name)) {
+        m_clientSettings->setValue(name + "/timeout", timeout);
+        changed = true;
+    }
+
+    if (changed) {
+        emit accountChanged(accounts().indexOf(name));
+
+        if (name == currentAccount())
+            emit currentAccountChanged();
+    }
 }
 
 int AppSettings::filterMode() const {

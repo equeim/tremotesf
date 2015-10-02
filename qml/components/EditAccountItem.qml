@@ -20,65 +20,20 @@ import QtQuick 2.1
 import Sailfish.Silica 1.0
 
 Column {
-    property alias accountName: nameField.text
+    property alias name: nameField.text
     property alias address: addressField.text
     property alias port: portField.text
     property alias apiPath: apiField.text
-    property alias updateInterval: updateField.text
-    property alias timeout: timeoutField.text
+
+    // FIXME
+    property bool https: false
+    property bool localCertificate: false
+
     property alias authentication: authenticationSwitch.checked
     property alias username: usernameField.text
     property alias password: passwordField.text
-
-    function saveAll() {
-        appSettings.setAccountAddress(accountName, address);
-        appSettings.setAccountPort(accountName, port);
-        appSettings.setAccountApiPath(accountName, apiPath);
-        appSettings.setAccountUpdateInterval(accountName, updateInterval);
-        appSettings.setAccountTimeout(accountName, timeout);
-        appSettings.setAccountAuthentication(accountName, authentication);
-        appSettings.setAccountUsername(accountName, username);
-        appSettings.setAccountPassword(accountName, password);
-    }
-
-    function saveIfChanged() {
-        var changed = false
-
-        if (addressField.changed()) {
-            changed = true
-            appSettings.setAccountAddress(accountName, address);
-        }
-        if (portField.changed()) {
-            changed = true
-            appSettings.setAccountPort(accountName, port);
-        }
-        if (apiField.changed()) {
-            changed = true
-            appSettings.setAccountApiPath(accountName, apiPath);
-        }
-        if (updateField.changed()) {
-            changed = true
-            appSettings.setAccountUpdateInterval(accountName, updateInterval);
-        }
-        if (timeoutField.changed()) {
-            changed = true
-            appSettings.setAccountTimeout(accountName, timeout);
-        }
-        if (authenticationSwitch.changed()) {
-            changed = true
-            appSettings.setAccountAuthentication(accountName, authentication);
-        }
-        if (usernameField.changed()) {
-            changed = true
-            appSettings.setAccountUsername(accountName, username);
-        }
-        if (passwordField.changed()) {
-            changed = true
-            appSettings.setAccountPassword(accountName, password);
-        }
-
-        return changed
-    }
+    property alias timeout: timeoutField.text
+    property alias updateInterval: updateField.text
 
     width: parent.width
 
@@ -105,18 +60,6 @@ Column {
         label: qsTr("API path")
     }
 
-    CommonTextField {
-        id: updateField
-        inputMethodHints: Qt.ImhDigitsOnly
-        label: qsTr("Update interval, s")
-    }
-
-    CommonTextField {
-        id: timeoutField
-        inputMethodHints: Qt.ImhDigitsOnly
-        label: qsTr("Timeout, s")
-    }
-
     CommonTextSwitch {
         id: authenticationSwitch
         text: qsTr("Authentication")
@@ -134,5 +77,17 @@ Column {
         echoMode: TextInput.Password
         label: qsTr("Password")
         visible: authenticationSwitch.checked
+    }
+
+    CommonTextField {
+        id: updateField
+        inputMethodHints: Qt.ImhDigitsOnly
+        label: qsTr("Update interval, s")
+    }
+
+    CommonTextField {
+        id: timeoutField
+        inputMethodHints: Qt.ImhDigitsOnly
+        label: qsTr("Timeout, s")
     }
 }

@@ -74,8 +74,6 @@ public:
     Q_INVOKABLE void startTorrent(int id);
     Q_INVOKABLE void verifyTorrent(int id);
 
-    Q_INVOKABLE void updateAccount();
-
     Q_INVOKABLE void checkRpcVersion();
 private:
     void beginCheckingRpcVersion();
@@ -91,6 +89,8 @@ private:
 
     void beginGettingServerStats();
     void endGettingServerStats();
+
+    void updateAccount();
 
     void timeoutTimer(const QNetworkReply *reply);
     bool checkSessionId(const QNetworkReply *reply);

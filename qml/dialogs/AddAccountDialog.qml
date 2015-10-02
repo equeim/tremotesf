@@ -22,12 +22,16 @@ import Sailfish.Silica 1.0
 import "../components"
 
 Dialog {
-    property alias accountName: editItem.accountName
-    property alias address: editItem.address
+    property alias name: editItem.name
 
     allowedOrientations: Orientation.All
     canAccept: {
-        if (editItem.accountName && editItem.address && editItem.port && editItem.apiPath && editItem.updateInterval && editItem.timeout) {
+        if (editItem.name &&
+                editItem.address &&
+                editItem.port &&
+                editItem.apiPath &&
+                editItem.updateInterval
+                && editItem.timeout) {
             if (editItem.authentication) {
                 if (editItem.username && editItem.password)
                     return true
@@ -38,7 +42,19 @@ Dialog {
         return false
     }
 
-    onAccepted: editItem.saveAll()
+    onAccepted: {
+        appSettings.addAccount(editItem.name,
+                               editItem.address,
+                               editItem.port,
+                               editItem.apiPath,
+                               editItem.https,
+                               editItem.localCertificate,
+                               editItem.authentication,
+                               editItem.username,
+                               editItem.password,
+                               editItem.updateInterval,
+                               editItem.timeout)
+    }
 
     SilicaFlickable {
         anchors.fill: parent

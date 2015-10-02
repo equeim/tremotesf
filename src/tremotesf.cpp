@@ -21,6 +21,7 @@
 #include <QScopedPointer>
 #include <sailfishapp.h>
 
+#include "accountmodel.h"
 #include "appsettings.h"
 #include "proxytorrentmodel.h"
 #include "transmission.h"
@@ -45,6 +46,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<TorrentFileModel>("harbour.tremotesf", 0, 1, "TorrentFileModel");
     qmlRegisterType<TorrentPeerModel>("harbour.tremotesf", 0, 1, "TorrentPeerModel");
     qmlRegisterType<TorrentTrackerModel>("harbour.tremotesf", 0, 1, "TorrentTrackerModel");
+    qmlRegisterType<AccountModel>("harbour.tremotesf", 0, 1, "AccountModel");
     qmlRegisterType<QQuickFolderListModel, 1>("harbour.tremotesf", 0, 1, "FolderListModel");
     qmlRegisterType<QAbstractItemModel>();
 

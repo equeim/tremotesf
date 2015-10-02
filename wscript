@@ -15,6 +15,7 @@ def build(context):
         includes="src src/folderlistmodel",
         uselib="NEMONOTIFICATIONS-QT5 QT5DBUS QT5QUICK SAILFISHAPP",
         source=[
+            "src/accountmodel.cpp",
             "src/appsettings.cpp",
             "src/dbusproxy.cpp",
             "src/notifications.cpp",

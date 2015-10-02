@@ -57,7 +57,7 @@ signals:
 class AppSettings : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList accounts READ accounts)
+    Q_PROPERTY(int accountCount READ accountCount)
     Q_PROPERTY(QString currentAccount READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
     Q_PROPERTY(int downloadSpeed READ downloadSpeed NOTIFY serverStatsUpdated)
     Q_PROPERTY(int uploadSpeed READ uploadSpeed NOTIFY serverStatsUpdated)
@@ -65,45 +65,54 @@ public:
     AppSettings();
     ~AppSettings();
 
-    QStringList accounts() const;
-    QString currentAccount() const;
-    void setCurrentAccount(QString name);
-    Q_INVOKABLE void removeAccount(QString name);
-
     //
     // Client settings
     //
     void checkClientSettings();
 
+    int accountCount() const;
+    QStringList accounts() const;
+
+    QString currentAccount() const;
+    void setCurrentAccount(const QString &name);
+
+
     Q_INVOKABLE QString accountAddress(const QString &account) const;
-    Q_INVOKABLE void setAccountAddress(const QString &account, const QString &address);
-
     Q_INVOKABLE QString accountApiPath(const QString &account) const;
-    Q_INVOKABLE void setAccountApiPath(const QString &account, const QString &apiPath);
-
     Q_INVOKABLE bool accountAuthentication(const QString &account) const;
-    Q_INVOKABLE void setAccountAuthentication(const QString &account, bool authentication);
-
     Q_INVOKABLE bool accountHttps(const QString &account) const;
-    Q_INVOKABLE void setAccountHttps(const QString &account, bool https);
-
     Q_INVOKABLE bool accountLocalCertificate(const QString &account) const;
-    Q_INVOKABLE void setAccountLocalCertificate(const QString &account, bool localCertificate);
-
     Q_INVOKABLE QString accountPassword(const QString &account) const;
-    Q_INVOKABLE void setAccountPassword(const QString &account, const QString &password);
-
     Q_INVOKABLE int accountPort(const QString &account) const;
-    Q_INVOKABLE void setAccountPort(const QString &account, int port);
-
     Q_INVOKABLE int accountTimeout(const QString &account) const;
-    Q_INVOKABLE void setAccountTimeout(const QString &account, int timeout);
-
     Q_INVOKABLE int accountUpdateInterval(const QString &account) const;
-    Q_INVOKABLE void setAccountUpdateInterval(const QString &account, int updateInterval);
-
     Q_INVOKABLE QString accountUsername(const QString &account) const;
-    Q_INVOKABLE void setAccountUsername(const QString &account, const QString &username);
+
+    Q_INVOKABLE void addAccount(const QString &name,
+                                const QString &address,
+                                int port,
+                                const QString &apiPath,
+                                bool https,
+                                bool localCertificate,
+                                bool authentication,
+                                const QString &username,
+                                const QString &password,
+                                int updateInterval,
+                                int timeout);
+
+    Q_INVOKABLE void removeAccount(const QString &name);
+
+    Q_INVOKABLE void setAccount(const QString &name,
+                                const QString &address,
+                                int port,
+                                const QString &apiPath,
+                                bool https,
+                                bool localCertificate,
+                                bool authentication,
+                                const QString &username,
+                                const QString &password,
+                                int updateInterval,
+                                int timeout);
 
     int filterMode() const;
     void setFilterMode(int filterMode);
@@ -136,7 +145,12 @@ private:
     int m_downloadSpeed;
     int m_uploadSpeed;
 signals:
+    void accountAdded(const QString &name, int index);
+    void accountRemoved(int index);
+    void accountChanged(int index);
+
     void currentAccountChanged();
+
     void serverStatsUpdated();
     void serverSettingsUpdated();
 };

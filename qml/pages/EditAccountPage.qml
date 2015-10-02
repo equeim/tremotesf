@@ -21,46 +21,28 @@ import Sailfish.Silica 1.0
 
 import "../components"
 
-Page {    
-    property int depth
-
-    function remorsePopupRemove() {
-        remorse.execute(qsTr("Removing account"), function() {
-            if (accountModel.count === 1)
-                pageStack.pop(accountsPage, PageStackAction.Immediate)
-            else
-                pageStack.pop()
-            removeAccount()
-        })
-    }
+Page {
+    property bool removing: false
 
     allowedOrientations: Orientation.All
-    Component.onCompleted: depth = pageStack.depth
 
     RemorsePopup {
-        id: remorse
+        id: remorsePopup
     }
 
-    Connections {
-        target: pageStack
-        onDepthChanged: {
-            if (depth === pageStack.depth) {
-                if (model.name !== editItem.accountName) {
-                    appSettings.removeAccount(model.name)
-                    editItem.saveAll()
-                    if (model.isCurrent) {
-                        appSettings.currentAccount = editItem.accountName
-                    }
-                    updateModel()
-                } else {
-                    if (editItem.saveIfChanged()) {
-                        accountModel.setProperty(model.index, "address", editItem.address)
-                        if (model.isCurrent)
-                            transmission.updateAccount()
-                    }
-                }
-            }
-        }
+    Component.onDestruction:{
+        if (!removing)
+            root.appSettings.setAccount(editItem.name,
+                                        editItem.address,
+                                        editItem.port,
+                                        editItem.apiPath,
+                                        editItem.https,
+                                        editItem.localCertificate,
+                                        editItem.authentication,
+                                        editItem.username,
+                                        editItem.password,
+                                        editItem.updateInterval,
+                                        editItem.timeout)
     }
 
     SilicaFlickable {
@@ -70,7 +52,14 @@ Page {
         PullDownMenu {
             MenuItem {
                 text: qsTr("Remove")
-                onClicked: remorsePopupRemove()
+                onClicked: remorsePopup.execute(qsTr("Removing account"), function() {
+                    removing = true
+                    if (root.appSettings.accountCount === 1)
+                        pageStack.pop(accountsPage, PageStackAction.Immediate)
+                    else
+                        pageStack.pop()
+                    removeAccount()
+                })
             }
         }
 
@@ -86,15 +75,20 @@ Page {
                 id: editItem
 
                 Component.onCompleted: {
-                    accountName = model.name
-                    address = appSettings.accountAddress(model.name)
-                    port = appSettings.accountPort(model.name)
-                    apiPath = appSettings.accountApiPath(model.name)
-                    updateInterval = appSettings.accountUpdateInterval(model.name)
-                    timeout = appSettings.accountTimeout(model.name)
-                    authentication = appSettings.accountAuthentication(model.name)
-                    username = appSettings.accountUsername(model.name)
-                    password = appSettings.accountPassword(model.name)
+                    name = model.name
+                    address = model.address
+                    port = model.port
+                    apiPath = model.apiPath
+
+                    // FIXME
+                    //https =
+                    //localCertificate =
+
+                    authentication = model.authentication
+                    username = model.username
+                    password = model.password
+                    updateInterval = model.updateInterval
+                    timeout = model.timeout
                 }
             }
         }
