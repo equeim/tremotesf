@@ -94,6 +94,11 @@ Page {
 
             TorrentDelegateItem { }
 
+            Item {
+                height: Theme.paddingLarge
+                width: parent.width
+            }
+
             Grid {
                 property int baseItemWidth: 2 * Theme.itemSizeExtraLarge
                 property int itemWidth: {
