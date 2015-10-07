@@ -22,17 +22,8 @@ import Sailfish.Silica 1.0
 BackgroundItem {
     property alias text: label.text
 
-    function isFirstOrLastInRow() {
-        return Positioner.index % parent.columns === 0 || (Positioner.index + 1) % parent.columns === 0
-    }
-
     height: Theme.itemSizeLarge
-    width: {
-        if (isFirstOrLastInRow())
-            return (parent.width / parent.columns) - parent.spacing / 2
-        else
-            return (parent.width / parent.columns) - parent.spacing
-    }
+    width: parent.itemWidth
 
     Rectangle {
         anchors.fill: parent

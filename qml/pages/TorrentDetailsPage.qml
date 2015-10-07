@@ -95,9 +95,25 @@ Page {
             TorrentDelegateItem { }
 
             Grid {
-                columns: Math.ceil(parent.width / (Theme.itemSizeExtraLarge * 2))
+                property int baseItemWidth: 2 * Theme.itemSizeExtraLarge
+                property int itemWidth: {
+                    var tmp = (parent.width / columns) - spacing * (columns - 1) / columns
+                    if (tmp >= baseItemWidth)
+                        return baseItemWidth
+                    else
+                        return tmp
+                }
+                property int items: 4
+
+                anchors.horizontalCenter: parent.horizontalCenter
+                columns: {
+                    var tmp = Math.round(parent.width / baseItemWidth)
+                    if (tmp > items)
+                        return items
+                    return tmp
+                }
                 spacing: Theme.paddingSmall * 2
-                width: parent.width
+                width: columns * itemWidth + (columns - 1) * spacing
 
                 DetailsPageGridButton {
                     text: qsTr("Files")
@@ -138,6 +154,11 @@ Page {
                         TorrentSettingsPage { }
                     }
                 }
+            }
+
+            Item {
+                height: Theme.paddingLarge
+                width: parent.width
             }
 
             DetailItem {
