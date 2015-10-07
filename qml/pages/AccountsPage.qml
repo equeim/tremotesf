@@ -94,6 +94,7 @@ Page {
                         color: highlighted ? Theme.highlightColor : Theme.primaryColor
                         text: model.name
                         truncationMode: TruncationMode.Fade
+                        width: parent.width
                     }
 
                     Label {
@@ -102,6 +103,7 @@ Page {
                         font.pixelSize: Theme.fontSizeSmall
                         text: model.address
                         truncationMode: TruncationMode.Fade
+                        width: parent.width
                     }
                 }
             }

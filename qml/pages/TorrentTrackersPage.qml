@@ -58,6 +58,7 @@ Page {
                 Label {
                     color: highlighted ? Theme.highlightColor : Theme.primaryColor
                     text: model.host
+                    truncationMode: TruncationMode.Fade
                     width: parent.width
                 }
 

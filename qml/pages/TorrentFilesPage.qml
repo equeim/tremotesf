@@ -98,10 +98,10 @@ Page {
 
                     Label {
                         id: label
-
                         color: highlighted ? Theme.highlightColor : Theme.primaryColor
                         maximumLineCount: 3
                         text: model.name
+                        width: parent.width
                         wrapMode: Text.WordWrap
                     }
 
@@ -111,7 +111,9 @@ Page {
                         text: qsTr("%1 of %2 (%3%)").arg(Format.formatFileSize(model.bytesCompleted))
                         .arg(Format.formatFileSize(model.length))
                         .arg(Math.floor(model.bytesCompleted*10000/model.length)/100)
+                        truncationMode: TruncationMode.Fade
                         visible: !model.isDirectory
+                        width: parent.width
                     }
                 }
 
