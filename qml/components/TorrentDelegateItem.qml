@@ -20,7 +20,7 @@ import QtQuick 2.1
 import Sailfish.Silica 1.0
 
 Item {
-    height: column.height + Theme.paddingMedium * 2
+    height: column.height + Theme.paddingMedium
     width: parent.width
 
     ListItemMargin {
