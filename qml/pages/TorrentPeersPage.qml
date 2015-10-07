@@ -45,38 +45,19 @@ Page {
             title: qsTr("Peers")
         }
         delegate: ListItem {
-            contentHeight: Theme.itemSizeMedium * 1.4
+            contentHeight: leftColumn.height + 2 * Theme.paddingMedium
 
             ListView.onRemove: animateRemoval()
 
-            Item {
-                anchors {
-                    top: parent.top
-                    topMargin: Theme.paddingMedium
-                    bottom: parent.bottom
-                    bottomMargin: Theme.paddingMedium
-                    left: parent.left
-                    leftMargin: Theme.paddingLarge
-                    right: parent.right
-                    rightMargin: Theme.paddingMedium
-                }
-
-                Label {
-                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
-                    text: model.address
-                    width: parent.width
-                }
-
-                Label {
-                    anchors.right: parent.right
-                    color: Theme.secondaryColor
-                    font.pixelSize: Theme.fontSizeSmall
-                    text: model.progress + "%"
-                }
-
+            ListItemMargin {
                 Column {
-                    anchors.bottom: parent.bottom
-                    width: parent.width
+                    id: leftColumn
+
+                    Label {
+                        color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                        text: model.address
+                        width: parent.width
+                    }
 
                     Label {
                         color: Theme.secondaryColor
@@ -89,6 +70,13 @@ Page {
                         font.pixelSize: Theme.fontSizeSmall
                         text: qsTr("↑ %1/s").arg(Format.formatFileSize(model.rateToPeer))
                     }
+                }
+
+                Label {
+                    anchors.right: parent.right
+                    color: Theme.secondaryColor
+                    font.pixelSize: Theme.fontSizeSmall
+                    text: model.progress + "%"
                 }
             }
         }

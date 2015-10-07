@@ -43,6 +43,7 @@ qml/components/CommonTextSwitch.qml
 qml/components/DetailsPageGridButton.qml
 qml/components/EditAccountItem.qml
 qml/components/FilterTorrentsListItem.qml
+qml/components/ListItemMargin.qml
 qml/components/ParentDirectoryItem.qml
 qml/components/SelectDirectoryTextField.qml
 qml/components/SortTorrentsListItem.qml

@@ -65,39 +65,44 @@ Page {
                 EditAccountPage { }
             }
 
-            Switch {
-                id: currentSwitch
-                anchors.verticalCenter: parent.verticalCenter
-                automaticCheck: false
-                checked: model.name === currentAccount
+            ListItemMargin {
+                Switch {
+                    id: currentSwitch
+                    anchors {
+                        left: parent.left
+                        leftMargin: -Theme.paddingLarge
+                        verticalCenter: parent.verticalCenter
+                    }
+                    automaticCheck: false
+                    checked: model.name === currentAccount
 
-                onClicked: {
-                    if (!checked)
-                        root.appSettings.currentAccount = model.name
-                }
-            }
-
-            Column {
-                anchors {
-                    top: parent.top
-                    topMargin: Theme.paddingMedium
-                    left: currentSwitch.right
-                    right: parent.right
+                    onClicked: {
+                        if (!checked)
+                            root.appSettings.currentAccount = model.name
+                    }
                 }
 
-                Label {
-                    id: nameLabel
-                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
-                    text: model.name
-                    truncationMode: TruncationMode.Fade
-                }
+                Column {
+                    anchors {
+                        left: currentSwitch.right
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                    }
 
-                Label {
-                    id: addressLabel
-                    color: Theme.secondaryColor
-                    font.pixelSize: Theme.fontSizeSmall
-                    text: model.address
-                    truncationMode: TruncationMode.Fade
+                    Label {
+                        id: nameLabel
+                        color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                        text: model.name
+                        truncationMode: TruncationMode.Fade
+                    }
+
+                    Label {
+                        id: addressLabel
+                        color: Theme.secondaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        text: model.address
+                        truncationMode: TruncationMode.Fade
+                    }
                 }
             }
 

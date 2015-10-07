@@ -55,30 +55,31 @@ Dialog {
             }
         }
         delegate: BackgroundItem {
-            Image {
-                id: icon
+            ListItemMargin {
+                Image {
+                    id: icon
 
-                anchors {
-                    left: parent.left
-                    leftMargin: Theme.paddingMedium
-                    verticalCenter: parent.verticalCenter
+                    anchors {
+                        left: parent.left
+                        verticalCenter: parent.verticalCenter
+                    }
+                    asynchronous: true
+                    source: "image://theme/icon-m-folder"
+                    sourceSize.height: Theme.iconSizeMedium
+                    sourceSize.width: Theme.iconSizeMedium
                 }
-                asynchronous: true
-                source: "image://theme/icon-m-folder"
-                sourceSize.height: Theme.iconSizeMedium
-                sourceSize.width: Theme.iconSizeMedium
-            }
 
-            Label {
-                anchors {
-                    left: icon.right
-                    leftMargin: Theme.paddingMedium
-                    right: parent.right
-                    verticalCenter: parent.verticalCenter
+                Label {
+                    anchors {
+                        left: icon.right
+                        leftMargin: Theme.paddingMedium
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                    }
+                    text: model.fileName
+                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                    truncationMode: TruncationMode.Fade
                 }
-                text: model.fileName
-                color: highlighted ? Theme.highlightColor : Theme.primaryColor
-                truncationMode: TruncationMode.Fade
             }
 
             onClicked: folderModel.folder = model.filePath

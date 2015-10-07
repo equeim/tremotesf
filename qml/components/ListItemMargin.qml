@@ -19,21 +19,15 @@
 import QtQuick 2.1
 import Sailfish.Silica 1.0
 
-ListItem {
-    property alias text: label.text
-    property alias textColor: label.color
-
-    Label {
-        id: label
-
-        anchors {
-            left: parent.left
-            leftMargin: Theme.horizontalPageMargin
-            right: parent.right
-            rightMargin: Theme.horizontalPageMargin
-            verticalCenter: parent.verticalCenter
-        }
-        color: highlighted ? Theme.highlightColor : Theme.primaryColor
-        truncationMode: TruncationMode.Fade
+Item {
+    anchors {
+        left: parent.left
+        leftMargin: Theme.horizontalPageMargin
+        right: parent.right
+        rightMargin: Theme.horizontalPageMargin
+        top: parent.top
+        topMargin: Theme.paddingMedium
+        bottom: parent.bottom
+        bottomMargin: Theme.paddingMedium
     }
 }

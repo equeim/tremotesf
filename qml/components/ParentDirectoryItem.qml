@@ -19,28 +19,31 @@
 import QtQuick 2.1
 import Sailfish.Silica 1.0
 
+import "../components"
+
 BackgroundItem {
-    Image {
-        id: icon
+    ListItemMargin {
+        Image {
+            id: icon
 
-        anchors {
-            left: parent.left
-            leftMargin: Theme.paddingMedium
-            verticalCenter: parent.verticalCenter
+            anchors {
+                left: parent.left
+                verticalCenter: parent.verticalCenter
+            }
+            rotation: -90
+            source: "image://theme/icon-m-shortcut"
+            sourceSize.width: Theme.itemSizeMedium / 2
+            sourceSize.height: Theme.itemSizeMedium / 2
         }
-        rotation: -90
-        source: "image://theme/icon-m-shortcut"
-        sourceSize.width: Theme.itemSizeMedium / 2
-        sourceSize.height: Theme.itemSizeMedium / 2
-    }
 
-    Label {
-        anchors {
-            left: icon.right
-            leftMargin: Theme.paddingMedium
-            verticalCenter: parent.verticalCenter
+        Label {
+            anchors {
+                left: icon.right
+                leftMargin: Theme.paddingMedium
+                verticalCenter: parent.verticalCenter
+            }
+            color: highlighted ? Theme.highlightColor : Theme.primaryColor
+            text: ".."
         }
-        color: highlighted ? Theme.highlightColor : Theme.primaryColor
-        text: ".."
     }
 }

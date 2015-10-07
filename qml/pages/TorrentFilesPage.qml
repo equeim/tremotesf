@@ -57,8 +57,8 @@ Page {
             }
         }
         delegate: ListItem {
-            contentHeight: model.isDirectory ? label.height + Theme.itemSizeSmall / 2
-                                             : label.height + Theme.itemSizeSmall / 1.2
+            contentHeight: Math.max(Theme.itemSizeSmall,
+                                    labelColumn.height + 2 * Theme.paddingMedium)
             menu: contextMenu
 
             onClicked: {
@@ -75,88 +75,84 @@ Page {
                 }
             }
 
-            Image {
-                id: icon
+            ListItemMargin {
+                Image {
+                    id: icon
 
-                anchors {
-                    left: parent.left
-                    leftMargin: Theme.paddingMedium
-                    verticalCenter: parent.verticalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    asynchronous: true
+                    source: model.isDirectory ? "image://theme/icon-m-folder"
+                                                       : "image://theme/icon-m-other"
+                    sourceSize.height: Theme.iconSizeMedium
+                    sourceSize.width: Theme.iconSizeMedium
                 }
-                asynchronous: true
-                source: model.isDirectory ? "image://theme/icon-m-folder"
-                                                   : "image://theme/icon-m-other"
-                sourceSize.height: Theme.iconSizeMedium
-                sourceSize.width: Theme.iconSizeMedium
-            }
 
-            Label {
-                id: label
+                Column {
+                    id: labelColumn
 
-                anchors {
-                    top: parent.top
-                    topMargin: Theme.paddingMedium
-                    left: icon.right
-                    leftMargin: Theme.paddingMedium
-                    right: wantedSwitch.left
+                    anchors {
+                        left: icon.right
+                        leftMargin: Theme.paddingMedium
+                        right: wantedSwitch.left
+                    }
+
+                    Label {
+                        id: label
+
+                        color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                        maximumLineCount: 3
+                        text: model.name
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Label {
+                        color: Theme.secondaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        text: qsTr("%1 of %2 (%3%)").arg(Format.formatFileSize(model.bytesCompleted))
+                        .arg(Format.formatFileSize(model.length))
+                        .arg(Math.floor(model.bytesCompleted*10000/model.length)/100)
+                        visible: !model.isDirectory
+                    }
                 }
-                color: highlighted ? Theme.highlightColor : Theme.primaryColor
-                maximumLineCount: 3
-                text: model.name
-                wrapMode: Text.WordWrap
-            }
 
-            Label {
-                anchors {
-                    bottom: parent.bottom
-                    bottomMargin: Theme.paddingMedium
-                    left: icon.right
-                    leftMargin: Theme.paddingMedium
-                }
-                color: Theme.secondaryColor
-                font.pixelSize: Theme.fontSizeSmall
-                text: qsTr("%1 of %2 (%3%)").arg(Format.formatFileSize(model.bytesCompleted))
-                .arg(Format.formatFileSize(model.length))
-                .arg(Math.floor(model.bytesCompleted*10000/model.length)/100)
-                visible: !model.isDirectory
-            }
+                Switch {
+                    id: wantedSwitch
 
-            Switch {
-                id: wantedSwitch
-
-                anchors {
-                    right: parent.right
-                    verticalCenter: parent.verticalCenter
-                }
-                checked: {
-                    if (model.isDirectory) {
-                        var wantedStatus = fileModel.getDirectoryWantedStatus(model.index)
-                        if (wantedStatus === TorrentFileModel.SomeWanted) {
-                            opacity = 0.5
-                            return true
+                    anchors {
+                        right: parent.right
+                        rightMargin: -Theme.paddingLarge
+                        verticalCenter: parent.verticalCenter
+                    }
+                    checked: {
+                        if (model.isDirectory) {
+                            var wantedStatus = fileModel.getDirectoryWantedStatus(model.index)
+                            if (wantedStatus === TorrentFileModel.SomeWanted) {
+                                opacity = 0.5
+                                return true
+                            }
+                            opacity = 1
+                            if (wantedStatus === TorrentFileModel.AllWanted)
+                                return true
+                            return false
                         }
-                        opacity = 1
-                        if (wantedStatus === TorrentFileModel.AllWanted)
+                        if (model.wanted)
                             return true
                         return false
                     }
-                    if (model.wanted)
-                        return true
-                    return false
-                }
 
-                onClicked: {
-                    if (checked) {
-                        if (model.isDirectory)
-                            transmission.changeTorrent(torrentId, "files-wanted", fileModel.getDirectoryFileIndexes(model.index))
-                        else
-                            transmission.changeTorrent(torrentId, "files-wanted", [model.fileIndex])
-                    }
-                    else {
-                        if (model.isDirectory)
-                            transmission.changeTorrent(torrentId, "files-unwanted", fileModel.getDirectoryFileIndexes(model.index))
-                        else
-                            transmission.changeTorrent(torrentId, "files-unwanted", [model.fileIndex])
+                    onClicked: {
+                        if (checked) {
+                            if (model.isDirectory)
+                                transmission.changeTorrent(torrentId, "files-wanted", fileModel.getDirectoryFileIndexes(model.index))
+                            else
+                                transmission.changeTorrent(torrentId, "files-wanted", [model.fileIndex])
+                        }
+                        else {
+                            if (model.isDirectory)
+                                transmission.changeTorrent(torrentId, "files-unwanted", fileModel.getDirectoryFileIndexes(model.index))
+                            else
+                                transmission.changeTorrent(torrentId, "files-unwanted", [model.fileIndex])
+                        }
                     }
                 }
             }
