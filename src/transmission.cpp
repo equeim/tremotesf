@@ -320,15 +320,18 @@ void Transmission::endCheckingRpcVersion()
 {
     disconnect(m_appSettings, &AppSettings::serverSettingsUpdated, this, &Transmission::endCheckingRpcVersion);
 
-    if (m_appSettings->rpcVersion() < 14)
+    if (m_appSettings->rpcVersion() < 14) {
         setError(RpcVersionError);
-    else
-        getData();
+    } else {
+        beginGettingModelData();
+        beginGettingServerStats();
+    }
 }
 
 void Transmission::getData()
 {
     beginGettingModelData();
+    beginGettingServerSettings();
     beginGettingServerStats();
 }
 
