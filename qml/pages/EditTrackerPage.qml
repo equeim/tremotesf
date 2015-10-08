@@ -22,26 +22,13 @@ import Sailfish.Silica 1.0
 import "../components"
 
 Page {    
-    property int depth
-
     allowedOrientations: Orientation.All
-    Component.onCompleted: depth = pageStack.depth
 
     Connections {
-        target: torrentModel
+        target: root.torrentModel
         onTorrentRemoved: {
             if (model.index === -1)
                 pageStack.pop(torrentsPage, PageStackAction.Immediate)
-        }
-    }
-
-    Connections {
-        target: pageStack
-        onDepthChanged: {
-            if (depth === pageStack.depth) {
-                if (announceUrlField.changed())
-                    transmission.changeTorrent(torrentId, "trackerReplace", [model.id, announceUrlField.text])
-            }
         }
     }
 
@@ -72,13 +59,16 @@ Page {
             }
 
             CommonTextField {
-                id: announceUrlField
                 inputMethodHints: Qt.ImhUrlCharactersOnly
                 label: qsTr("Tracker announce URL")
 
                 Component.onCompleted: {
                     text = model.announce
                     oldText = text
+                }
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeTorrent(torrentId, "trackerReplace", [model.id, text])
                 }
             }
         }

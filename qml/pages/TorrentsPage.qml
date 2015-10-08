@@ -40,7 +40,7 @@ Page {
                     return "↓ %1/s  ↑ %2/s".arg(Format.formatFileSize(appSettings.downloadSpeed))
                     .arg(Format.formatFileSize(appSettings.uploadSpeed))
 
-                return transmission.errorString
+                return root.transmission.errorString
             }
         }
         delegate: ListItem {
@@ -50,8 +50,8 @@ Page {
             property int torrentStatus: model.status
 
             function removeTorrent(deleteLocalData) {
-                transmission.removeTorrent(torrentId, deleteLocalData)
-                torrentModel.removeAtIndex(proxyModel.getSourceIndex(model.index))
+                root.transmission.removeTorrent(torrentId, deleteLocalData)
+                root.torrentModel.removeAtIndex(root.proxyModel.getSourceIndex(model.index))
             }
 
             function remorseItemRemove(deleteLocalData) {
@@ -83,11 +83,11 @@ Page {
                                 return qsTr("Start")
                             return qsTr("Stop")
                         }
-                        onClicked: torrentStatus === 0 ? transmission.startTorrent(torrentId) : transmission.stopTorrent(torrentId)
+                        onClicked: torrentStatus === 0 ? root.transmission.startTorrent(torrentId) : root.transmission.stopTorrent(torrentId)
                     }
                     MenuItem {
                         text: qsTr("Verify")
-                        onClicked: transmission.verifyTorrent(torrentId)
+                        onClicked: root.transmission.verifyTorrent(torrentId)
                     }
                     MenuItem {
                         text: qsTr("Remove")
@@ -120,7 +120,7 @@ Page {
             }
 
             MenuItem {
-                enabled: transmission.accountConnected
+                enabled: root.transmission.accountConnected
                 text: qsTr("Server settings")
                 onClicked: pageStack.push(serverSettingsPage)
 
@@ -151,7 +151,7 @@ Page {
             }
 
             MenuItem {
-                enabled: transmission.accountConnected
+                enabled: root.transmission.accountConnected
                 text: qsTr("Add torrent...")
                 onClicked: pageStack.push(addTorrentDialog)
 
@@ -169,7 +169,7 @@ Page {
             visible: root.transmission.accountConfigured &&
                      !root.transmission.accountConnected
             y: parent.height / 2 - parent.headerItem.height - parent.contentY - height / 2
-            onClicked: transmission.checkRpcVersion()
+            onClicked: root.transmission.checkRpcVersion()
         }
 
         ViewPlaceholder {

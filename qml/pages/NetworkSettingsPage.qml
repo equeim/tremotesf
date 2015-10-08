@@ -22,48 +22,7 @@ import Sailfish.Silica 1.0
 import "../components"
 
 Page {
-    property int depth
-
     allowedOrientations: Orientation.All
-    Component.onCompleted: depth = pageStack.depth
-
-    Connections {
-        target: pageStack
-        onDepthChanged: {
-            if (depth === pageStack.depth) {
-                if (portField.changed())
-                    transmission.changeServerSettings("peer-port", parseInt(portField.text))
-                if (randomPortSwitch.changed())
-                    transmission.changeServerSettings("peer-port-random-on-start", randomPortSwitch.checked)
-                if (forwardingSwitch.changed())
-                    transmission.changeServerSettings("port-forwarding-enabled", forwardingSwitch.checked)
-                if (encryptionCombo.changed()) {
-                    switch (encryptionCombo.currentIndex) {
-                    case 0:
-                        transmission.changeServerSettings("encryption", "tolerated")
-                        break
-                    case 1:
-                        transmission.changeServerSettings("encryption", "preferred")
-                        break
-                    case 2:
-                        transmission.changeServerSettings("encryption", "required")
-                    }
-                }
-                if (utpSwitch.changed())
-                    transmission.changeServerSettings("utp-enabled", utpSwitch.checked)
-                if (pexSwitch.changed())
-                    transmission.changeServerSettings("pex-enabled", pexSwitch.checked)
-                if (dhtSwitch.changed())
-                    transmission.changeServerSettings("dht-enabled", dhtSwitch.checked)
-                if (lpdSwitch.changed())
-                    transmission.changeServerSettings("lpd-enabled", lpdSwitch.checked)
-                if (peerLimitField.changed())
-                    transmission.changeServerSettings("peer-limit-per-torrent", parseInt(peerLimitField.text))
-                if (globalPeerLimitField.changed())
-                    transmission.changeServerSettings("peer-limit-global", parseInt(globalPeerLimitField.text))
-            }
-        }
-    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -81,30 +40,25 @@ Page {
                 text: qsTr("Connection")
             }
 
-            CommonTextField {
-                id: portField
-                inputMethodHints: Qt.ImhDigitsOnly
+            ServerSettingsTextField {
+                key: "peer-port"
                 label: qsTr("Peer port")
-                text: appSettings.serverValue("peer-port")
             }
 
-            CommonTextSwitch {
-                id: randomPortSwitch
-                checked: appSettings.serverValue("peer-port-random-on-start")
+            ServerSettingsTextSwitch {
+                key: "peer-port-random-on-start"
                 text: qsTr("Random port on Transmission start")
             }
 
-            CommonTextSwitch {
+            ServerSettingsTextSwitch {
                 id: forwardingSwitch
-                checked: appSettings.serverValue("port-forwarding-enabled")
+                key: "port-forwarding-enabled"
                 text: qsTr("Enable port forwarding")
             }
 
             CommonComboBox {
-                id: encryptionCombo
-
                 currentIndex: {
-                    switch (appSettings.serverValue("encryption")) {
+                    switch (root.appSettings.serverValue("encryption")) {
                     case "tolerated":
                         return 0
                     case "preferred":
@@ -125,29 +79,40 @@ Page {
                         text: qsTr("Require")
                     }
                 }
+
+                Component.onDestruction: {
+                    if (changed()) {
+                        switch (currentIndex) {
+                        case 0:
+                            root.transmission.changeServerSettings("encryption", "tolerated")
+                            break
+                        case 1:
+                            root.transmission.changeServerSettings("encryption", "preferred")
+                            break
+                        case 2:
+                            root.transmission.changeServerSettings("encryption", "required")
+                        }
+                    }
+                }
             }
 
-            CommonTextSwitch {
-                id: utpSwitch
-                checked: appSettings.serverValue("utp-enabled")
+            ServerSettingsTextSwitch {
+                key: "utp-enabled"
                 text: qsTr("Enable uTP")
             }
 
-            CommonTextSwitch {
-                id: pexSwitch
-                checked: appSettings.serverValue("pex-enabled")
+            ServerSettingsTextSwitch {
+                key: "pex-enabled"
                 text: qsTr("Enable PEX")
             }
 
-            CommonTextSwitch {
-                id: dhtSwitch
-                checked: appSettings.serverValue("dht-enabled")
+            ServerSettingsTextSwitch {
+                key: "dht-enabled"
                 text: qsTr("Enable DHT")
             }
 
-            CommonTextSwitch {
-                id: lpdSwitch
-                checked: appSettings.serverValue("lpd-enabled")
+            ServerSettingsTextSwitch {
+                key: "lpd-enabled"
                 text: qsTr("Enable LPD")
             }
 
@@ -155,18 +120,14 @@ Page {
                 text: qsTr("Peer limits")
             }
 
-            CommonTextField {
-                id: peerLimitField
-                inputMethodHints: Qt.ImhDigitsOnly
+            ServerSettingsTextField {
+                key: "peer-limit-per-torrent"
                 label: qsTr("Maximum peers per torrent")
-                text: appSettings.serverValue("peer-limit-per-torrent")
             }
 
-            CommonTextField {
-                id: globalPeerLimitField
-                inputMethodHints: Qt.ImhDigitsOnly
+            ServerSettingsTextField {
+                key: "peer-limit-global"
                 label: qsTr("Maximum peers globally")
-                text: appSettings.serverValue("peer-limit-global")
             }
         }
 

@@ -22,32 +22,7 @@ import Sailfish.Silica 1.0
 import "../components"
 
 Page {
-    property int depth
-
     allowedOrientations: Orientation.All
-    Component.onCompleted: depth = pageStack.depth
-
-    Connections {
-        target: pageStack
-        onDepthChanged: {
-            if (depth === pageStack.depth) {
-                if (downloadDirectoryField.changed())
-                    transmission.changeServerSettings("download-dir", downloadDirectoryField.text)
-                if (renamePartialSwitch.changed())
-                    transmission.changeServerSettings("rename-partial-files", renamePartialSwitch.checked)
-                if (trashTorrentSwitch.changed())
-                    transmission.changeServerSettings("trash-original-torrent-files", trashTorrentSwitch.checked)
-                if (incompleteDirectorySwitch.changed())
-                    transmission.changeServerSettings("incomplete-dir-enabled", incompleteDirectorySwitch.checked)
-                if (incompleteDirectoryField.changed())
-                    transmission.changeServerSettings("incomplete-dir", incompleteDirectoryField.text)
-                if (seedRatioLimitSwitch.changed())
-                    transmission.changeServerSettings("seedRatioLimited", seedRatioLimitSwitch.checked)
-                if (seedRatioLimitField.changed())
-                    transmission.changeServerSettings("seedRatioLimit", parseFloat(seedRatioLimitField.text.replace(",", ".")))
-            }
-        }
-    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -62,46 +37,51 @@ Page {
             }
 
             SelectDirectoryTextField {
-                id: downloadDirectoryField
                 label: qsTr("Download directory")
-                text: appSettings.serverValue("download-dir")
+                text: root.appSettings.serverValue("download-dir")
+
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeServerSettings("download-dir", text)
+                }
             }
 
-            CommonTextSwitch {
-                id: renamePartialSwitch
-                checked: appSettings.serverValue("rename-partial-files")
+            ServerSettingsTextSwitch {
+                key: "rename-partial-files"
                 text: qsTr("Append \".part\" to names of incomplete files")
             }
 
-            CommonTextSwitch {
+            ServerSettingsTextSwitch {
                 id: incompleteDirectorySwitch
-                checked: appSettings.serverValue("incomplete-dir-enabled")
+                key: "incomplete-dir-enabled"
                 text: qsTr("Separate directory fo incomplete files")
             }
 
             SelectDirectoryTextField {
-                id: incompleteDirectoryField
-                text: appSettings.serverValue("incomplete-dir")
+                text: root.appSettings.serverValue("incomplete-dir")
                 visible: incompleteDirectorySwitch.checked
+
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeServerSettings("incomplete-dir", text)
+                }
             }
 
-            CommonTextSwitch {
-                id: trashTorrentSwitch
-                checked: appSettings.serverValue("trash-original-torrent-files")
+            ServerSettingsTextSwitch {
+                key: "trash-original-torrent-files"
                 text: qsTr("Trash .torrent files")
             }
 
-            CommonTextSwitch {
+            ServerSettingsTextSwitch {
                 id: seedRatioLimitSwitch
-                checked: appSettings.serverValue("seedRatioLimited")
+                key: "seedRatioLimited"
                 text: qsTr("Ratio limit")
             }
 
-            CommonTextField {
-                id: seedRatioLimitField
-                inputMethodHints: Qt.ImhDigitsOnly
+            ServerSettingsTextField {
+                isFloat: true
+                key: "seedRatioLimit"
                 label: qsTr("Stop seeding at ratio")
-                text: qsTr("%L1").arg(Math.ceil(appSettings.serverValue("seedRatioLimit") * 100) / 100)
                 visible: seedRatioLimitSwitch.checked
             }
         }

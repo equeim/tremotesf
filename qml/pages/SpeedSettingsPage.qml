@@ -22,71 +22,7 @@ import Sailfish.Silica 1.0
 import "../components"
 
 Page {
-    property int depth
-
     allowedOrientations: Orientation.All
-    Component.onCompleted: depth = pageStack.depth
-
-    Connections {
-        target: pageStack
-        onDepthChanged: {
-            if (depth === pageStack.depth) {
-                if (downloadLimitSwitch.changed())
-                    transmission.changeServerSettings("speed-limit-down-enabled", downloadLimitSwitch.checked)
-                if (downloadLimitField.changed())
-                    transmission.changeServerSettings("speed-limit-down", parseInt(downloadLimitField.text))
-                if (uploadLimitSwitch.changed())
-                    transmission.changeServerSettings("speed-limit-up-enabled", uploadLimitSwitch.checked)
-                if (uploadLimitField.changed())
-                    transmission.changeServerSettings("speed-limit-up", parseInt(uploadLimitField.text))
-                if (alternativeLimitsSwitch.changed())
-                    transmission.changeServerSettings("alt-speed-enabled", alternativeLimitsSwitch.checked)
-                if (alternativeDownloadLimitField.changed())
-                    transmission.changeServerSettings("alt-speed-down", parseInt(alternativeDownloadLimitField.text))
-                if (alternativeUploadLimitField.changed())
-                    transmission.changeServerSettings("alt-speed-up", parseInt(alternativeUploadLimitField.text))
-                if (scheduleSwitch.changed())
-                    transmission.changeServerSettings("alt-speed-time-enabled", scheduleSwitch.checked)
-                if (beginTimeButton.changed())
-                    transmission.changeServerSettings("alt-speed-time-begin", beginTimeButton.timeInMinutes)
-                if (endTimeButton.changed())
-                    transmission.changeServerSettings("alt-speed-time-end", endTimeButton.timeInMinutes)
-                if (dayComboBox.changed()) {
-                    switch (dayComboBox.currentIndex) {
-                    case 0:
-                        transmission.changeServerSettings("alt-speed-time-day", 127)
-                        break
-                    case 1:
-                        transmission.changeServerSettings("alt-speed-time-day", 62)
-                        break
-                    case 2:
-                        transmission.changeServerSettings("alt-speed-time-day", 65)
-                        break
-                    case 3:
-                        transmission.changeServerSettings("alt-speed-time-day", 1)
-                        break
-                    case 4:
-                        transmission.changeServerSettings("alt-speed-time-day", 2)
-                        break
-                    case 5:
-                        transmission.changeServerSettings("alt-speed-time-day", 4)
-                        break
-                    case 6:
-                        transmission.changeServerSettings("alt-speed-time-day", 8)
-                        break
-                    case 7:
-                        transmission.changeServerSettings("alt-speed-time-day", 16)
-                        break
-                    case 8:
-                        transmission.changeServerSettings("alt-speed-time-day", 32)
-                        break
-                    case 9:
-                        transmission.changeServerSettings("alt-speed-time-day", 64)
-                    }
-                }
-            }
-        }
-    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -104,31 +40,27 @@ Page {
                 text: qsTr("Limits")
             }
 
-            CommonTextSwitch {
+            ServerSettingsTextSwitch {
                 id: downloadLimitSwitch
-                checked: appSettings.serverValue("speed-limit-down-enabled")
+                key: "speed-limit-down-enabled"
                 text: qsTr("Limit download speed")
             }
 
-            CommonTextField {
-                id: downloadLimitField
-                inputMethodHints: Qt.ImhDigitsOnly
+            ServerSettingsTextField {
+                key: "speed-limit-down"
                 label: qsTr("kB/s")
-                text: appSettings.serverValue("speed-limit-down")
                 visible: downloadLimitSwitch.checked
             }
 
-            CommonTextSwitch {
+            ServerSettingsTextSwitch {
                 id: uploadLimitSwitch
-                checked: appSettings.serverValue("speed-limit-up-enabled")
+                key: "speed-limit-up-enabled"
                 text: qsTr("Limit upload speed")
             }
 
-            CommonTextField {
-                id: uploadLimitField
-                inputMethodHints: Qt.ImhDigitsOnly
+            ServerSettingsTextField {
                 label: qsTr("kB/s")
-                text: appSettings.serverValue("speed-limit-up")
+                key: "speed-limit-up"
                 visible: uploadLimitSwitch.checked
             }
 
@@ -136,31 +68,27 @@ Page {
                 text: qsTr("Alternative limits")
             }
 
-            CommonTextSwitch {
+            ServerSettingsTextSwitch {
                 id: alternativeLimitsSwitch
-                checked: appSettings.serverValue("alt-speed-enabled")
+                key: "alt-speed-enabled"
                 text: qsTr("Enable alternative speed limits")
             }
 
-            CommonTextField {
-                id: alternativeDownloadLimitField
-                inputMethodHints: Qt.ImhDigitsOnly
+            ServerSettingsTextField {
+                key: "alt-speed-down"
                 label: qsTr("Alternative download speed, kB/s")
-                text: appSettings.serverValue("alt-speed-down")
                 visible: alternativeLimitsSwitch.checked
             }
 
-            CommonTextField {
-                id: alternativeUploadLimitField
-                inputMethodHints: Qt.ImhDigitsOnly
+            ServerSettingsTextField {
+                key: "alt-speed-up"
                 label: qsTr("Alternative upload speed, kB/s")
-                text: appSettings.serverValue("alt-speed-up")
                 visible: alternativeLimitsSwitch.checked
             }
 
-            CommonTextSwitch {
+            ServerSettingsTextSwitch {
                 id: scheduleSwitch
-                checked: appSettings.serverValue("alt-speed-time-enabled")
+                key: "alt-speed-time-enabled"
                 text: qsTr("Schedule")
                 visible: alternativeLimitsSwitch.checked
             }
@@ -172,21 +100,29 @@ Page {
                 AlternativeLimitsTimeButton {
                     id: beginTimeButton
                     label: qsTr("From")
-                    timeInMinutes: appSettings.serverValue("alt-speed-time-begin")
+                    timeInMinutes: root.appSettings.serverValue("alt-speed-time-begin")
                     width: column.width / 2
+
+                    Component.onDestruction: {
+                        if (changed())
+                            root.transmission.changeServerSettings("alt-speed-time-begin", timeInMinutes)
+                    }
                 }
 
                 AlternativeLimitsTimeButton {
                     id: endTimeButton
                     label: qsTr("to")
-                    timeInMinutes: appSettings.serverValue("alt-speed-time-end")
+                    timeInMinutes: root.appSettings.serverValue("alt-speed-time-end")
                     width: column.width / 2
+
+                    Component.onDestruction: {
+                        if (changed())
+                            root.transmission.changeServerSettings("alt-speed-time-end", timeInMinutes)
+                    }
                 }
             }
 
             CommonComboBox {
-                id: dayComboBox
-
                 currentIndex: {
                     switch (appSettings.serverValue("alt-speed-time-day")) {
                     case 127: // every day
@@ -245,6 +181,42 @@ Page {
                     }
                 }
                 visible: scheduleSwitch.checked && scheduleSwitch.visible
+
+                Component.onDestruction: {
+                    if (changed()) {
+                        switch (currentIndex) {
+                        case 0:
+                            root.transmission.changeServerSettings("alt-speed-time-day", 127)
+                            break
+                        case 1:
+                            root.transmission.changeServerSettings("alt-speed-time-day", 62)
+                            break
+                        case 2:
+                            root.transmission.changeServerSettings("alt-speed-time-day", 65)
+                            break
+                        case 3:
+                            root.transmission.changeServerSettings("alt-speed-time-day", 1)
+                            break
+                        case 4:
+                            root.transmission.changeServerSettings("alt-speed-time-day", 2)
+                            break
+                        case 5:
+                            root.transmission.changeServerSettings("alt-speed-time-day", 4)
+                            break
+                        case 6:
+                            root.transmission.changeServerSettings("alt-speed-time-day", 8)
+                            break
+                        case 7:
+                            root.transmission.changeServerSettings("alt-speed-time-day", 16)
+                            break
+                        case 8:
+                            root.transmission.changeServerSettings("alt-speed-time-day", 32)
+                            break
+                        case 9:
+                            root.transmission.changeServerSettings("alt-speed-time-day", 64)
+                        }
+                    }
+                }
             }
         }
 

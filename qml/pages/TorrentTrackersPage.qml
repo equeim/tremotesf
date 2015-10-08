@@ -26,12 +26,12 @@ Page {
     allowedOrientations: Orientation.All
 
     Component.onCompleted: {
-        if (!trackerModel.isActive)
-            torrentModel.loadTrackerModel(proxyModel.getSourceIndex(model.index))
+        if (!root.trackerModel.isActive)
+            root.torrentModel.loadTrackerModel(proxyModel.getSourceIndex(model.index))
     }
 
     Connections {
-        target: torrentModel
+        target: root.torrentModel
         onTorrentRemoved: {
             if (model.index === -1)
                 pageStack.pop(torrentsPage, PageStackAction.Immediate)
@@ -45,8 +45,8 @@ Page {
         }
         delegate: ListItem {
             function removeTracker() {
-                transmission.changeTorrent(torrentId, "trackerRemove", [model.id])
-                trackerModel.removeAtIndex(model.index)
+                root.transmission.changeTorrent(torrentId, "trackerRemove", [model.id])
+                root.trackerModel.removeAtIndex(model.index)
             }
 
             contentHeight: Theme.itemSizeMedium
@@ -64,8 +64,8 @@ Page {
 
                 Label {
                     anchors {
-                        bottom: parent.bottom
                         right: parent.right
+                        bottom: parent.bottom
                     }
                     color: Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
@@ -89,7 +89,7 @@ Page {
                 EditTrackerPage { }
             }
         }
-        model: trackerModel
+        model: root.trackerModel
 
 
         PullDownMenu {

@@ -24,7 +24,7 @@ import "../components"
 Dialog {
     allowedOrientations: Orientation.All
     canAccept: linkField.text
-    onAccepted: transmission.addTorrent(linkField.text, downloadDirectoryTextField.text, !pauseSwitch.checked)
+    onAccepted: root.transmission.addTorrent(linkField.text, downloadDirectoryTextField.text, !pauseSwitch.checked)
 
     SilicaFlickable {
         anchors.fill: parent
@@ -79,7 +79,7 @@ Dialog {
             SelectDirectoryTextField {
                 id: downloadDirectoryTextField
                 label: qsTr("Download directory")
-                text: appSettings.serverValue("download-dir")
+                text: root.appSettings.serverValue("download-dir")
             }
 
             TextSwitch {

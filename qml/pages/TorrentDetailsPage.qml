@@ -22,20 +22,17 @@ import Sailfish.Silica 1.0
 import "../components"
 
 Page {
-    property int depth
-
     function remorsePopupRemove(deleteLocalData) {
-        remorse.execute(qsTr("Removing torrent"), function() {
+        remorsePopup.execute(qsTr("Removing torrent"), function() {
             pageStack.pop()
             removeTorrent(deleteLocalData)
         })
     }
 
     allowedOrientations: Orientation.All
-    Component.onCompleted: depth = pageStack.depth
 
     Connections {
-        target: torrentModel
+        target: root.torrentModel
         onTorrentRemoved: {
             if (model.index === -1) {
                 pageStack.pop(torrentsPage, PageStackAction.Immediate)
@@ -43,22 +40,17 @@ Page {
         }
     }
 
-    Connections {
-        target: pageStack
-        onDepthChanged: {
-            if (depth === pageStack.depth) {
-                if (fileModel.isActive)
-                    fileModel.resetModel()
-                if (peerModel.isActive)
-                    peerModel.resetModel()
-                if (trackerModel.isActive)
-                    trackerModel.resetModel()
-            }
-        }
+    Component.onDestruction: {
+        if (root.fileModel.isActive)
+            root.fileModel.resetModel()
+        if (root.peerModel.isActive)
+            root.peerModel.resetModel()
+        if (root.trackerModel.isActive)
+            root.trackerModel.resetModel()
     }
 
     RemorsePopup {
-        id: remorse
+        id: remorsePopup
     }
 
     SilicaFlickable {
@@ -76,11 +68,16 @@ Page {
             }
             MenuItem {
                 text: qsTr("Verify")
-                onClicked: transmission.verifyTorrent(torrentId)
+                onClicked: root.transmission.verifyTorrent(torrentId)
             }
             MenuItem {
                 text: torrentStatus === 0 ? qsTr("Start") : qsTr("Stop")
-                onClicked: torrentStatus === 0 ? transmission.startTorrent(torrentId) : transmission.stopTorrent(torrentId)
+                onClicked: {
+                    if (torrentStatus === 0)
+                        root.transmission.startTorrent(torrentId)
+                    else
+                        root.transmission.stopTorrent(torrentId)
+                }
             }
         }
 
@@ -108,7 +105,7 @@ Page {
                     else
                         return tmp
                 }
-                property int items: 4
+                property int items: children.length
 
                 anchors.horizontalCenter: parent.horizontalCenter
                 columns: {
@@ -117,8 +114,7 @@ Page {
                         return items
                     return tmp
                 }
-                spacing: Theme.paddingSmall * 2
-                width: columns * itemWidth + (columns - 1) * spacing
+                spacing: Theme.paddingMedium
 
                 DetailsPageGridButton {
                     text: qsTr("Files")

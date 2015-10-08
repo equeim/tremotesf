@@ -23,11 +23,11 @@ CommonListItem {
     property int sortRole
 
     textColor: {
-        if (highlighted || proxyModel.sortRole === sortRole)
+        if (highlighted || root.proxyModel.sortRole === sortRole)
             return Theme.highlightColor
         else
             return Theme.primaryColor
     }
 
-    onClicked: proxyModel.sortRole = sortRole
+    onClicked: root.proxyModel.sortRole = sortRole
 }

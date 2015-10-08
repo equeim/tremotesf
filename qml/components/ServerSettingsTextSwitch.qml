@@ -19,15 +19,13 @@
 import QtQuick 2.1
 import Sailfish.Silica 1.0
 
-CommonListItem {
-    property int filterMode
+CommonTextSwitch {
+    property string key
 
-    textColor: {
-        if (highlighted || root.proxyModel.filterMode === filterMode)
-            return Theme.highlightColor
-        else
-            return Theme.primaryColor
+    checked: root.appSettings.serverValue(key)
+
+    Component.onDestruction: {
+        if (changed)
+            root.transmission.changeServerSettings(key, checked)
     }
-
-    onClicked: root.proxyModel.filterMode = filterMode
 }

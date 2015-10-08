@@ -22,15 +22,13 @@ import Sailfish.Silica 1.0
 import "../components"
 
 Page {
+    id: editAccountPage
+
     property bool removing: false
 
     allowedOrientations: Orientation.All
 
-    RemorsePopup {
-        id: remorsePopup
-    }
-
-    Component.onDestruction:{
+    Component.onDestruction: {
         if (!removing)
             root.appSettings.setAccount(editItem.name,
                                         editItem.address,
@@ -43,6 +41,10 @@ Page {
                                         editItem.password,
                                         editItem.updateInterval,
                                         editItem.timeout)
+    }
+
+    RemorsePopup {
+        id: remorsePopup
     }
 
     SilicaFlickable {
@@ -74,22 +76,20 @@ Page {
             EditAccountItem {
                 id: editItem
 
-                Component.onCompleted: {
-                    name = model.name
-                    address = model.address
-                    port = model.port
-                    apiPath = model.apiPath
+                name: model.name
+                address: model.address
+                port: model.port
+                apiPath: model.apiPath
 
-                    // FIXME
-                    //https =
-                    //localCertificate =
+                // FIXME
+                //https:
+                //localCertificate:
 
-                    authentication = model.authentication
-                    username = model.username
-                    password = model.password
-                    updateInterval = model.updateInterval
-                    timeout = model.timeout
-                }
+                authentication: model.authentication
+                username: model.username
+                password: model.password
+                updateInterval: model.updateInterval
+                timeout: model.timeout
             }
         }
     }

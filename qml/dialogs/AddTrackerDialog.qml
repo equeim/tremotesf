@@ -24,20 +24,26 @@ import "../components"
 Dialog {
     allowedOrientations: Orientation.All
     canAccept: announceUrlField.text
-    onAccepted: transmission.changeTorrent(torrentId, "trackerAdd", [announceUrlField.text])
+    onAccepted: root.transmission.changeTorrent(torrentId, "trackerAdd", [announceUrlField.text])
 
-    Column {
+    SilicaFlickable {
         anchors.fill: parent
+        contentHeight: column.height
 
-        DialogHeader {
-            title: qsTr("Add tracker")
-        }
+        Column {
+            id: column
+            width: parent.width
 
-        CommonTextField {
-            id: announceUrlField
-            focus: true
-            inputMethodHints: Qt.ImhUrlCharactersOnly
-            label: qsTr("Tracker announce URL")
+            DialogHeader {
+                title: qsTr("Add tracker")
+            }
+
+            CommonTextField {
+                id: announceUrlField
+                focus: true
+                inputMethodHints: Qt.ImhUrlCharactersOnly
+                label: qsTr("Tracker announce URL")
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ Page {
 
     Component.onCompleted: {
         if (!peerModel.isActive)
-            torrentModel.loadPeerModel(proxyModel.getSourceIndex(model.index))
+            root.torrentModel.loadPeerModel(proxyModel.getSourceIndex(model.index))
     }
 
     Connections {

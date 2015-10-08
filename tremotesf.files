@@ -46,6 +46,8 @@ qml/components/FilterTorrentsListItem.qml
 qml/components/ListItemMargin.qml
 qml/components/ParentDirectoryItem.qml
 qml/components/SelectDirectoryTextField.qml
+qml/components/ServerSettingsTextField.qml
+qml/components/ServerSettingsTextSwitch.qml
 qml/components/SortTorrentsListItem.qml
 qml/components/TorrentDelegateItem.qml
 

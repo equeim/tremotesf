@@ -27,7 +27,7 @@ Page {
     allowedOrientations: Orientation.All
 
     Connections {
-        target: proxyModel
+        target: root.proxyModel
         onFilterModeChanged: pageStack.pop()
     }
 

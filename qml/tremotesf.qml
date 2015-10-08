@@ -45,7 +45,7 @@ ApplicationWindow
         else
             dialog = pageStack.push(addAccountDialog)
         dialog.accepted.connect(function() {
-            appSettings.currentAccount = dialog.name
+            root.appSettings.currentAccount = dialog.name
         })
     }
 

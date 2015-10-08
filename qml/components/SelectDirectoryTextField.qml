@@ -49,7 +49,7 @@ Item {
             right: parent.right
             rightMargin: Theme.paddingMedium
         }
-        enabled: transmission.isLocal()
+        enabled: root.transmission.isLocal()
         icon.source: "image://theme/icon-m-folder"
         icon.sourceSize.width: Theme.iconSizeMedium
         icon.sourceSize.height: Theme.iconSizeMedium

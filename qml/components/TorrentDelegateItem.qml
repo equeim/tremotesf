@@ -88,7 +88,7 @@ Item {
                     anchors.right: parent.right
                     color: Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
-                    text: torrentModel.formatEta(model.eta)
+                    text: root.torrentModel.formatEta(model.eta)
                 }
             }
 

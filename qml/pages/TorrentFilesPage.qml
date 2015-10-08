@@ -27,12 +27,12 @@ Page {
     allowedOrientations: Orientation.All
 
     Component.onCompleted: {
-        if (!fileModel.isActive)
-            torrentModel.loadFileModel(proxyModel.getSourceIndex(model.index))
+        if (!root.fileModel.isActive)
+            root.torrentModel.loadFileModel(root.proxyModel.getSourceIndex(model.index))
     }
 
     Connections {
-        target: torrentModel
+        target: root.torrentModel
         onTorrentRemoved: {
             if (model.index === -1)
                 pageStack.pop(torrentsPage, PageStackAction.Immediate)
@@ -52,8 +52,8 @@ Page {
             }
 
             ParentDirectoryItem {
-                visible: fileModel.currentDirectoryPath ? true : false
-                onClicked: fileModel.loadDirectory(fileModel.parentDirectoryPath)
+                visible: root.fileModel.currentDirectoryPath ? true : false
+                onClicked: root.fileModel.loadDirectory(root.fileModel.parentDirectoryPath)
             }
         }
         delegate: ListItem {
@@ -63,14 +63,14 @@ Page {
 
             onClicked: {
                 if (model.isDirectory) {
-                    fileModel.loadDirectory(model.path)
+                    root.fileModel.loadDirectory(model.path)
                 } else {
                     if (wantedSwitch.checked) {
                         wantedSwitch.checked = false
-                        transmission.changeTorrent(torrentId, "files-unwanted", [model.fileIndex])
+                        root.transmission.changeTorrent(torrentId, "files-unwanted", [model.fileIndex])
                     } else {
                         wantedSwitch.checked = true
-                        transmission.changeTorrent(torrentId, "files-wanted", [model.fileIndex])
+                        root.transmission.changeTorrent(torrentId, "files-wanted", [model.fileIndex])
                     }
                 }
             }
@@ -127,7 +127,7 @@ Page {
                     }
                     checked: {
                         if (model.isDirectory) {
-                            var wantedStatus = fileModel.getDirectoryWantedStatus(model.index)
+                            var wantedStatus = root.fileModel.getDirectoryWantedStatus(model.index)
                             if (wantedStatus === TorrentFileModel.SomeWanted) {
                                 opacity = 0.5
                                 return true
@@ -145,15 +145,19 @@ Page {
                     onClicked: {
                         if (checked) {
                             if (model.isDirectory)
-                                transmission.changeTorrent(torrentId, "files-wanted", fileModel.getDirectoryFileIndexes(model.index))
+                                root.transmission.changeTorrent(torrentId,
+                                                                "files-wanted",
+                                                                root.fileModel.getDirectoryFileIndexes(model.index))
                             else
-                                transmission.changeTorrent(torrentId, "files-wanted", [model.fileIndex])
+                                root.transmission.changeTorrent(torrentId, "files-wanted", [model.fileIndex])
                         }
                         else {
                             if (model.isDirectory)
-                                transmission.changeTorrent(torrentId, "files-unwanted", fileModel.getDirectoryFileIndexes(model.index))
+                                root.transmission.changeTorrent(torrentId,
+                                                                "files-unwanted",
+                                                                root.fileModel.getDirectoryFileIndexes(model.index))
                             else
-                                transmission.changeTorrent(torrentId, "files-unwanted", [model.fileIndex])
+                                root.transmission.changeTorrent(torrentId, "files-unwanted", [model.fileIndex])
                         }
                     }
                 }
@@ -165,7 +169,7 @@ Page {
                 ContextMenu {
                     property int priority: {
                         if (model.isDirectory) {
-                            return fileModel.getDirectoryPriority(model.index)
+                            return root.fileModel.getDirectoryPriority(model.index)
                         }
                         return model.priority
                     }
@@ -176,9 +180,11 @@ Page {
 
                         onClicked: {
                             if (model.isDirectory)
-                                transmission.changeTorrent(torrentId, "priority-high", fileModel.getDirectoryFileIndexes(model.index))
+                                root.transmission.changeTorrent(torrentId,
+                                                                "priority-high",
+                                                                root.fileModel.getDirectoryFileIndexes(model.index))
                             else
-                                transmission.changeTorrent(torrentId, "priority-high", [model.fileIndex])
+                                root.transmission.changeTorrent(torrentId, "priority-high", [model.fileIndex])
                         }
                     }
 
@@ -188,9 +194,11 @@ Page {
 
                         onClicked: {
                             if (model.isDirectory)
-                                transmission.changeTorrent(torrentId, "priority-normal", fileModel.getDirectoryFileIndexes(model.index))
+                                root.transmission.changeTorrent(torrentId,
+                                                                "priority-normal",
+                                                                root.fileModel.getDirectoryFileIndexes(model.index))
                             else
-                                transmission.changeTorrent(torrentId, "priority-normal", [model.fileIndex])
+                                root.transmission.changeTorrent(torrentId, "priority-normal", [model.fileIndex])
                         }
                     }
 
@@ -200,9 +208,11 @@ Page {
 
                         onClicked: {
                             if (model.isDirectory)
-                                transmission.changeTorrent(torrentId, "priority-low", fileModel.getDirectoryFileIndexes(model.index))
+                                root.transmission.changeTorrent(torrentId,
+                                                                "priority-low",
+                                                                root.fileModel.getDirectoryFileIndexes(model.index))
                             else
-                                transmission.changeTorrent(torrentId, "priority-low", [model.fileIndex])
+                                root.transmission.changeTorrent(torrentId, "priority-low", [model.fileIndex])
                         }
                     }
 
@@ -219,11 +229,11 @@ Page {
         PullDownMenu {
             MenuItem {
                 text: qsTr("Download all files")
-                onClicked: transmission.changeTorrent(torrentId, "files-wanted", [])
+                onClicked: root.transmission.changeTorrent(torrentId, "files-wanted", [])
             }
             MenuItem {
                 text: qsTr("Ignore all files")
-                onClicked: transmission.changeTorrent(torrentId, "files-unwanted", [])
+                onClicked: root.transmission.changeTorrent(torrentId, "files-unwanted", [])
             }
         }
 

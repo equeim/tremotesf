@@ -22,42 +22,13 @@ import Sailfish.Silica 1.0
 import "../components"
 
 Page {
-    property int depth
-
     allowedOrientations: Orientation.All
-    Component.onCompleted: depth = pageStack.depth
 
     Connections {
         target: torrentModel
         onTorrentRemoved: {
             if (model.index === -1)
                 pageStack.pop(torrentsPage, PageStackAction.Immediate)
-        }
-    }
-
-    Connections {
-        target: pageStack
-        onDepthChanged: {
-            if (depth === pageStack.depth) {
-                if (sessionLimitsSwitch.changed())
-                    transmission.changeTorrent(torrentId, "honorsSessionLimits", sessionLimitsSwitch.checked)
-                if (downloadLimitSwitch.changed())
-                    transmission.changeTorrent(torrentId, "downloadLimited", downloadLimitSwitch.checked)
-                if (downloadLimitField.changed())
-                    transmission.changeTorrent(torrentId, "downloadLimit", parseInt(downloadLimitField.text))
-                if (uploadLimitSwitch.changed())
-                    transmission.changeTorrent(torrentId, "uploadLimited", uploadLimitSwitch.checked)
-                if (uploadLimitField.changed())
-                    transmission.changeTorrent(torrentId, "uploadLimit", parseInt(uploadLimitField.text))
-                if (priorityComboBox.changed())
-                    transmission.changeTorrent(torrentId, "bandwidthPriority", 1 - priorityComboBox.currentIndex)
-                if (seedRatioModeComboBox.changed())
-                    transmission.changeTorrent(torrentId, "seedRatioMode", seedRatioModeComboBox.currentIndex)
-                if (ratioLimitField.changed())
-                    transmission.changeTorrent(torrentId, "seedRatioLimit", parseFloat(ratioLimitField.text.replace(",", ".")))
-                if (peerLimitField.changed())
-                    transmission.changeTorrent(torrentId, "peer-limit", parseInt(peerLimitField.text))
-            }
         }
     }
 
@@ -78,12 +49,15 @@ Page {
             }
 
             CommonTextSwitch {
-                id: sessionLimitsSwitch
                 text: qsTr("Honor global limits")
 
                 Component.onCompleted: {
                     checked = model.honorsSessionLimits
                     oldChecked = checked
+                }
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeTorrent(torrentId, "honorsSessionLimits", checked)
                 }
             }
 
@@ -95,10 +69,13 @@ Page {
                     checked = model.downloadLimited
                     oldChecked = checked
                 }
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeTorrent(torrentId, "downloadLimited", checked)
+                }
             }
 
             CommonTextField {
-                id: downloadLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("kB/s")
                 visible: downloadLimitSwitch.checked
@@ -106,6 +83,10 @@ Page {
                 Component.onCompleted: {
                     text = model.downloadLimit
                     oldText = text
+                }
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeTorrent(torrentId, "downloadLimit", parseInt(text))
                 }
             }
 
@@ -117,10 +98,13 @@ Page {
                     checked = model.uploadLimited
                     oldChecked = checked
                 }
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeTorrent(torrentId, "uploadLimited", checked)
+                }
             }
 
             CommonTextField {
-                id: uploadLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("kB/s")
                 visible: uploadLimitSwitch.checked
@@ -129,11 +113,13 @@ Page {
                     text = model.uploadLimit
                     oldText = text
                 }
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeTorrent(torrentId, "uploadLimit", parseInt(text))
+                }
             }
 
             CommonComboBox {
-                id: priorityComboBox
-
                 label: qsTr("Torrent priority")
                 menu: ContextMenu {
                     MenuItem {
@@ -148,8 +134,12 @@ Page {
                 }
 
                 Component.onCompleted: {
-                    currentIndex = 1 - model.bandwidthPriority
+                    currentIndex = (1 - model.bandwidthPriority)
                     oldIndex = currentIndex
+                }
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeTorrent(torrentId, "bandwidthPriority", 1 - currentIndex)
                 }
             }
 
@@ -177,16 +167,25 @@ Page {
                     currentIndex = model.seedRatioMode
                     oldIndex = currentIndex
                 }
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeTorrent(torrentId, "seedRatioMode", currentIndex)
+                }
             }
 
             CommonTextField {
-                id: ratioLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 visible: seedRatioModeComboBox.currentIndex === 1
 
                 Component.onCompleted: {
                     text = qsTr("%L1").arg(Math.ceil(model.seedRatioLimit * 100) / 100)
                     oldText = text
+                }
+                Component.onDestruction: {
+                    if (changed()) {
+                        root.transmission.changeTorrent(torrentId, "seedRatioLimit",
+                                                        parseFloat(text.replace(",", ".")))
+                    }
                 }
             }
 
@@ -195,13 +194,16 @@ Page {
             }
 
             CommonTextField {
-                id: peerLimitField
                 inputMethodHints: Qt.ImhDigitsOnly
                 label: qsTr("Maximum peers")
 
                 Component.onCompleted: {
                     text = model.peerLimit
                     oldText = text
+                }
+                Component.onDestruction: {
+                    if (changed())
+                        root.transmission.changeTorrent(torrentId, "peer-limit", parseInt(text))
                 }
             }
         }

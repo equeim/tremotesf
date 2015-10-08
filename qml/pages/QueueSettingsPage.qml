@@ -22,26 +22,7 @@ import Sailfish.Silica 1.0
 import "../components"
 
 Page {
-    property int depth
-
     allowedOrientations: Orientation.All
-    Component.onCompleted: depth = pageStack.depth
-
-    Connections {
-        target: pageStack
-        onDepthChanged: {
-            if (depth === pageStack.depth) {
-                if (downloadQueueSwitch.changed())
-                    transmission.changeServerSettings("download-queue-enabled", downloadQueueSwitch.checked)
-                if (downloadQueueField.changed())
-                    transmission.changeServerSettings("download-queue-size", parseInt(downloadQueueField.text))
-                if (seedQueueSwitch.changed())
-                    transmission.changeServerSettings("seed-queue-enabled", seedQueueSwitch.checked)
-                if (seedQueueField.changed())
-                    transmission.changeServerSettings("seed-queue-size", parseInt(seedQueueField.text))
-            }
-        }
-    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -55,31 +36,27 @@ Page {
                 title: qsTr("Queue")
             }
 
-            CommonTextSwitch {
+            ServerSettingsTextSwitch {
                 id: downloadQueueSwitch
-                checked: appSettings.serverValue("download-queue-enabled")
+                key: "download-queue-enabled"
                 text: qsTr("Enable download queue")
             }
 
-            CommonTextField {
-                id: downloadQueueField
-                inputMethodHints: Qt.ImhDigitsOnly
+            ServerSettingsTextField {
+                key: "download-queue-size"
                 label: qsTr("Maximum active downloads")
-                text: appSettings.serverValue("download-queue-size")
                 visible: downloadQueueSwitch.checked
             }
 
-            CommonTextSwitch {
+            ServerSettingsTextSwitch {
                 id: seedQueueSwitch
-                checked: appSettings.serverValue("seed-queue-enabled")
+                key: "seed-queue-enabled"
                 text: qsTr("Enable seed queue")
             }
 
-            CommonTextField {
-                id: seedQueueField
-                inputMethodHints: Qt.ImhDigitsOnly
+            ServerSettingsTextField {
+                key: "seed-queue-size"
                 label: qsTr("Maximum active uploads")
-                text: appSettings.serverValue("seed-queue-size")
                 visible: seedQueueSwitch.checked
             }
         }

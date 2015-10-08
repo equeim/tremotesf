@@ -43,11 +43,11 @@ CoverBackground {
 
         Label {
             id: errorLabel
-            text: transmission.errorString
+            text: root.transmission.errorString
             elide: Text.ElideRight
             font.pixelSize: Theme.fontSizeLarge
             maximumLineCount: 2
-            visible: transmission.error !== Transmission.NoError
+            visible: root.transmission.error !== Transmission.NoError
             width: parent.width
             wrapMode: Text.Wrap
         }
@@ -60,7 +60,7 @@ CoverBackground {
 
             Label {
                 id: downLabel
-                text: qsTr("↓ %1/s").arg(Format.formatFileSize(appSettings.downloadSpeed))
+                text: qsTr("↓ %1/s").arg(Format.formatFileSize(root.appSettings.downloadSpeed))
                 font.pixelSize: Theme.fontSizeLarge
                 truncationMode: TruncationMode.Fade
                 width: parent.width
@@ -68,7 +68,7 @@ CoverBackground {
 
             Label {
                 id: upLabel
-                text: qsTr("↑ %1/s").arg(Format.formatFileSize(appSettings.uploadSpeed))
+                text: qsTr("↑ %1/s").arg(Format.formatFileSize(root.appSettings.uploadSpeed))
                 font.pixelSize: Theme.fontSizeLarge
                 truncationMode: TruncationMode.Fade
                 width: parent.width
@@ -86,7 +86,7 @@ CoverBackground {
                 id: accountLabel
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
-                text: appSettings.currentAccount
+                text: root.appSettings.currentAccount
                 truncationMode: TruncationMode.Fade
                 width: parent.width
             }
@@ -96,7 +96,7 @@ CoverBackground {
                 color: Theme.secondaryColor
                 text: {
                     if (accountLabel.text)
-                        return appSettings.accountAddress(accountLabel.text)
+                        return root.appSettings.accountAddress(accountLabel.text)
                     return String()
                 }
                 truncationMode: TruncationMode.Fade

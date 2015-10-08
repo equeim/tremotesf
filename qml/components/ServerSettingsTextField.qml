@@ -19,15 +19,25 @@
 import QtQuick 2.1
 import Sailfish.Silica 1.0
 
-CommonListItem {
-    property int filterMode
+CommonTextField {
+    property bool isFloat: false
+    property string key
 
-    textColor: {
-        if (highlighted || root.proxyModel.filterMode === filterMode)
-            return Theme.highlightColor
+    inputMethodHints: Qt.ImhDigitsOnly
+    text: {
+        if (isFloat)
+            return qsTr("%L1").arg(Math.ceil(root.appSettings.serverValue(key) * 100) / 100)
         else
-            return Theme.primaryColor
+            return root.appSettings.serverValue(key)
     }
 
-    onClicked: root.proxyModel.filterMode = filterMode
+    Component.onDestruction: {
+        if (changed) {
+            if (isFloat)
+                root.transmission.changeServerSettings(key,
+                                                       parseFloat(text.replace(",", ".")))
+            else
+                root.transmission.changeServerSettings(key, parseInt(text));
+        }
+    }
 }

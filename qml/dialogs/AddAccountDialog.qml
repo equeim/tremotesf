@@ -43,7 +43,7 @@ Dialog {
     }
 
     onAccepted: {
-        appSettings.addAccount(editItem.name,
+        root.appSettings.addAccount(editItem.name,
                                editItem.address,
                                editItem.port,
                                editItem.apiPath,
@@ -71,13 +71,10 @@ Dialog {
 
             EditAccountItem {
                 id: editItem
-
-                Component.onCompleted: {
-                    port = "9091"
-                    apiPath = "/transmission/rpc"
-                    updateInterval = "5"
-                    timeout = "10"
-                }
+                port: "9091"
+                apiPath: "/transmission/rpc"
+                updateInterval: "5"
+                timeout: "10"
             }
         }
 

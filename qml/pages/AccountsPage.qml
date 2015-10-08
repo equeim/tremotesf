@@ -38,11 +38,6 @@ Page {
         }
     }
 
-    AccountModel {
-        id: accountModel
-        appSettings: root.appSettings
-    }
-
     SilicaListView {
         id: listView
 
@@ -119,7 +114,9 @@ Page {
                 }
             }
         }
-        model: accountModel
+        model: AccountModel {
+            appSettings: root.appSettings
+        }
 
         PullDownMenu {
             MenuItem {
