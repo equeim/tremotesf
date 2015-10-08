@@ -26,31 +26,35 @@ import "../components"
 Dialog {
     property string path
 
-    allowedOrientations: Orientation.All
+    property alias nameFilters: folderModel.nameFilters
+    property alias showFiles: folderModel.showFiles
 
     onAccepted: {
-        path = folderModel.folder
-        path = path.slice(7, path.length)
+        if (!showFiles) {
+            path = folderModel.folder
+            path = path.slice(7, path.length)
+        }
     }
+
+    allowedOrientations: Orientation.All
+    canAccept: path || !showFiles
 
     DialogHeader {
         id: header
-        title: qsTr("Select directory")
+        title: showFiles ? qsTr("Select file") :
+                           qsTr("Select directory")
     }
 
     SilicaListView {
-        id: listView
-
         anchors {
             top: header.bottom
             bottom: parent.bottom
         }
         clip: true
         header: Column {
-            width: listView.width
-
+            width: parent.width
             ParentDirectoryItem {
-                visible: !!folderModel.parentFolder.toString()
+                visible: folderModel.parentFolder.toString().length !== 0
                 onClicked: folderModel.folder = folderModel.parentFolder
             }
         }
@@ -64,9 +68,8 @@ Dialog {
                         verticalCenter: parent.verticalCenter
                     }
                     asynchronous: true
-                    source: "image://theme/icon-m-folder"
-                    sourceSize.height: Theme.iconSizeMedium
-                    sourceSize.width: Theme.iconSizeMedium
+                    source: model.fileIsDir ? "image://theme/icon-m-folder"
+                                            : "image://theme/icon-m-other"
                 }
 
                 Label {
@@ -82,22 +85,26 @@ Dialog {
                 }
             }
 
-            onClicked: folderModel.folder = model.filePath
+            onClicked: {
+                if (model.fileIsDir) {
+                    folderModel.folder = model.filePath
+                } else {
+                    path = model.filePath
+                    accept()
+                }
+            }
         }
-        model: folderModel
-        width: parent.width
-
-        FolderListModel {
+        model: FolderListModel {
             id: folderModel
-            folder: path
-            showFiles: false
+            showDirsFirst: true
         }
+        width: parent.width
 
         VerticalScrollDecorator { }
     }
 
     ViewPlaceholder {
-        enabled: listView.count === 0
-        text: qsTr("No items")
+        enabled: folderModel.count === 0
+        text: qsTr("No files")
     }
 }

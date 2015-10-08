@@ -25,11 +25,15 @@ Item {
     property alias label: textField.label
     property alias text: textField.text
 
+    property var dialogNameFilters
+    property bool dialogShowFiles
+    property bool isLocal: false
+
     function changed() {
         return textField.changed()
     }
 
-    height: textField.height
+    height: childrenRect.height
     width: parent.width
 
     CommonTextField {
@@ -47,19 +51,22 @@ Item {
 
         anchors {
             right: parent.right
-            rightMargin: Theme.paddingMedium
+            rightMargin: Theme.horizontalPageMargin
         }
-        enabled: root.transmission.isLocal()
+        enabled: isLocal || root.transmission.isLocal()
         icon.source: "image://theme/icon-m-folder"
         icon.sourceSize.width: Theme.iconSizeMedium
         icon.sourceSize.height: Theme.iconSizeMedium
 
-        onClicked: pageStack.push(directoryPickerDialog)
+        onClicked: pageStack.push(filePickerDialog)
 
         Component {
-            id: directoryPickerDialog
+            id: filePickerDialog
 
-            DirectoryPickerDialog {
+            FilePickerDialog {
+                //folder: dialogFolder
+                nameFilters: dialogNameFilters
+                showFiles: dialogShowFiles
                 onAccepted: textField.text = path
             }
         }

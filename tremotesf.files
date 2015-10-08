@@ -42,10 +42,10 @@ qml/components/CommonTextField.qml
 qml/components/CommonTextSwitch.qml
 qml/components/DetailsPageGridButton.qml
 qml/components/EditAccountItem.qml
+qml/components/FilePickerTextField.qml
 qml/components/FilterTorrentsListItem.qml
 qml/components/ListItemMargin.qml
 qml/components/ParentDirectoryItem.qml
-qml/components/SelectDirectoryTextField.qml
 qml/components/ServerSettingsTextField.qml
 qml/components/ServerSettingsTextSwitch.qml
 qml/components/SortTorrentsListItem.qml
@@ -56,8 +56,7 @@ qml/cover/CoverPage.qml
 qml/dialogs/AddAccountDialog.qml
 qml/dialogs/AddTorrentDialog.qml
 qml/dialogs/AddTrackerDialog.qml
-qml/dialogs/DirectoryPickerDialog.qml
-qml/dialogs/TorrentFilePickerDialog.qml
+qml/dialogs/FilePickerDialog.qml
 
 qml/pages/AccountsPage.qml
 qml/pages/DownloadingSettingsPage.qml

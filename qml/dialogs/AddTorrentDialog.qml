@@ -23,8 +23,10 @@ import "../components"
 
 Dialog {
     allowedOrientations: Orientation.All
-    canAccept: linkField.text
-    onAccepted: root.transmission.addTorrent(linkField.text, downloadDirectoryTextField.text, !pauseSwitch.checked)
+    canAccept: torrentTextField.text
+    onAccepted: root.transmission.addTorrent(torrentTextField.text,
+                                             downloadDirectoryTextField.text,
+                                             !pauseSwitch.checked)
 
     SilicaFlickable {
         anchors.fill: parent
@@ -38,48 +40,19 @@ Dialog {
                 title: qsTr("Add torrent")
             }
 
-            Item {
-                height: linkField.height
-                width: parent.width
-
-                CommonTextField {
-                    id: linkField
-
-                    anchors {
-                        left: parent.left
-                        right: selectFileButton.left
-                    }
-                    inputMethodHints: Qt.ImhUrlCharactersOnly
-                    label: qsTr("HTTP, Magnet or local file path")
-                }
-
-                IconButton {
-                    id: selectFileButton
-
-                    anchors {
-                        right: parent.right
-                        rightMargin: Theme.paddingMedium
-                    }
-                    icon.source: "image://theme/icon-m-folder"
-                    icon.sourceSize.height: Theme.iconSizeMedium
-                    icon.sourceSize.width: Theme.iconSizeMedium
-
-                    onClicked: pageStack.push(torrentFilePickerDialog)
-
-                    Component {
-                        id: torrentFilePickerDialog
-
-                        TorrentFilePickerDialog {
-                            onAccepted: linkField.text = path
-                        }
-                    }
-                }
+            FilePickerTextField {
+                id: torrentTextField
+                label: qsTr("HTTP, Magnet or local file path")
+                dialogNameFilters: ["*.torrent"]
+                dialogShowFiles: true
+                isLocal: true
             }
 
-            SelectDirectoryTextField {
+            FilePickerTextField {
                 id: downloadDirectoryTextField
                 label: qsTr("Download directory")
                 text: root.appSettings.serverValue("download-dir")
+                dialogShowFiles: false
             }
 
             TextSwitch {

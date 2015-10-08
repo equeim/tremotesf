@@ -36,9 +36,10 @@ Page {
                 title: qsTr("Downloading")
             }
 
-            SelectDirectoryTextField {
+            FilePickerTextField {
                 label: qsTr("Download directory")
                 text: root.appSettings.serverValue("download-dir")
+                dialogShowFiles: false
 
                 Component.onDestruction: {
                     if (changed())
@@ -57,8 +58,9 @@ Page {
                 text: qsTr("Separate directory fo incomplete files")
             }
 
-            SelectDirectoryTextField {
+            FilePickerTextField {
                 text: root.appSettings.serverValue("incomplete-dir")
+                dialogShowFiles: false
                 visible: incompleteDirectorySwitch.checked
 
                 Component.onDestruction: {
