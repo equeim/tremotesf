@@ -130,6 +130,11 @@ TorrentModel* Transmission::torrentModel() const
     return m_torrentModel;
 }
 
+bool Transmission::accountConfigured() const
+{
+    return m_accountConfigured;
+}
+
 bool Transmission::accountConnected() const
 {
     return (m_error == NoError || m_error == TimeoutError) && m_accountConfigured;
@@ -298,6 +303,7 @@ void Transmission::beginCheckingRpcVersion()
     checkError(reply);
 
     m_accountConfigured = true;
+    emit accountConfiguredChanged();
     emit accountConnectedChanged();
 
     if (m_error == NoError) {
@@ -410,6 +416,7 @@ void Transmission::updateAccount()
     m_torrentModel->resetModel();
 
     m_accountConfigured = false;
+    emit accountConfiguredChanged();
     emit accountConnectedChanged();
 
     m_currentAccount = m_appSettings->currentAccount();
@@ -470,7 +477,6 @@ void Transmission::timeoutTimer(const QNetworkReply *reply)
     QObject::connect(timer, &QTimer::timeout, timer, &QObject::deleteLater);
     timer->start();
 }
-
 
 bool Transmission::checkSessionId(const QNetworkReply *reply)
 {   

@@ -166,7 +166,8 @@ Page {
             id: reconnectButton
             anchors.horizontalCenter: parent.horizontalCenter
             text: qsTr("Reconnect")
-            visible: !transmission.accountConnected
+            visible: root.transmission.accountConfigured &&
+                     !root.transmission.accountConnected
             y: parent.height / 2 - parent.headerItem.height - parent.contentY - height / 2
             onClicked: transmission.checkRpcVersion()
         }

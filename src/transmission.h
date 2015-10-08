@@ -38,6 +38,7 @@ class Transmission : public QObject, public QQmlParserStatus
     Q_INTERFACES(QQmlParserStatus)
     Q_PROPERTY(AppSettings* appSettings READ appSettings WRITE setAppSettings)
     Q_PROPERTY(TorrentModel* torrentModel READ torrentModel WRITE setTorrentModel)
+    Q_PROPERTY(bool accountConfigured READ accountConfigured NOTIFY accountConfiguredChanged)
     Q_PROPERTY(bool accountConnected READ accountConnected NOTIFY accountConnectedChanged)
     Q_PROPERTY(int error READ error NOTIFY errorChanged)
     Q_PROPERTY(QString errorString READ errorString NOTIFY errorChanged)
@@ -57,6 +58,7 @@ public:
 
     AppSettings* appSettings() const;
     TorrentModel* torrentModel() const;
+    bool accountConfigured() const;
     bool accountConnected() const;
     int error() const;
     QString errorString() const;
@@ -124,6 +126,7 @@ private:
 
     QSslConfiguration m_sslConfiguration;
 signals:
+    void accountConfiguredChanged();
     void accountConnectedChanged();
     void errorChanged();
 };
