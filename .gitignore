@@ -2,6 +2,6 @@
 .lock-waf*
 *.user
 .waf*
-build
+build-*
 rpm/*.spec.*
 RPMS

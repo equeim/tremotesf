@@ -20,7 +20,7 @@ Transmission Remote for Sailfish OS
 %setup -q -n %{name}-%{version}
 
 %build
-./waf configure build --prefix=/usr
+./waf configure build --prefix=/usr --out=build-%{_arch}
 
 %install
 rm -rf %{buildroot}
