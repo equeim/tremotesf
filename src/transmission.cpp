@@ -376,7 +376,7 @@ void Transmission::endGettingModelData()
     checkError(reply);
 
     if (m_error == NoError)
-        m_torrentModel->beginUpdateModel(reply->readAll());
+        emit m_torrentModel->beginUpdateModel(reply->readAll());
 
     reply->deleteLater();
 

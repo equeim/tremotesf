@@ -21,13 +21,21 @@
 
 #include <QAbstractListModel>
 #include <QDateTime>
-#include <QThread>
+#include <QMutex>
+
+class QThread;
 
 class TorrentFileModel;
 class TorrentPeerModel;
 class TorrentTrackerModel;
 
-struct Torrent {
+class Torrent {
+public:
+    Torrent(const QString &hashString, int id, const QString &name);
+    void update(const QVariantMap &torrentMap);
+public:
+    bool changed;
+
     QDateTime activityDate;
     QDateTime addedDate;
     int bandwidthPriority;
@@ -46,7 +54,10 @@ struct Torrent {
     int peersConnected;
     int peersGettingFromUs;
     int peersSendingToUs;
+
     float percentDone;
+    bool finished;
+
     int rateDownload;
     int rateUpload;
     float recheckProgress;
@@ -65,20 +76,22 @@ struct Torrent {
     QVariantList peerList;
     QVariantList trackerList;
 };
-Q_DECLARE_METATYPE(Torrent)
+Q_DECLARE_METATYPE(Torrent*)
 
-class TorrentModelWorker : public QThread
+class TorrentModelWorker : public QObject
 {
     Q_OBJECT
 public:
-    TorrentModelWorker();
-    void setReplyData(const QByteArray &replyData);
+    TorrentModelWorker(QList<Torrent*> *torrents, QList<int> *torrentIds);
+    void doWork(const QByteArray &replyData);
 private:
-    QByteArray m_replyData;
-protected:
-    void run();
+    QList<Torrent*> *m_torrents;
+    QList<int> *m_torrentIds;
+
+    QList<Torrent*> m_newTorrents;
+    QList<int> m_newTorrentIds;
 signals:
-    void done(const QList<Torrent> &torrents, const QList<int> &torrentIds);
+    void done(const QList<Torrent*> &newTorrents, const QList<int> &newTorrentIds);
 };
 
 class TorrentModel : public QAbstractListModel
@@ -128,7 +141,6 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
-    void beginUpdateModel(const QByteArray &replyData);
     void resetModel();
 
     TorrentFileModel* fileModel() const;
@@ -140,19 +152,17 @@ public:
     void setTrackerModel(TorrentTrackerModel *trackerModel);
 
     Q_INVOKABLE void removeAtIndex(int index);
-    Q_INVOKABLE QString formatEta(int eta) const;
+    Q_INVOKABLE QString formatEta(int seconds) const;
 
     Q_INVOKABLE void loadFileModel (int index);
     Q_INVOKABLE void loadPeerModel (int index);
     Q_INVOKABLE void loadTrackerModel (int index);
-public slots:
-    void endUpdateModel(const QList<Torrent> &torrents, const QList<int> torrentIds);
+private:
+    void endUpdateModel(const QList<Torrent *> &newTorrents, const QList<int> newTorrentIds);
 protected:
     QHash<int, QByteArray> roleNames() const;
 private:
-
-
-    QList<Torrent> m_torrents;
+    QList<Torrent*> m_torrents;
     QList<int> m_torrentIds;
 
     TorrentFileModel *m_fileModel;
@@ -160,9 +170,11 @@ private:
     TorrentTrackerModel *m_trackerModel;
 
     TorrentModelWorker *m_worker;
-    bool m_changingModel;
+    QThread *m_workerThread;
+
+    QMutex m_mutex;
 signals:
-    void modelChanged();
+    void beginUpdateModel(const QByteArray &replyData);
     void torrentRemoved();
 };
 

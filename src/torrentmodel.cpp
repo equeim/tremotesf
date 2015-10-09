@@ -19,8 +19,9 @@
 #include "torrentmodel.h"
 #include "torrentmodel.moc"
 
-#include <QEventLoop>
 #include <QJsonDocument>
+#include <QMutex>
+#include <QThread>
 
 #include <QDebug>
 
@@ -29,73 +30,232 @@
 #include "torrentpeermodel.h"
 #include "torrenttrackermodel.h"
 
-TorrentModelWorker::TorrentModelWorker()
+Torrent::Torrent(const QString &hashString, int id, const QString &name)
 {
+    this->hashString = hashString;
+    this->id = id;
+    this->name = name;
 
+    finished = false;
 }
 
-void TorrentModelWorker::setReplyData(const QByteArray &replyData)
+void Torrent::update(const QVariantMap &torrentMap)
 {
-    m_replyData = replyData;
-}
+    changed = false;
+    finished = false;
 
-void TorrentModelWorker::run() Q_DECL_OVERRIDE
-{
-    QVariantList torrentList = QJsonDocument::fromJson(m_replyData).toVariant().toMap().value("arguments").toMap().value("torrents").toList();
-    QList<Torrent> torrents;
-    QList<int> torrentIds;
-
-    for (int i = 0; i < torrentList.length(); i++) {
-        Torrent torrent;
-        QVariantMap torrentMap = torrentList.at(i).toMap();
-
-        torrent.activityDate = QDateTime::fromTime_t(torrentMap.value("activityDate").toInt());
-        torrent.addedDate = QDateTime::fromTime_t(torrentMap.value("addedDate").toInt());
-        torrent.bandwidthPriority = torrentMap.value("bandwidthPriority").toInt();
-        torrent.downloadDir = torrentMap.value("downloadDir").toString();
-        torrent.downloadLimit = torrentMap.value("downloadLimit").toInt();
-        torrent.downloadLimited = torrentMap.value("downloadLimited").toBool();
-        torrent.errorString = torrentMap.value("errorString").toString();
-        torrent.eta = torrentMap.value("eta").toInt();
-        torrent.hashString = torrentMap.value("hashString").toString();
-        torrent.honorsSessionLimits = torrentMap.value("honorsSessionLimits").toBool();
-        torrent.id = torrentMap.value("id").toInt();
-        torrent.leftUntilDone = torrentMap.value("leftUntilDone").toLongLong();
-        torrent.name = torrentMap.value("name").toString();
-        torrent.peerLimit = torrentMap.value("peer-limit").toInt();
-        torrent.peersConnected = torrentMap.value("peersConnected").toInt();
-        torrent.peersGettingFromUs = torrentMap.value("peersGettingFromUs").toInt();
-        torrent.peersSendingToUs = torrentMap.value("peersSendingToUs").toInt();
-        torrent.percentDone = torrentMap.value("percentDone").toFloat() * 100;
-        torrent.rateDownload = torrentMap.value("rateDownload").toInt();
-        torrent.rateUpload = torrentMap.value("rateUpload").toInt();
-        torrent.recheckProgress = torrentMap.value("recheckProgress").toFloat() * 100;
-        torrent.seedRatioLimit = torrentMap.value("seedRatioLimit").toFloat();
-        torrent.seedRatioMode = torrentMap.value("seedRatioMode").toInt();
-        torrent.sizeWhenDone = torrentMap.value("sizeWhenDone").toLongLong();
-        torrent.status = torrentMap.value("status").toInt();
-        torrent.totalSize = torrentMap.value("totalSize").toLongLong();
-        torrent.uploadedEver = torrentMap.value("uploadedEver").toLongLong();
-        torrent.uploadLimit = torrentMap.value("uploadLimit").toInt();
-        torrent.uploadLimited = torrentMap.value("uploadLimited").toBool();
-        torrent.uploadRatio = torrentMap.value("uploadRatio").toFloat();
-
-        torrent.fileList = torrentMap.value("files").toList();
-        torrent.fileStatsList = torrentMap.value("fileStats").toList();
-        torrent.peerList = torrentMap.value("peers").toList();
-        torrent.trackerList = torrentMap.value("trackerStats").toList();
-
-        torrents.append(torrent);
-        torrentIds.append(torrent.id);
+    QDateTime activityDate = QDateTime::fromTime_t(torrentMap.value("activityDate").toInt());
+    if (activityDate != this->activityDate) {
+        this->activityDate = activityDate;
+        changed = true;
     }
 
-    emit done(torrents, torrentIds);
+    QDateTime addedDate = QDateTime::fromTime_t(torrentMap.value("addedDate").toInt());
+    if (addedDate != this->addedDate) {
+        this->addedDate = addedDate;
+        changed = true;
+    }
+
+    int bandwidthPriority = torrentMap.value("bandwidthPriority").toInt();
+    if (bandwidthPriority != this->bandwidthPriority) {
+        this->bandwidthPriority = bandwidthPriority;
+        changed = true;
+    }
+
+
+    QString downloadDir = torrentMap.value("downloadDir").toString();
+    if (downloadDir != this->downloadDir) {
+        this->downloadDir = downloadDir;
+        changed = true;
+    }
+
+    int downloadLimit = torrentMap.value("downloadLimit").toInt();
+    if (downloadLimit != this->downloadLimit) {
+        this->downloadLimit = downloadLimit;
+        changed = true;
+    }
+
+    bool downloadLimited = torrentMap.value("downloadLimited").toBool();
+    if (downloadLimited != this->downloadLimited) {
+        this->downloadLimited = downloadLimited;
+        changed = true;
+    }
+
+    QString errorString = torrentMap.value("errorString").toString();
+    if (errorString != this->errorString) {
+        this->errorString = errorString;
+        changed = true;
+    }
+
+    int eta = torrentMap.value("eta").toInt();
+    if (eta != this->eta) {
+        this->eta = eta;
+        changed = true;
+    }
+
+    bool honorsSessionLimits = torrentMap.value("honorsSessionLimits").toBool();
+    if (honorsSessionLimits != this->honorsSessionLimits) {
+        this->honorsSessionLimits = honorsSessionLimits;
+        changed = true;
+    }
+
+    qint64 leftUntilDone = torrentMap.value("leftUntilDone").toLongLong();
+    if (leftUntilDone != this->leftUntilDone) {
+        this->leftUntilDone = leftUntilDone;
+        changed = true;
+    }
+
+    int peerLimit = torrentMap.value("peer-limit").toInt();
+    if (peerLimit != this->peerLimit) {
+        this->peerLimit = peerLimit;
+        changed = true;
+    }
+
+    int peersConnected = torrentMap.value("peersConnected").toInt();
+    if (peersConnected != this->peersConnected) {
+        this->peersConnected = peersConnected;
+        changed = true;
+    }
+
+    int peersGettingFromUs = torrentMap.value("peersGettingFromUs").toInt();
+    if (peersGettingFromUs != this->peersGettingFromUs) {
+        this->peersGettingFromUs = peersGettingFromUs;
+        changed = true;
+    }
+
+    int peersSendingToUs = torrentMap.value("peersSendingToUs").toInt();
+    if (peersSendingToUs != this->peersSendingToUs) {
+        this->peersSendingToUs = peersSendingToUs;
+        changed = true;
+    }
+
+    float percentDone = torrentMap.value("percentDone").toFloat() * 100;
+    if (percentDone != this->percentDone) {
+        if (percentDone == 100)
+            finished = true;
+        this->percentDone = percentDone;
+        changed = true;
+    }
+
+    int rateDownload = torrentMap.value("rateDownload").toInt();
+    if (rateDownload != this->rateDownload) {
+        this->rateDownload = rateDownload;
+        changed = true;
+    }
+
+    int rateUpload = torrentMap.value("rateUpload").toInt();
+    if (rateUpload != this->rateUpload) {
+        this->rateUpload = rateUpload;
+        changed = true;
+    }
+
+    float recheckProgress = torrentMap.value("recheckProgress").toFloat() * 100;
+    if (recheckProgress != this->recheckProgress) {
+        this->recheckProgress = recheckProgress;
+        changed = true;
+    }
+
+    float seedRatioLimit = torrentMap.value("seedRatioLimit").toFloat();
+    if (seedRatioLimit != this->seedRatioLimit) {
+        this->seedRatioLimit = seedRatioLimit;
+        changed = true;
+    }
+
+    int seedRatioMode = torrentMap.value("seedRatioMode").toInt();
+    if (seedRatioMode != this->seedRatioMode) {
+        this->seedRatioMode = seedRatioMode;
+        changed = true;
+    }
+
+    qint64 sizeWhenDone = torrentMap.value("sizeWhenDone").toLongLong();
+    if (sizeWhenDone != this->sizeWhenDone) {
+        this->sizeWhenDone = sizeWhenDone;
+        changed = true;
+    }
+
+    int status = torrentMap.value("status").toInt();
+    if (status != this->status) {
+        this->status = status;
+        changed = true;
+    }
+
+    qint64 totalSize = torrentMap.value("totalSize").toLongLong();
+    if (totalSize != this->totalSize) {
+        this->totalSize = totalSize;
+        changed = true;
+    }
+
+    qint64 uploadedEver = torrentMap.value("uploadedEver").toLongLong();
+    if (uploadedEver != this->uploadedEver) {
+        this->uploadedEver = uploadedEver;
+        changed = true;
+    }
+
+    int uploadLimit = torrentMap.value("uploadLimit").toInt();
+    if (uploadLimit != this->uploadLimit) {
+        this->uploadLimit = uploadLimit;
+        changed = true;
+    }
+
+    bool uploadLimited = torrentMap.value("uploadLimited").toBool();
+    if (uploadLimited != this->uploadLimited) {
+        this->uploadLimited = uploadLimited;
+        changed = true;
+    }
+
+    float uploadRatio = torrentMap.value("uploadRatio").toFloat();
+    if (uploadRatio != this->uploadRatio) {
+        this->uploadRatio = uploadRatio;
+        changed = true;
+    }
+
+    fileList = torrentMap.value("files").toList();
+    fileStatsList = torrentMap.value("fileStats").toList();
+    peerList = torrentMap.value("peers").toList();
+    trackerList = torrentMap.value("trackerStats").toList();
+}
+
+TorrentModelWorker::TorrentModelWorker(QList<Torrent*> *torrents, QList<int> *torrentIds)
+{
+    m_torrents = torrents;
+    m_torrentIds = torrentIds;
+}
+
+void TorrentModelWorker::doWork(const QByteArray &replyData)
+{
+    m_newTorrents.clear();
+    m_newTorrentIds.clear();
+
+    QVariantList torrentList = QJsonDocument::fromJson(replyData).toVariant()
+            .toMap()
+            .value("arguments")
+            .toMap()
+            .value("torrents")
+            .toList();
+
+    for (int i = 0; i < torrentList.length(); i++) {
+        QVariantMap torrentMap = torrentList.at(i).toMap();
+
+        Torrent *torrent;
+        int id = torrentMap.value("id").toInt();
+        int index = m_torrentIds->indexOf(id);
+        if (index == -1)
+            torrent = new Torrent(torrentMap.value("hashString").toString(),
+                                  id,
+                                  torrentMap.value("name").toString());
+        else
+            torrent = m_torrents->at(index);
+        m_newTorrents.append(torrent);
+        m_newTorrentIds.append(id);
+        torrent->update(torrentMap);
+    }
+
+    emit done(m_newTorrents, m_newTorrentIds);
 }
 
 TorrentModel::TorrentModel()
 {
-    qRegisterMetaType<Torrent>();
-    qRegisterMetaType< QList<Torrent> >();
+    qRegisterMetaType< QList<Torrent*> >();
 
     qRegisterMetaType<TorrentPeer>();
     qRegisterMetaType< QList<TorrentPeer> >();
@@ -103,15 +263,21 @@ TorrentModel::TorrentModel()
     qRegisterMetaType<TorrentTracker>();
     qRegisterMetaType< QList<TorrentTracker> >();
 
-    m_worker = new TorrentModelWorker;
+    m_worker = new TorrentModelWorker(&m_torrents, &m_torrentIds);
+    connect(this, &TorrentModel::beginUpdateModel, m_worker, &TorrentModelWorker::doWork);
     connect(m_worker, &TorrentModelWorker::done, this, &TorrentModel::endUpdateModel);
-    m_changingModel = false;
+
+    m_workerThread = new QThread(this);
+    connect(m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
+    m_worker->moveToThread(m_workerThread);
+    m_workerThread->start(QThread::LowPriority);
 }
 
 TorrentModel::~TorrentModel()
 {
-    m_worker->wait();
-    m_worker->deleteLater();
+    m_workerThread->quit();
+    m_workerThread->wait();
+    qDeleteAll(m_torrents);
 }
 
 QVariant TorrentModel::data(const QModelIndex &index, int role) const
@@ -119,69 +285,69 @@ QVariant TorrentModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const Torrent &torrent = m_torrents.at(index.row());
+    const Torrent *torrent = m_torrents.at(index.row());
 
     switch (role) {
     case ActivityDateRole:
-        return torrent.activityDate;
+        return torrent->activityDate;
     case AddedDateRole:
-        return torrent.addedDate;
+        return torrent->addedDate;
     case BandwidthPriorityRole:
-        return torrent.bandwidthPriority;
+        return torrent->bandwidthPriority;
     case DownloadDirRole:
-        return torrent.downloadDir;
+        return torrent->downloadDir;
     case DownloadLimitRole:
-        return torrent.downloadLimit;
+        return torrent->downloadLimit;
     case DownloadLimitedRole:
-        return torrent.downloadLimited;
+        return torrent->downloadLimited;
     case ErrorStringRole:
-        return torrent.errorString;
+        return torrent->errorString;
     case EtaRole:
-        return torrent.eta;
+        return torrent->eta;
     case HashStringRole:
-        return torrent.hashString;
+        return torrent->hashString;
     case HonorsSessionLimitsRole:
-        return torrent.honorsSessionLimits;
+        return torrent->honorsSessionLimits;
     case IdRole:
-        return torrent.id;
+        return torrent->id;
     case LeftUntilDoneRole:
-        return torrent.leftUntilDone;
+        return torrent->leftUntilDone;
     case NameRole:
-        return torrent.name;
+        return torrent->name;
     case PeerLimitRole:
-        return torrent.peerLimit;
+        return torrent->peerLimit;
     case PeersConnectedRole:
-        return torrent.peersConnected;
+        return torrent->peersConnected;
     case PeersGettingFromUsRole:
-        return torrent.peersGettingFromUs;
+        return torrent->peersGettingFromUs;
     case PeersSendingToUsRole:
-        return torrent.peersSendingToUs;
+        return torrent->peersSendingToUs;
     case PercentDoneRole:
-        return torrent.percentDone;
+        return torrent->percentDone;
     case RateDownloadRole:
-        return torrent.rateDownload;
+        return torrent->rateDownload;
     case RateUploadRole:
-        return torrent.rateUpload;
+        return torrent->rateUpload;
     case RecheckProgressRole:
-        return torrent.recheckProgress;
+        return torrent->recheckProgress;
     case SeedRatioLimitRole:
-        return torrent.seedRatioLimit;
+        return torrent->seedRatioLimit;
     case SeedRatioModeRole:
-        return torrent.seedRatioMode;
+        return torrent->seedRatioMode;
     case SizeWhenDoneRole:
-        return torrent.sizeWhenDone;
+        return torrent->sizeWhenDone;
     case StatusRole:
-        return torrent.status;
+        return torrent->status;
     case TotalSizeRole:
-        return torrent.totalSize;
+        return torrent->totalSize;
     case UploadedEverRole:
-        return torrent.uploadedEver;
+        return torrent->uploadedEver;
     case UploadLimitRole:
-        return torrent.uploadLimit;
+        return torrent->uploadLimit;
     case UploadLimitedRole:
-        return torrent.uploadLimited;
+        return torrent->uploadLimited;
     case UploadRatioRole:
-        return torrent.uploadRatio;
+        return torrent->uploadRatio;
     default:
         return QVariant();
     }
@@ -193,26 +359,15 @@ int TorrentModel::rowCount(const QModelIndex &parent) const
     return m_torrents.length();
 }
 
-void TorrentModel::beginUpdateModel(const QByteArray &replyData)
-{
-    m_worker->wait();
-    m_worker->setReplyData(replyData);
-    m_worker->start(QThread::LowPriority);
-}
-
 void TorrentModel::resetModel()
 {
-    if (m_changingModel) {
-        QEventLoop loop;
-        connect(this, &TorrentModel::modelChanged, &loop, &QEventLoop::quit);
-        loop.exec();
-    }
-    m_changingModel = true;
+    m_mutex.lock();
 
     beginResetModel();
+    qDeleteAll(m_torrents);
     m_torrents.clear();
-    endResetModel();
     m_torrentIds.clear();
+    endResetModel();
 
     if (m_fileModel->isActive())
         m_fileModel->resetModel();
@@ -223,8 +378,7 @@ void TorrentModel::resetModel()
     if (m_trackerModel->isActive())
         m_trackerModel->resetModel();
 
-    m_changingModel = false;
-    emit modelChanged();
+    m_mutex.unlock();
 }
 
 TorrentFileModel* TorrentModel::fileModel() const
@@ -259,16 +413,10 @@ void TorrentModel::setTrackerModel(TorrentTrackerModel *trackerModel)
 
 void TorrentModel::removeAtIndex(int index)
 {
-    if (m_changingModel) {
-        QEventLoop loop;
-        connect(this, &TorrentModel::modelChanged, &loop, &QEventLoop::quit);
-        loop.exec();
-    }
-    m_changingModel = true;
+    if (index >= rowCount())
+        return;
 
-    beginRemoveRows(QModelIndex(), index, index);
-    m_torrents.removeAt(index);
-    endRemoveRows();
+    m_mutex.lock();
 
     if (m_fileModel->isActive())
         if (m_fileModel->torrentId() == m_torrentIds.at(index))
@@ -282,39 +430,33 @@ void TorrentModel::removeAtIndex(int index)
         if (m_trackerModel->torrentId() == m_torrentIds.at(index))
             m_trackerModel->resetModel();
 
+    beginRemoveRows(QModelIndex(), index, index);
+    delete m_torrents.takeAt(index);
     m_torrentIds.removeAt(index);
+    endRemoveRows();
 
-    m_changingModel = false;
-    emit modelChanged();
+    m_mutex.unlock();
 }
 
-QString TorrentModel::formatEta(int eta) const
+QString TorrentModel::formatEta(int seconds) const
 {
-    if(eta < 0)
-        return "∞";
-
-    QDateTime date1 = QDateTime::fromTime_t(0);
-    date1 = date1.toUTC();
-    QDateTime date2 = QDateTime::fromTime_t(eta);
-    date2 = date2.toUTC();
+    int hours = seconds / 3600;
+    seconds %= 3600;
+    int minutes = seconds / 60;
+    seconds %= 60;
 
     QString etaString;
-    bool moreThanDay = false;
-    bool moreThanHour = false;
 
-    if(date1.daysTo(date2) > 0) {
-        etaString = QString::number(date1.daysTo(date2)) + "d ";
-        moreThanDay = true;
-        moreThanHour = true;
-    }
-    if(date2.time().toString("h").toInt() > 0) {
-        etaString += date2.time().toString("h") + tr(" h ");
-        moreThanHour = true;
-    }
-    if(date2.time().toString("m").toInt() > 0 && !moreThanDay)
-        etaString += date2.time().toString("m") + tr(" m ");
-    if(date2.time().toString("s").toInt() > 0 && !moreThanHour)
-        etaString += date2.time().toString("s") + tr(" s");
+    if (hours > 0)
+        etaString +=  tr("%1 h ").arg(hours);
+
+    if (minutes > 0)
+        etaString +=  tr("%1 m ").arg(minutes);
+
+    if (hours == 0 &&
+            (seconds > 0 ||
+             minutes == 0))
+        etaString +=  tr("%1 s").arg(seconds);
 
     return etaString;
 }
@@ -323,94 +465,91 @@ void TorrentModel::loadFileModel(int index)
 {
     m_fileModel->setIsActive(true);
     m_fileModel->setTorrentId(m_torrentIds.at(index));
-    m_fileModel->beginUpdateModel(m_torrents.at(index).fileList, m_torrents.at(index).fileStatsList);
+    m_fileModel->beginUpdateModel(m_torrents.at(index)->fileList, m_torrents.at(index)->fileStatsList);
 }
 
 void TorrentModel::loadPeerModel(int index)
 {
     m_peerModel->setIsActive(true);
     m_peerModel->setTorrentId(m_torrentIds.at(index));
-    m_peerModel->beginUpdateModel(m_torrents.at(index).peerList);
+    m_peerModel->beginUpdateModel(m_torrents.at(index)->peerList);
 }
 
 void TorrentModel::loadTrackerModel(int index)
 {
     m_trackerModel->setIsActive(true);
     m_trackerModel->setTorrentId(m_torrentIds.at(index));
-    m_trackerModel->beginUpdateModel(m_torrents.at(index).trackerList);
+    m_trackerModel->beginUpdateModel(m_torrents.at(index)->trackerList);
 }
 
-void TorrentModel::endUpdateModel(const QList<Torrent> &torrents, const QList<int> torrentIds)
+void TorrentModel::endUpdateModel(const QList<Torrent*> &newTorrents, const QList<int> newTorrentIds)
 {
-    if (m_changingModel) {
-        QEventLoop loop;
-        connect(this, &TorrentModel::modelChanged, &loop, &QEventLoop::quit);
-        loop.exec();
-    }
-    m_changingModel = true;
+    m_mutex.lock();
 
     qDebug() << "update";
 
     for (int i = 0; i < m_torrentIds.length(); i++) {
-        if (!torrentIds.contains(m_torrentIds.at(i))) {
+        int id = m_torrentIds.at(i);
+        if (!newTorrentIds.contains(id)) {
             beginRemoveRows(QModelIndex(), i, i);
-            m_torrents.removeAt(i);
+            delete m_torrents.takeAt(i);
+            m_torrentIds.removeAt(i);
             endRemoveRows();
 
-            int torrentId = m_torrentIds.at(i);
             m_torrentIds.removeAt(i);
 
+            emit torrentRemoved();
+
             if (m_fileModel->isActive())
-                if (m_fileModel->torrentId() == torrentId)
+                if (m_fileModel->torrentId() == id)
                     m_fileModel->resetModel();
 
             if (m_peerModel->isActive())
-                if (m_peerModel->torrentId() == torrentId)
+                if (m_peerModel->torrentId() == id)
                     m_peerModel->resetModel();
 
             if (m_trackerModel->isActive())
-                if (m_trackerModel->torrentId() == torrentId)
+                if (m_trackerModel->torrentId() == id)
                     m_trackerModel->resetModel();
         }
     }
 
-    for (int i = 0; i < torrentIds.length(); i++) {
-        if (!m_torrentIds.contains(torrentIds.at(i))) {
-            beginInsertRows(QModelIndex(), rowCount(), rowCount());
-            m_torrents.append(torrents.at(i));
-            endInsertRows();
+    for (int i = 0; i < newTorrentIds.length(); i++) {
+        int id = newTorrentIds.at(i);
+        if (m_torrentIds.contains(id)) {
+            int row = m_torrentIds.indexOf(id);
+            Torrent *torrent = m_torrents.at(row);
+            if (torrent->changed) {
+                QModelIndex modelIndex = index(row, 0);
+                emit dataChanged(modelIndex, modelIndex);
 
-            m_torrentIds.append(torrentIds.at(i));
+                if (torrent->finished)
+                    Notifications::torrentFinished(torrent->name);
+            }
         } else {
-            int index = m_torrentIds.indexOf(torrentIds.at(i));
-
-            if (torrents.at(i).percentDone == 100 && m_torrents.at(index).percentDone != 100)
-                Notifications::torrentFinished(m_torrents.at(index).name);
-
-            m_torrents[index] = torrents.at(i);
+            beginInsertRows(QModelIndex(), rowCount(), rowCount());
+            m_torrents.append(newTorrents.at(i));
+            m_torrentIds.append(id);
+            endInsertRows();
         }
     }
-    m_torrentIds = torrentIds;
-
-    emit dataChanged(index(0), index(rowCount() - 1));
-
-    m_changingModel = false;
-    emit modelChanged();
 
     if (m_fileModel->isActive()) {
         int index = m_torrentIds.indexOf(m_fileModel->torrentId());
-        m_fileModel->beginUpdateModel(m_torrents.at(index).fileList, m_torrents.at(index).fileStatsList);
+        m_fileModel->beginUpdateModel(m_torrents.at(index)->fileList, m_torrents.at(index)->fileStatsList);
     }
 
     if (m_peerModel->isActive()) {
         int index = m_torrentIds.indexOf(m_peerModel->torrentId());
-        m_peerModel->beginUpdateModel(m_torrents.at(index).peerList);
+        m_peerModel->beginUpdateModel(m_torrents.at(index)->peerList);
     }
 
     if (m_trackerModel->isActive()) {
         int index = m_torrentIds.indexOf(m_trackerModel->torrentId());
-        m_trackerModel->beginUpdateModel(m_torrents.at(index).trackerList);
+        m_trackerModel->beginUpdateModel(m_torrents.at(index)->trackerList);
     }
+
+    m_mutex.unlock();
 }
 
 QHash<int, QByteArray> TorrentModel::roleNames() const

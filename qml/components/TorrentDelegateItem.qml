@@ -88,7 +88,7 @@ Item {
                     anchors.right: parent.right
                     color: Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
-                    text: root.torrentModel.formatEta(model.eta)
+                    text: model.eta < 0 ? "∞" : root.torrentModel.formatEta(model.eta)
                 }
             }
 
