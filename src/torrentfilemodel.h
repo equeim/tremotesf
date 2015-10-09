@@ -20,13 +20,20 @@
 #define TORRENTFILEMODEL_H
 
 #include <QAbstractListModel>
-#include <QThread>
+#include <QMutex>
 
-class QCollator;
+class QThread;
+class Transmission;
 
-struct TorrentFile
+class TorrentFile
 {
-    QMap<QString, TorrentFile*> entries;
+public:
+    TorrentFile(TorrentFile *parentDirectory = 0, int row = 0);
+    ~TorrentFile();
+
+    TorrentFile *parentDirectory;
+    int row;
+    QMap<QString, TorrentFile*> childFiles;
 
     qint64 bytesCompleted;
     int fileIndex;
@@ -35,35 +42,42 @@ struct TorrentFile
     QString name;
     QString path;
     int priority;
-    bool wanted;
+    float progress;
+    int wantedStatus;
 };
-Q_DECLARE_METATYPE(TorrentFile)
+Q_DECLARE_METATYPE(TorrentFile*)
 
-class TorrentFileModelWorker : public QThread
+class TorrentFileModelWorker : public QObject
 {
     Q_OBJECT
 public:
-    TorrentFileModelWorker(TorrentFile *rootEntry, QMap<QString, TorrentFile*> *allEntries);
-    void setData(const QVariantList &fileList, const QVariantList &fileStatsList);
+    TorrentFileModelWorker(TorrentFile *rootDirectory);
+    void reset();
+public slots:
+    void beginWork(const QVariantList &fileList, const QVariantList &fileStatsList);
 private:
-    TorrentFile *m_rootEntry;
-    QMap<QString, TorrentFile*> *m_allEntries;
-    QVariantList m_fileList;
-    QVariantList m_fileStatsList;
-protected:
-    void run();
+    void createTree(const QVariantList &fileList, const QVariantList &fileStatsList);
+    void updateTree(const QVariantList &fileStatsList);
+
+    void setDirectory(TorrentFile *directory);
+    void updateDirectory(TorrentFile *directory);
+
+    TorrentFile *m_rootDirectory;
+    QList<TorrentFile*> m_files;
+    QList<TorrentFile*> m_changedFiles;
+    QStringList m_filePaths;
 signals:
-    void done(bool resetModel);
+    void treeCreated();
+    void treeUpdated(const QList<TorrentFile*> &changedFiles);
 };
 
-class TorrentFileModel : public QAbstractListModel
+class TorrentFileModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_ENUMS(Priority)
-    Q_ENUMS(DirectoryWantedStatus)
+    Q_ENUMS(WantedStatus)
     Q_PROPERTY(bool isActive READ isActive WRITE setIsActive)
-    Q_PROPERTY(QString currentDirectoryPath READ currentDirectoryPath NOTIFY currentDirectoryPathChanged)
-    Q_PROPERTY(QString parentDirectoryPath READ parentDirectoryPath NOTIFY parentDirectoryPathChanged)
+    Q_PROPERTY(Transmission* transmission READ transmission WRITE setTransmission)
 public:
     enum TorrentFileRole {
         BytesCompletedRole = Qt::UserRole,
@@ -73,7 +87,8 @@ public:
         NameRole,
         PathRole,
         PriorityRole,
-        WantedRole
+        ProgressRole,
+        WantedStatusRole
     };
 
     enum Priority {
@@ -83,7 +98,7 @@ public:
         MixedPriority
     };
 
-    enum DirectoryWantedStatus {
+    enum WantedStatus {
         NoWanted,
         SomeWanted,
         AllWanted
@@ -91,52 +106,50 @@ public:
 
     TorrentFileModel();
     ~TorrentFileModel();
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &index) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     bool isActive() const;
     int torrentId() const;
+    Transmission* transmission() const;
     QString currentDirectoryPath() const;
     QString parentDirectoryPath() const;
 
     void setIsActive(bool isActive);
     void setTorrentId(int torrentId);
+    void setTransmission(Transmission *transmission);
 
     void beginUpdateModel(const QVariantList &fileList, const QVariantList &fileStatsList);
-
     Q_INVOKABLE void resetModel();
-    Q_INVOKABLE void loadDirectory(QString path);
-    Q_INVOKABLE int getDirectoryWantedStatus(int index) const;
-    Q_INVOKABLE int getDirectoryPriority(int index) const;
-    Q_INVOKABLE QVariantList getDirectoryFileIndexes(int index) const;
-public slots:
-    void endUpdateModel(bool resetModel);
-signals:
-    void currentDirectoryPathChanged();
-    void parentDirectoryPathChanged();
+private:
+    void endCreateTree();
+    void endUpdateTree(const QList<TorrentFile*> &changedFiles);
+
+    void setFilePriority(TorrentFile *file, int priority);
+    void setFileWantedStatus(TorrentFile *file, int wantedStatus);
+
+    void setRoleValueRecursively(TorrentFile *file, const QVariant &value, int role);
+    QVariantList getSubtreeFileIndexes(const TorrentFile *file);
 protected:
     QHash<int, QByteArray> roleNames() const;
 private:
-    void sort();
-    int countFilesInDirectory(const TorrentFile *directory) const;
-    int countWantedFilesInDirectory(const TorrentFile *directory) const;
-    int countPrioritiesInDirectory(const TorrentFile *directory) const;
-    QVariantList countFileIndexesInDirectory(const TorrentFile *directory) const;
+    TorrentFile *m_rootDirectory;
 
-    TorrentFile *m_rootEntry;
-    QMap<QString, TorrentFile*> *m_allEntries;
-    QList<TorrentFile*> m_currentDirectoryEntries;
     TorrentFileModelWorker *m_worker;
-    QCollator *m_collator;
+    QThread *m_workerThread;
+
+    QMutex m_mutex;
 
     bool m_isActive;
     int m_torrentId;
-    QString m_currentDirectoryPath;
-    QString m_parentDirectoryPath;
-
-    bool m_changingModel;
+    Transmission *m_transmission;
 signals:
-    void modelChanged();
+    void requestModelUpdate(const QVariantList &fileList, const QVariantList &fileStatsList);
 };
 
 #endif // TORRENTFILEMODEL_H

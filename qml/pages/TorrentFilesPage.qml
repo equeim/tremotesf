@@ -17,6 +17,7 @@
  */
 
 import QtQuick 2.1
+import QtQml.Models 2.1
 import Sailfish.Silica 1.0
 
 import harbour.tremotesf 0.1
@@ -39,40 +40,19 @@ Page {
         }
     }
 
-    SilicaListView {
-        id: listView
-
-        anchors.fill: parent
-        header: Column {
-            width: listView.width
-
-            PageHeader {
-                id: title
-                title: qsTr("Files")
-            }
-
-            ParentDirectoryItem {
-                visible: root.fileModel.currentDirectoryPath ? true : false
-                onClicked: root.fileModel.loadDirectory(root.fileModel.parentDirectoryPath)
-            }
-        }
+    DelegateModel {
+        id: delegateModel
+        model: root.fileModel
         delegate: ListItem {
             contentHeight: Math.max(Theme.itemSizeSmall,
                                     labelColumn.height + 2 * Theme.paddingMedium)
             menu: contextMenu
 
             onClicked: {
-                if (model.isDirectory) {
-                    root.fileModel.loadDirectory(model.path)
-                } else {
-                    if (wantedSwitch.checked) {
-                        wantedSwitch.checked = false
-                        root.transmission.changeTorrent(torrentId, "files-unwanted", [model.fileIndex])
-                    } else {
-                        wantedSwitch.checked = true
-                        root.transmission.changeTorrent(torrentId, "files-wanted", [model.fileIndex])
-                    }
-                }
+                if (model.isDirectory)
+                    delegateModel.rootIndex = delegateModel.modelIndex(model.index)
+                else
+                    wantedSwitch.toggle()
             }
 
             ListItemMargin {
@@ -110,9 +90,8 @@ Page {
                         font.pixelSize: Theme.fontSizeSmall
                         text: qsTr("%1 of %2 (%3%)").arg(Format.formatFileSize(model.bytesCompleted))
                         .arg(Format.formatFileSize(model.length))
-                        .arg(Math.floor(model.bytesCompleted*10000/model.length)/100)
+                        .arg(model.progress)
                         truncationMode: TruncationMode.Fade
-                        visible: !model.isDirectory
                         width: parent.width
                     }
                 }
@@ -120,46 +99,23 @@ Page {
                 Switch {
                     id: wantedSwitch
 
+                    function toggle() {
+                        if (model.wantedStatus === TorrentFileModel.AllWanted)
+                            model.wantedStatus = TorrentFileModel.NoWanted
+                        else
+                            model.wantedStatus = TorrentFileModel.AllWanted
+                    }
+
                     anchors {
                         right: parent.right
                         rightMargin: -Theme.paddingLarge
                         verticalCenter: parent.verticalCenter
                     }
-                    checked: {
-                        if (model.isDirectory) {
-                            var wantedStatus = root.fileModel.getDirectoryWantedStatus(model.index)
-                            if (wantedStatus === TorrentFileModel.SomeWanted) {
-                                opacity = 0.5
-                                return true
-                            }
-                            opacity = 1
-                            if (wantedStatus === TorrentFileModel.AllWanted)
-                                return true
-                            return false
-                        }
-                        if (model.wanted)
-                            return true
-                        return false
-                    }
+                    automaticCheck: false
+                    checked: model.wantedStatus !== TorrentFileModel.NoWanted
+                    opacity: model.wantedStatus === TorrentFileModel.SomeWanted ? 0.6 : 1
 
-                    onClicked: {
-                        if (checked) {
-                            if (model.isDirectory)
-                                root.transmission.changeTorrent(torrentId,
-                                                                "files-wanted",
-                                                                root.fileModel.getDirectoryFileIndexes(model.index))
-                            else
-                                root.transmission.changeTorrent(torrentId, "files-wanted", [model.fileIndex])
-                        }
-                        else {
-                            if (model.isDirectory)
-                                root.transmission.changeTorrent(torrentId,
-                                                                "files-unwanted",
-                                                                root.fileModel.getDirectoryFileIndexes(model.index))
-                            else
-                                root.transmission.changeTorrent(torrentId, "files-unwanted", [model.fileIndex])
-                        }
-                    }
+                    onClicked: toggle()
                 }
             }
 
@@ -167,64 +123,55 @@ Page {
                 id: contextMenu
 
                 ContextMenu {
-                    property int priority: {
-                        if (model.isDirectory) {
-                            return root.fileModel.getDirectoryPriority(model.index)
-                        }
-                        return model.priority
-                    }
-
                     MenuItem {
                         text: qsTr("High priority")
-                        font.weight: priority === TorrentFileModel.HighPriority ? Font.Bold : Font.Normal
+                        font.weight: model.priority === TorrentFileModel.HighPriority ? Font.Bold : Font.Normal
 
-                        onClicked: {
-                            if (model.isDirectory)
-                                root.transmission.changeTorrent(torrentId,
-                                                                "priority-high",
-                                                                root.fileModel.getDirectoryFileIndexes(model.index))
-                            else
-                                root.transmission.changeTorrent(torrentId, "priority-high", [model.fileIndex])
-                        }
+                        onClicked: model.priority = TorrentFileModel.HighPriority
                     }
 
                     MenuItem {
                         text: qsTr("Normal")
-                        font.weight: priority === TorrentFileModel.NormalPriority ? Font.Bold : Font.Normal
+                        font.weight: model.priority === TorrentFileModel.NormalPriority ? Font.Bold : Font.Normal
 
-                        onClicked: {
-                            if (model.isDirectory)
-                                root.transmission.changeTorrent(torrentId,
-                                                                "priority-normal",
-                                                                root.fileModel.getDirectoryFileIndexes(model.index))
-                            else
-                                root.transmission.changeTorrent(torrentId, "priority-normal", [model.fileIndex])
-                        }
+                        onClicked: model.priority = TorrentFileModel.NormalPriority
                     }
 
                     MenuItem {
                         text: qsTr("Low")
-                        font.weight: priority === TorrentFileModel.LowPriority ? Font.Bold : Font.Normal
+                        font.weight: model.priority === TorrentFileModel.LowPriority ? Font.Bold : Font.Normal
 
-                        onClicked: {
-                            if (model.isDirectory)
-                                root.transmission.changeTorrent(torrentId,
-                                                                "priority-low",
-                                                                root.fileModel.getDirectoryFileIndexes(model.index))
-                            else
-                                root.transmission.changeTorrent(torrentId, "priority-low", [model.fileIndex])
-                        }
+                        onClicked: model.priority = TorrentFileModel.LowPriority
                     }
 
                     MenuItem {
                         text: qsTr("Mixed")
                         font.weight: Font.Bold
-                        visible: priority === TorrentFileModel.MixedPriority ? true : false
+                        visible: model.priority === TorrentFileModel.MixedPriority
                     }
                 }
             }
         }
-        model: fileModel
+    }
+
+    SilicaListView {
+        id: listView
+
+        anchors.fill: parent
+        header: Column {
+            width: listView.width
+
+            PageHeader {
+                id: title
+                title: qsTr("Files")
+            }
+
+            ParentDirectoryItem {
+                visible: delegateModel.rootIndex !== delegateModel.parentModelIndex()
+                onClicked: delegateModel.rootIndex = delegateModel.parentModelIndex()
+            }
+        }
+        model: delegateModel
 
         PullDownMenu {
             MenuItem {

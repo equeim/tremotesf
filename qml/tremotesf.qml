@@ -73,6 +73,7 @@ ApplicationWindow
 
     TorrentFileModel {
         id: fileModel
+        transmission: root.transmission
     }
 
     TorrentPeerModel {
