@@ -21,6 +21,8 @@ import Sailfish.Silica 1.0
 
 Column {
     property alias name: nameField.text
+    property bool nameChanged: nameField.changed()
+
     property alias address: addressField.text
     property alias port: portField.text
     property alias apiPath: apiField.text

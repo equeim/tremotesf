@@ -24,23 +24,40 @@ import "../components"
 Page {
     id: editAccountPage
 
+    property string accountName
     property bool removing: false
 
     allowedOrientations: Orientation.All
 
     Component.onDestruction: {
-        if (!removing)
-            root.appSettings.setAccount(editItem.name,
-                                        editItem.address,
-                                        editItem.port,
-                                        editItem.apiPath,
-                                        editItem.https,
-                                        editItem.localCertificate,
-                                        editItem.authentication,
-                                        editItem.username,
-                                        editItem.password,
-                                        editItem.updateInterval,
-                                        editItem.timeout)
+        if (!removing) {
+            if (editItem.nameChanged) {
+                root.appSettings.addAccount(editItem.name,
+                                            editItem.address,
+                                            editItem.port,
+                                            editItem.apiPath,
+                                            editItem.https,
+                                            editItem.localCertificate,
+                                            editItem.authentication,
+                                            editItem.username,
+                                            editItem.password,
+                                            editItem.updateInterval,
+                                            editItem.timeout)
+                root.appSettings.removeAccount(model.name)
+            } else {
+                root.appSettings.setAccount(editItem.name,
+                                            editItem.address,
+                                            editItem.port,
+                                            editItem.apiPath,
+                                            editItem.https,
+                                            editItem.localCertificate,
+                                            editItem.authentication,
+                                            editItem.username,
+                                            editItem.password,
+                                            editItem.updateInterval,
+                                            editItem.timeout)
+            }
+        }
     }
 
     RemorsePopup {
