@@ -178,7 +178,7 @@ Page {
                 visible: seedRatioModeComboBox.currentIndex === 1
 
                 Component.onCompleted: {
-                    text = qsTr("%L1").arg(Math.ceil(model.seedRatioLimit * 100) / 100)
+                    text = qsTr("%L1").arg(model.seedRatioLimit)
                     oldText = text
                 }
                 Component.onDestruction: {

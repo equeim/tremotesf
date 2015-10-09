@@ -80,7 +80,7 @@ Item {
                         else
                             return qsTr("%1 of %2 (%L3%)").arg(Format.formatFileSize(model.sizeWhenDone - model.leftUntilDone))
                         .arg(Format.formatFileSize(model.sizeWhenDone))
-                        .arg(Math.floor(model.percentDone * 100) / 100);
+                        .arg(model.percentDone);
                     }
                 }
 
@@ -106,9 +106,9 @@ Item {
                     maximumValue: 100
                     value: {
                         if (torrentStatus === 2) {
-                            return Math.floor(model.recheckProgress * 100) / 100
+                            return model.recheckProgress
                         }
-                        return Math.floor(model.percentDone * 100) / 100
+                        return model.percentDone
                     }
                     width: parent.width
                 }
@@ -122,12 +122,9 @@ Item {
                     width: parent.width
 
                     Column {
-                        id: speedColumn
-
                         anchors {
                             left: parent.left
                             right: parent.horizontalCenter
-                            //bottom: parent.bottom
                         }
 
                         Label {
@@ -147,7 +144,6 @@ Item {
                         anchors {
                             left: parent.horizontalCenter
                             right: parent.right
-                            //top: speedColumn.top
                         }
                         color: Theme.secondaryColor
                         elide: Text.ElideRight
