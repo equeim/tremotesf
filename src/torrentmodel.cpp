@@ -264,7 +264,7 @@ TorrentModel::TorrentModel()
     qRegisterMetaType< QList<TorrentTracker> >();
 
     m_worker = new TorrentModelWorker(&m_torrents, &m_torrentIds);
-    connect(this, &TorrentModel::beginUpdateModel, m_worker, &TorrentModelWorker::doWork);
+    connect(this, &TorrentModel::requestModelUpdate, m_worker, &TorrentModelWorker::doWork);
     connect(m_worker, &TorrentModelWorker::done, this, &TorrentModel::endUpdateModel);
 
     m_workerThread = new QThread(this);
@@ -409,6 +409,11 @@ void TorrentModel::setPeerModel(TorrentPeerModel *peerModel)
 void TorrentModel::setTrackerModel(TorrentTrackerModel *trackerModel)
 {
     m_trackerModel = trackerModel;
+}
+
+void TorrentModel::beginUpdateModel(const QByteArray &replyData)
+{
+    emit requestModelUpdate(replyData);
 }
 
 void TorrentModel::removeAtIndex(int index)

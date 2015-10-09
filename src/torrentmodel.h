@@ -151,6 +151,8 @@ public:
     void setPeerModel(TorrentPeerModel *peerModel);
     void setTrackerModel(TorrentTrackerModel *trackerModel);
 
+    void beginUpdateModel(const QByteArray &replyData);
+
     Q_INVOKABLE void removeAtIndex(int index);
     Q_INVOKABLE QString formatEta(int seconds) const;
 
@@ -174,7 +176,7 @@ private:
 
     QMutex m_mutex;
 signals:
-    void beginUpdateModel(const QByteArray &replyData);
+    void requestModelUpdate(const QByteArray &replyData);
     void torrentRemoved();
 };
 
