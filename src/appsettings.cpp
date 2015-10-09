@@ -186,6 +186,9 @@ void AppSettings::addAccount(const QString &name,
     m_clientSettings->setValue(name + "/timeout", timeout);
 
     emit accountAdded(name, accounts().indexOf(name));
+
+    if (accountCount() == 1)
+        setCurrentAccount(name);
 }
 
 void AppSettings::removeAccount(const QString &name)

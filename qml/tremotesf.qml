@@ -38,20 +38,9 @@ ApplicationWindow
     initialPage: Component { TorrentsPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
 
-    function addFirstAccount(immediate) {
-        var dialog
-        if (immediate)
-            dialog = pageStack.push(addAccountDialog, {}, PageStackAction.Immediate)
-        else
-            dialog = pageStack.push(addAccountDialog)
-        dialog.accepted.connect(function() {
-            root.appSettings.currentAccount = dialog.name
-        })
-    }
-
     Component.onCompleted: {
         if (root.appSettings.accountCount === 0)
-            addFirstAccount(true)
+            pageStack.push(addAccountDialog, {}, PageStackAction.Immediate)
     }
 
     Component {

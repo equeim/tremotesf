@@ -34,7 +34,7 @@ Page {
         target: root.appSettings
         onAccountRemoved: {
             if (root.appSettings.accountCount === 0)
-                addFirstAccount(false)
+                pageStack.push(addAccountDialog)
         }
     }
 
