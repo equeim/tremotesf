@@ -20,34 +20,40 @@
 #define TORRENTPEERMODEL_H
 
 #include <QAbstractListModel>
-#include <QThread>
+#include <QMutex>
+
+class QThread;
 
 struct TorrentPeer {
     QString address;
     int progress;
     int rateToClient;
     int rateToPeer;
-};
-Q_DECLARE_METATYPE(TorrentPeer)
 
-class TorrentPeerModelWorker: public QThread
+    bool changed;
+};
+Q_DECLARE_METATYPE(TorrentPeer*)
+
+class TorrentPeerModelWorker : public QObject
 {
     Q_OBJECT
 public:
-    TorrentPeerModelWorker();
-    void setPeerList(const QVariantList &peerList);
+    TorrentPeerModelWorker(QList<TorrentPeer*> *peers, QStringList *addresses);
+    void doWork(const QVariantList &peerList);
 private:
-    QVariantList m_peerList;
-protected:
-    void run();
-signals:
-    void done(const QList<TorrentPeer> &peers);
-};
+    QList<TorrentPeer*> *m_peers;
+    QStringList *m_addresses;
 
+    QList<TorrentPeer*> m_newPeers;
+    QStringList m_newAddresses;
+signals:
+    void done(const QList<TorrentPeer*> &newPeers, const QStringList &newAddresses);
+};
 
 class TorrentPeerModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_ENUMS(TorrentPeerRoles)
     Q_PROPERTY(bool isActive READ isActive WRITE setIsActive)
 public:
     enum TorrentPeerRoles {
@@ -60,8 +66,8 @@ public:
     TorrentPeerModel();
     ~TorrentPeerModel();
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     bool isActive() const;
     int torrentId() const;
@@ -72,20 +78,22 @@ public:
     void beginUpdateModel(const QVariantList &peerList);
 
     Q_INVOKABLE void resetModel();
-public slots:
-    void endUpdateModel(const QList<TorrentPeer> &peers);
 protected:
     QHash<int, QByteArray> roleNames() const;
-
 private:
-    QList<TorrentPeer> m_peers;
+    void endUpdateModel(const QList<TorrentPeer*> &newPeers, const QStringList &newAddresses);
+private:
+    QList<TorrentPeer*> m_peers;
+    QStringList m_addresses;
+
     TorrentPeerModelWorker *m_worker;
+    QThread *m_workerThread;
+
+    QMutex m_mutex;
 
     bool m_isActive;
     int m_torrentId;
-
-    bool m_changingModel;
 signals:
-    void modelChanged();
+    void requestModelUpdate(const QVariantList &peerList);
 };
 #endif // TORRENTPEERMODEL_H

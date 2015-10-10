@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<TorrentPeerModel>("harbour.tremotesf", 0, 1, "TorrentPeerModel");
     qmlRegisterType<TorrentTrackerModel>("harbour.tremotesf", 0, 1, "TorrentTrackerModel");
     qmlRegisterType<AccountModel>("harbour.tremotesf", 0, 1, "AccountModel");
+    qmlRegisterType<BaseProxyModel>("harbour.tremotesf", 0, 1, "BaseProxyModel");
     qmlRegisterType<QQuickFolderListModel, 1>("harbour.tremotesf", 0, 1, "FolderListModel");
     qmlRegisterType<QAbstractItemModel>();
 

@@ -258,9 +258,6 @@ TorrentModel::TorrentModel()
 {
     qRegisterMetaType< QList<Torrent*> >();
 
-    qRegisterMetaType<TorrentPeer>();
-    qRegisterMetaType< QList<TorrentPeer> >();
-
     qRegisterMetaType<TorrentTracker>();
     qRegisterMetaType< QList<TorrentTracker> >();
 

@@ -19,57 +19,80 @@
 #include "torrentpeermodel.h"
 #include "torrentpeermodel.moc"
 
-#include <QEventLoop>
+#include <QDebug>
+#include <QThread>
 
-TorrentPeerModelWorker::TorrentPeerModelWorker()
+TorrentPeerModelWorker::TorrentPeerModelWorker(QList<TorrentPeer *> *peers, QStringList *addresses)
 {
-
+    m_peers = peers;
+    m_addresses = addresses;
 }
 
-void TorrentPeerModelWorker::setPeerList(const QVariantList &peerList)
+void TorrentPeerModelWorker::doWork(const QVariantList &peerList)
 {
-    m_peerList = peerList;
-}
+    m_newPeers.clear();
+    m_newAddresses.clear();
 
-void TorrentPeerModelWorker::run() Q_DECL_OVERRIDE
-{
-    QList<TorrentPeer> peers;
+    for (int i = 0; i < peerList.length(); i++) {
+        QVariantMap peerMap = peerList.at(i).toMap();
 
-    for (int i = 0; i < m_peerList.length(); i++) {
-        TorrentPeer peer;
-        QVariantMap peerMap = m_peerList.at(i).toMap();
+        TorrentPeer *peer;
+        QString address = peerMap.value("address").toString();
+        int index = m_addresses->indexOf(address);
+        if (index == -1) {
+            peer = new TorrentPeer;
+            peer->address = address;
+        } else {
+            peer = m_peers->at(index);
+        }
+        m_newPeers.append(peer);
+        m_newAddresses.append(address);
 
-        peer.address = peerMap.value("address").toString();
-        peer.progress = peerMap.value("progress").toDouble();
-        peer.rateToClient = peerMap.value("rateToClient").toInt();
-        peer.rateToPeer = peerMap.value("rateToPeer").toInt();
+        peer->changed = false;
 
-        peers.append(peer);
+        float progress = peerMap.value("progress").toFloat() * 100.0;
+        if (progress != peer->progress) {
+            peer->progress = progress;
+            peer->changed = true;
+        }
+
+        int rateToClient = peerMap.value("rateToClient").toInt();
+        if (rateToClient != peer->rateToClient) {
+            peer->rateToClient = rateToClient;
+            peer->changed = true;
+        }
+
+        int rateToPeer = peerMap.value("rateToPeer").toInt();
+        if (rateToPeer != peer->rateToPeer) {
+            peer->rateToPeer = rateToPeer;
+            peer->changed = true;
+        }
     }
 
-    emit done(peers);
+    emit done(m_newPeers, m_newAddresses);
 }
 
 TorrentPeerModel::TorrentPeerModel()
 {
-    m_worker = new TorrentPeerModelWorker;
+    qRegisterMetaType< QList<TorrentPeer*> >();
+
+    m_worker = new TorrentPeerModelWorker(&m_peers, &m_addresses);
+    connect(this, &TorrentPeerModel::requestModelUpdate, m_worker, &TorrentPeerModelWorker::doWork);
     connect(m_worker, &TorrentPeerModelWorker::done, this, &TorrentPeerModel::endUpdateModel);
 
-    m_isActive = false;
+    m_workerThread = new QThread(this);
+    connect(m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
+    m_worker->moveToThread(m_workerThread);
+    m_workerThread->start(QThread::LowPriority);
 
-    m_changingModel = false;
+    m_isActive = false;
 }
 
 TorrentPeerModel::~TorrentPeerModel()
 {
-    m_worker->wait();
-    m_worker->deleteLater();
-}
-
-int TorrentPeerModel::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return m_peers.length();
+    m_workerThread->quit();
+    m_workerThread->wait();
+    qDeleteAll(m_peers);
 }
 
 QVariant TorrentPeerModel::data(const QModelIndex &index, int role) const
@@ -77,20 +100,26 @@ QVariant TorrentPeerModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const TorrentPeer &peer = m_peers.at(index.row());
+    const TorrentPeer *peer = m_peers.at(index.row());
 
     switch (role) {
     case AddressRole:
-        return peer.address;
+        return peer->address;
     case ProgressRole:
-        return peer.progress;
+        return peer->progress;
     case RateToClientRole:
-        return peer.rateToClient;
+        return peer->rateToClient;
     case RateToPeerRole:
-        return peer.rateToPeer;
+        return peer->rateToPeer;
     default:
         return QVariant();
     }
+}
+
+int TorrentPeerModel::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return m_peers.length();
 }
 
 bool TorrentPeerModel::isActive() const
@@ -115,59 +144,21 @@ void TorrentPeerModel::setTorrentId(int torrentId)
 
 void TorrentPeerModel::beginUpdateModel(const QVariantList &peerList)
 {
-    m_worker->wait();
-    m_worker->setPeerList(peerList);
-    m_worker->start(QThread::LowPriority);
-}
-
-void TorrentPeerModel::endUpdateModel(const QList<TorrentPeer> &peers)
-{
-    if (m_changingModel) {
-        QEventLoop loop;
-        connect(this, &TorrentPeerModel::modelChanged, &loop, &QEventLoop::quit);
-        loop.exec();
-    }
-    m_changingModel = true;
-
-    int oldCount = m_peers.length();
-
-    m_peers = peers;
-
-    if (m_peers.length() > oldCount) {
-        for (int i = oldCount; i < m_peers.length(); i++) {
-            beginInsertRows(QModelIndex(), i, i);
-            endInsertRows();
-        }
-    } else if (m_peers.length() < oldCount) {
-        for (int i = oldCount; i > m_peers.length(); i--) {
-            beginRemoveRows(QModelIndex(), i - 1, i - 1);
-            endRemoveRows();
-        }
-    }
-
-    emit dataChanged(index(0), index(rowCount() - 1));
-
-    m_changingModel = false;
-    emit modelChanged();
+    m_mutex.lock();
+    emit requestModelUpdate(peerList);
 }
 
 void TorrentPeerModel::resetModel()
 {
-    if (m_changingModel) {
-        QEventLoop loop;
-        connect(this, &TorrentPeerModel::modelChanged, &loop, &QEventLoop::quit);
-        loop.exec();
-    }
-    m_changingModel = true;
+    m_mutex.lock();
 
     beginResetModel();
+    qDeleteAll(m_peers);
     m_peers.clear();
+    m_addresses.clear();
     endResetModel();
 
-    m_isActive = false;
-
-    m_changingModel = false;
-    emit modelChanged();
+    m_mutex.unlock();
 }
 
 QHash<int, QByteArray> TorrentPeerModel::roleNames() const
@@ -180,4 +171,36 @@ QHash<int, QByteArray> TorrentPeerModel::roleNames() const
     roles.insert(RateToPeerRole, "rateToPeer");
 
     return roles;
+}
+
+void TorrentPeerModel::endUpdateModel(const QList<TorrentPeer *> &newPeers, const QStringList &newAddresses)
+{
+    for (int i = 0; i < m_addresses.length(); i++) {
+        QString address = m_addresses.at(i);
+        if (!newAddresses.contains(address)) {
+            beginRemoveRows(QModelIndex(), i, i);
+            delete m_peers.takeAt(i);
+            m_addresses.removeAt(i);
+            endRemoveRows();
+        }
+    }
+
+    for (int i = 0; i < newAddresses.length(); i++) {
+        QString address = newAddresses.at(i);
+        if (m_addresses.contains(address)) {
+            int row = m_addresses.indexOf(address);
+            TorrentPeer *peer = m_peers.at(row);
+            if (peer->changed) {
+                QModelIndex modelIndex = index(row, 0);
+                emit dataChanged(modelIndex, modelIndex);
+            }
+        } else {
+            beginInsertRows(QModelIndex(), rowCount(), rowCount());
+            m_peers.append(newPeers.at(i));
+            m_addresses.append(address);
+            endInsertRows();
+        }
+    }
+
+    m_mutex.unlock();
 }

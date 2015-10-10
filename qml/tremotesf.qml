@@ -29,11 +29,16 @@ ApplicationWindow
 
     property alias appSettings: appSettings
     property alias transmission: transmission
+
     property alias torrentModel: torrentModel
     property alias proxyTorrentModel: proxyTorrentModel
+
     property alias fileModel: fileModel
     property alias proxyFileModel: proxyFileModel
+
     property alias peerModel: peerModel
+    property alias proxyPeerModel: proxyPeerModel
+
     property alias trackerModel: trackerModel
 
     initialPage: Component { TorrentsPage { } }
@@ -85,6 +90,12 @@ ApplicationWindow
 
     TorrentPeerModel {
         id: peerModel
+    }
+
+    BaseProxyModel {
+        id: proxyPeerModel
+        sortRole: TorrentFileModel.AddressRole
+        sourceModel: root.peerModel
     }
 
     TorrentTrackerModel {

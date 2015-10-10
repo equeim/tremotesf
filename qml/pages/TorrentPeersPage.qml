@@ -80,7 +80,7 @@ Page {
                 }
             }
         }
-        model: peerModel
+        model: root.proxyPeerModel
 
         ViewPlaceholder {
             enabled: listView.count === 0
