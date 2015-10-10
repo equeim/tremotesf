@@ -29,6 +29,7 @@
 #include "torrentfilemodel.h"
 #include "torrentpeermodel.h"
 #include "torrenttrackermodel.h"
+#include "transmission.h"
 
 Torrent::Torrent(const QString &hashString, int id, const QString &name)
 {
@@ -359,6 +360,56 @@ int TorrentModel::rowCount(const QModelIndex &parent) const
     return m_torrents.length();
 }
 
+bool TorrentModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid())
+        return false;
+
+    m_mutex.lock();
+
+    Torrent *torrent = m_torrents.at(index.row());
+
+    switch (role) {
+    case BandwidthPriorityRole:
+        setTorrentBandwidthPriority(torrent, index, value.toInt());
+        break;
+    case DownloadLimitRole:
+        setTorrentDownloadLimit(torrent, index, value.toInt());
+        break;
+    case DownloadLimitedRole:
+        setTorrentDownloadLimited(torrent, index, value.toBool());
+        break;
+    case HonorsSessionLimitsRole:
+        setTorrentHonorsSessionLimits(torrent, index, value.toBool());
+        break;
+    case PeerLimitRole:
+        setTorrentPeerLimit(torrent, index, value.toInt());
+        break;
+    case SeedRatioLimitRole:
+        setTorrentSeedRatioLimit(torrent, index, value.toFloat());
+        break;
+    case SeedRatioModeRole:
+        setTorrentSeedRatioMode(torrent, index, value.toInt());
+        break;
+    case StatusRole:
+        setTorrentStatus(torrent, index, value.toInt());
+        break;
+    case UploadLimitRole:
+        setTorrentUploadLimit(torrent, index, value.toInt());
+        break;
+    case UploadLimitedRole:
+        setTorrentUploadLimited(torrent, index, value.toBool());
+        break;
+    default:
+        m_mutex.unlock();
+        return false;
+    }
+
+    m_mutex.unlock();
+
+    return true;
+}
+
 void TorrentModel::resetModel()
 {
     m_mutex.lock();
@@ -396,6 +447,11 @@ TorrentTrackerModel* TorrentModel::trackerModel() const
     return m_trackerModel;
 }
 
+Transmission* TorrentModel::transmission() const
+{
+    return m_transmission;
+}
+
 void TorrentModel::setFileModel(TorrentFileModel *fileModel)
 {
     m_fileModel = fileModel;
@@ -411,8 +467,14 @@ void TorrentModel::setTrackerModel(TorrentTrackerModel *trackerModel)
     m_trackerModel = trackerModel;
 }
 
+void TorrentModel::setTransmission(Transmission *transmission)
+{
+    m_transmission = transmission;
+}
+
 void TorrentModel::beginUpdateModel(const QByteArray &replyData)
 {
+    m_mutex.lock();
     emit requestModelUpdate(replyData);
 }
 
@@ -489,8 +551,6 @@ void TorrentModel::loadTrackerModel(int index)
 
 void TorrentModel::endUpdateModel(const QList<Torrent*> &newTorrents, const QList<int> newTorrentIds)
 {
-    m_mutex.lock();
-
     qDebug() << "update";
 
     for (int i = 0; i < m_torrentIds.length(); i++) {
@@ -555,6 +615,83 @@ void TorrentModel::endUpdateModel(const QList<Torrent*> &newTorrents, const QLis
     }
 
     m_mutex.unlock();
+}
+
+void TorrentModel::setTorrentBandwidthPriority(Torrent *torrent, const QModelIndex &index, int bandwidthPriority)
+{
+    torrent->bandwidthPriority = bandwidthPriority;
+    emit dataChanged(index, index, QVector<int>() << BandwidthPriorityRole);
+    m_transmission->changeTorrent(torrent->id, "bandwidthPriority", bandwidthPriority);
+}
+
+void TorrentModel::setTorrentDownloadLimit(Torrent *torrent, const QModelIndex &index, int downloadLimit)
+{
+    torrent->downloadLimit = downloadLimit;
+    emit dataChanged(index, index, QVector<int>() << DownloadLimitRole);
+    m_transmission->changeTorrent(torrent->id, "downloadLimit", downloadLimit);
+}
+
+void TorrentModel::setTorrentDownloadLimited(Torrent *torrent, const QModelIndex &index, bool downloadLimited)
+{
+    torrent->downloadLimited = downloadLimited;
+    emit dataChanged(index, index, QVector<int>() << DownloadLimitedRole);
+    m_transmission->changeTorrent(torrent->id, "downloadLimited", downloadLimited);
+}
+
+void TorrentModel::setTorrentHonorsSessionLimits(Torrent *torrent, const QModelIndex &index, bool honorsSessionLimits)
+{
+    torrent->honorsSessionLimits = honorsSessionLimits;
+    emit dataChanged(index, index, QVector<int>() << HonorsSessionLimitsRole);
+    m_transmission->changeTorrent(torrent->id, "honorsSessionLimits", honorsSessionLimits);
+}
+
+void TorrentModel::setTorrentPeerLimit(Torrent *torrent, const QModelIndex &index, int peerLimit)
+{
+    torrent->peerLimit = peerLimit;
+    emit dataChanged(index, index, QVector<int>() << PeerLimitRole);
+    m_transmission->changeTorrent(torrent->id, "peer-limit", peerLimit);
+}
+
+void TorrentModel::setTorrentSeedRatioLimit(Torrent *torrent, const QModelIndex &index, float seedRatioLimit)
+{
+    torrent->seedRatioLimit = seedRatioLimit;
+    emit dataChanged(index, index, QVector<int>() << SeedRatioLimitRole);
+    m_transmission->changeTorrent(torrent->id, "seedRatioLimit", seedRatioLimit);
+}
+
+void TorrentModel::setTorrentSeedRatioMode(Torrent *torrent, const QModelIndex &index, int seedRatioMode)
+{
+    torrent->seedRatioMode = seedRatioMode;
+    emit dataChanged(index, index, QVector<int>() << SeedRatioModeRole);
+    m_transmission->changeTorrent(torrent->id, "seedRatioMode", seedRatioMode);
+}
+
+void TorrentModel::setTorrentStatus(Torrent *torrent, const QModelIndex &index, int status)
+{
+    torrent->status = status;
+    emit dataChanged(index, index, QVector<int>() << StatusRole);
+
+    if (status == StoppedStatus)
+        m_transmission->stopTorrent(torrent->id);
+    else if (status == QueuedForCheckingStatus)
+        m_transmission->verifyTorrent(torrent->id);
+    else if (status == DownloadingStatus ||
+             status == QueuedForSeedingStatus)
+        m_transmission->startTorrent(torrent->id);
+}
+
+void TorrentModel::setTorrentUploadLimit(Torrent *torrent, const QModelIndex &index, int uploadLimit)
+{
+    torrent->uploadLimit = uploadLimit;
+    emit dataChanged(index, index, QVector<int>() << UploadLimitRole);
+    m_transmission->changeTorrent(torrent->id, "uploadLimit", uploadLimit);
+}
+
+void TorrentModel::setTorrentUploadLimited(Torrent *torrent, const QModelIndex &index, bool uploadLimited)
+{
+    torrent->downloadLimited = uploadLimited;
+    emit dataChanged(index, index, QVector<int>() << UploadLimitedRole);
+    m_transmission->changeTorrent(torrent->id, "downloadLimited", uploadLimited);
 }
 
 QHash<int, QByteArray> TorrentModel::roleNames() const

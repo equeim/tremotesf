@@ -19,6 +19,8 @@
 import QtQuick 2.1
 import Sailfish.Silica 1.0
 
+import harbour.tremotesf 0.1
+
 import "../components"
 
 Page {
@@ -68,16 +70,11 @@ Page {
             }
             MenuItem {
                 text: qsTr("Verify")
-                onClicked: root.transmission.verifyTorrent(torrentId)
+                onClicked: model.status = TorrentModel.QueuedForCheckingStatus
             }
             MenuItem {
-                text: torrentStatus === 0 ? qsTr("Start") : qsTr("Stop")
-                onClicked: {
-                    if (torrentStatus === 0)
-                        root.transmission.startTorrent(torrentId)
-                    else
-                        root.transmission.stopTorrent(torrentId)
-                }
+                text: torrentStatus === TorrentModel.StoppedStatus ? qsTr("Start") : qsTr("Stop")
+                onClicked: startStop()
             }
         }
 

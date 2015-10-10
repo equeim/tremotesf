@@ -63,6 +63,7 @@ ApplicationWindow
         fileModel: root.fileModel
         peerModel: root.peerModel
         trackerModel: root.trackerModel
+        transmission: root.transmission
     }
 
     ProxyTorrentModel {

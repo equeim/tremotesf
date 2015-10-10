@@ -36,7 +36,7 @@ Page {
         header: PageHeader {
             title: "Tremotesf"
             description: {
-                if (transmission.error == Transmission.NoError)
+                if (transmission.error === Transmission.NoError)
                     return "↓ %1/s  ↑ %2/s".arg(Format.formatFileSize(appSettings.downloadSpeed))
                     .arg(Format.formatFileSize(appSettings.uploadSpeed))
 
@@ -60,6 +60,17 @@ Page {
                 })
             }
 
+            function startStop() {
+                if (torrentStatus === TorrentModel.StoppedStatus) {
+                    if (model.percentDone === 100)
+                        model.status = TorrentModel.QueuedForSeedingStatus
+                    else
+                        model.status = TorrentModel.DownloadingStatus
+                } else {
+                    model.status = TorrentModel.StoppedStatus
+                }
+            }
+
             contentHeight: delegateItem.height
             menu: contextMenu
             onClicked: pageStack.push(torrentDetailsPage)
@@ -79,15 +90,15 @@ Page {
                 ContextMenu {
                     MenuItem {
                         text: {
-                            if (torrentStatus === 0)
+                            if (torrentStatus === TorrentModel.StoppedStatus)
                                 return qsTr("Start")
                             return qsTr("Stop")
                         }
-                        onClicked: torrentStatus === 0 ? root.transmission.startTorrent(torrentId) : root.transmission.stopTorrent(torrentId)
+                        onClicked: startStop()
                     }
                     MenuItem {
                         text: qsTr("Verify")
-                        onClicked: root.transmission.verifyTorrent(torrentId)
+                        onClicked: model.status = TorrentModel.QueuedForCheckingStatus
                     }
                     MenuItem {
                         text: qsTr("Remove")

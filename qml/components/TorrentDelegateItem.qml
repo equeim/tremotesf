@@ -19,6 +19,8 @@
 import QtQuick 2.1
 import Sailfish.Silica 1.0
 
+import harbour.tremotesf 0.1
+
 Item {
     height: column.height + Theme.paddingMedium
     width: parent.width
@@ -36,18 +38,24 @@ Item {
                     id: statusIcon
 
                     rotation: {
-                        if (torrentStatus === 3 || torrentStatus === 4)
+                        if (torrentStatus === TorrentModel.StalledStatus ||
+                                torrentStatus === TorrentModel.DownloadingStatus)
                             return 90
-                        else if (torrentStatus === 5 || torrentStatus === 6)
+                        if (torrentStatus === TorrentModel.QueuedForSeedingStatus ||
+                                torrentStatus === TorrentModel.SeedingStatus)
                             return -90
-                        else if (torrentStatus === 1 || torrentStatus=== 2 || torrentStatus=== 7)
-                            return 0
                         return 0
                     }
                     source: {
-                        if (torrentStatus === 0 || torrentStatus === 1 || torrentStatus === 2 || torrentStatus === 7)
+                        if (torrentStatus === TorrentModel.StoppedStatus ||
+                                torrentStatus === TorrentModel.QueuedForCheckingStatus ||
+                                torrentStatus === TorrentModel.CheckingStatus ||
+                                torrentStatus === TorrentModel.IsolatedStatus)
                             return "image://theme/icon-m-pause"
-                        else if (torrentStatus === 3 || torrentStatus === 4 || torrentStatus === 5 || torrentStatus === 6)
+                        if (torrentStatus === TorrentModel.StalledStatus ||
+                                torrentStatus === TorrentModel.DownloadingStatus ||
+                                torrentStatus === TorrentModel.QueuedForSeedingStatus ||
+                                torrentStatus === TorrentModel.SeedingStatus)
                             return "image://theme/icon-m-play"
                     }
                     sourceSize.height: Theme.iconSizeMedium
@@ -88,7 +96,12 @@ Item {
                     anchors.right: parent.right
                     color: Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
-                    text: model.eta < 0 ? "∞" : root.torrentModel.formatEta(model.eta)
+                    text: {
+                        if (model.eta < 0 ||
+                                torrentStatus === TorrentModel.StoppedStatus)
+                            return "∞"
+                        return root.torrentModel.formatEta(model.eta)
+                    }
                 }
             }
 
@@ -105,9 +118,8 @@ Item {
                     }
                     maximumValue: 100
                     value: {
-                        if (torrentStatus === 2) {
+                        if (torrentStatus === TorrentModel.CheckingStatus)
                             return model.recheckProgress
-                        }
                         return model.percentDone
                     }
                     width: parent.width
@@ -155,24 +167,26 @@ Item {
                                 return model.errorString
 
                             switch (torrentStatus) {
-                            case 0:
+                            case TorrentModel.StoppedStatus:
                                 return qsTr("Stopped")
-                            case 1:
+                            case TorrentModel.QueuedForCheckingStatus:
                                 return qsTr("Queued for checking")
-                            case 2:
+                            case TorrentModel.CheckingStatus:
                                 return qsTr("Checking")
-                            case 3:
+                            case TorrentModel.StalledStatus:
                                 return qsTr("Stalled")
-                            case 4:
+                            case TorrentModel.DownloadingStatus:
                                 return qsTr("Downloading\nfrom %1 of %n peer(s)", String(), model.peersConnected).arg(model.peersSendingToUs)
-                            case 5:
-                                return qsTr("Queued to seed")
-                            case 6:
+                            case TorrentModel.QueuedForSeedingStatus:
+                                return qsTr("Queued to seeding")
+                            case TorrentModel.SeedingStatus:
                                 return qsTr("Seeding\nto %1 of %n peer(s)", String(), model.peersConnected).arg(model.peersGettingFromUs)
-                            case 7:
+                            case TorrentModel.IsolatedStatus:
                                 return qsTr("Isolated")
-                            case 8:
+                            case TorrentModel.ErrorStatus:
                                 return qsTr("Error")
+                            default:
+                                return String()
                             }
                         }
                         wrapMode: Text.WordWrap

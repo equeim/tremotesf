@@ -57,7 +57,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed())
-                        root.transmission.changeTorrent(torrentId, "honorsSessionLimits", checked)
+                        model.honorsSessionLimits = checked
                 }
             }
 
@@ -71,7 +71,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed())
-                        root.transmission.changeTorrent(torrentId, "downloadLimited", checked)
+                        model.downloadLimited = checked
                 }
             }
 
@@ -86,7 +86,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed())
-                        root.transmission.changeTorrent(torrentId, "downloadLimit", parseInt(text))
+                        model.downloadLimit = parseInt(text)
                 }
             }
 
@@ -100,7 +100,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed())
-                        root.transmission.changeTorrent(torrentId, "uploadLimited", checked)
+                        model.uploadLimited = checked
                 }
             }
 
@@ -115,7 +115,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed())
-                        root.transmission.changeTorrent(torrentId, "uploadLimit", parseInt(text))
+                        model.uploadLimit = parseInt(text)
                 }
             }
 
@@ -139,7 +139,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed())
-                        root.transmission.changeTorrent(torrentId, "bandwidthPriority", 1 - currentIndex)
+                        model.bandwidthPriority = (1 - currentIndex)
                 }
             }
 
@@ -169,7 +169,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed())
-                        root.transmission.changeTorrent(torrentId, "seedRatioMode", currentIndex)
+                        model.seedRatioMode = currentIndex
                 }
             }
 
@@ -183,8 +183,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed()) {
-                        root.transmission.changeTorrent(torrentId, "seedRatioLimit",
-                                                        parseFloat(text.replace(",", ".")))
+                        model.seedRatioLimit = parseFloat(text.replace(",", "."))
                     }
                 }
             }
@@ -203,7 +202,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed())
-                        root.transmission.changeTorrent(torrentId, "peer-limit", parseInt(text))
+                        model.peerLimit = parseInt(text)
                 }
             }
         }

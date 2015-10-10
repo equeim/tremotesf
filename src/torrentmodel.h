@@ -28,6 +28,7 @@ class QThread;
 class TorrentFileModel;
 class TorrentPeerModel;
 class TorrentTrackerModel;
+class Transmission;
 
 class Torrent {
 public:
@@ -98,9 +99,11 @@ class TorrentModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_ENUMS(Role)
+    Q_ENUMS(TorrentStatus)
     Q_PROPERTY(TorrentFileModel* fileModel READ fileModel WRITE setFileModel)
     Q_PROPERTY(TorrentPeerModel* peerModel READ peerModel WRITE setPeerModel)
     Q_PROPERTY(TorrentTrackerModel* trackerModel READ trackerModel WRITE setTrackerModel)
+    Q_PROPERTY(Transmission* transmission READ transmission WRITE setTransmission)
 public:
     enum Role {
         ActivityDateRole = Qt::UserRole,
@@ -135,21 +138,36 @@ public:
         UploadRatioRole
     };
 
+    enum TorrentStatus {
+        StoppedStatus,
+        QueuedForCheckingStatus,
+        CheckingStatus,
+        StalledStatus,
+        DownloadingStatus,
+        QueuedForSeedingStatus,
+        SeedingStatus,
+        IsolatedStatus,
+        ErrorStatus
+    };
+
     TorrentModel();
     ~TorrentModel();
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     void resetModel();
 
     TorrentFileModel* fileModel() const;
     TorrentPeerModel* peerModel() const;
     TorrentTrackerModel* trackerModel() const;
+    Transmission* transmission() const;
 
     void setFileModel(TorrentFileModel *fileModel);
     void setPeerModel(TorrentPeerModel *peerModel);
     void setTrackerModel(TorrentTrackerModel *trackerModel);
+    void setTransmission(Transmission *transmission);
 
     void beginUpdateModel(const QByteArray &replyData);
 
@@ -161,6 +179,17 @@ public:
     Q_INVOKABLE void loadTrackerModel (int index);
 private:
     void endUpdateModel(const QList<Torrent *> &newTorrents, const QList<int> newTorrentIds);
+
+    void setTorrentBandwidthPriority(Torrent *torrent, const QModelIndex &index, int bandwidthPriority);
+    void setTorrentDownloadLimit(Torrent *torrent, const QModelIndex &index, int downloadLimit);
+    void setTorrentDownloadLimited(Torrent *torrent, const QModelIndex &index, bool downloadLimited);
+    void setTorrentHonorsSessionLimits(Torrent *torrent, const QModelIndex &index, bool honorsSessionLimits);
+    void setTorrentPeerLimit(Torrent *torrent, const QModelIndex &index, int peerLimit);
+    void setTorrentSeedRatioLimit(Torrent *torrent, const QModelIndex &index, float seedRatioLimit);
+    void setTorrentSeedRatioMode(Torrent *torrent, const QModelIndex &index, int seedRatioMode);
+    void setTorrentStatus(Torrent *torrent, const QModelIndex &index, int status);
+    void setTorrentUploadLimit(Torrent *torrent, const QModelIndex &index, int uploadLimit);
+    void setTorrentUploadLimited(Torrent *torrent, const QModelIndex &index, bool uploadLimited);
 protected:
     QHash<int, QByteArray> roleNames() const;
 private:
@@ -170,6 +199,7 @@ private:
     TorrentFileModel *m_fileModel;
     TorrentPeerModel *m_peerModel;
     TorrentTrackerModel *m_trackerModel;
+    Transmission *m_transmission;
 
     TorrentModelWorker *m_worker;
     QThread *m_workerThread;
