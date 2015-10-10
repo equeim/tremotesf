@@ -85,7 +85,7 @@ ApplicationWindow
 
     ProxyFileModel {
         id: proxyFileModel
-        sourceModel: fileModel
+        sourceModel: root.fileModel
     }
 
     TorrentPeerModel {

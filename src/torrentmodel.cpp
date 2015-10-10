@@ -130,9 +130,9 @@ void Torrent::update(const QVariantMap &torrentMap)
         changed = true;
     }
 
-    float percentDone = torrentMap.value("percentDone").toFloat() * 100;
+    float percentDone = torrentMap.value("percentDone").toFloat() * 100.0;
     if (percentDone != this->percentDone) {
-        if (percentDone == 100)
+        if (percentDone == 100.0)
             finished = true;
         this->percentDone = percentDone;
         changed = true;
@@ -150,7 +150,7 @@ void Torrent::update(const QVariantMap &torrentMap)
         changed = true;
     }
 
-    float recheckProgress = torrentMap.value("recheckProgress").toFloat() * 100;
+    float recheckProgress = torrentMap.value("recheckProgress").toFloat() * 100.0;
     if (recheckProgress != this->recheckProgress) {
         this->recheckProgress = recheckProgress;
         changed = true;
@@ -552,13 +552,14 @@ void TorrentModel::endUpdateModel(const QList<Torrent*> &newTorrents, const QLis
 
     for (int i = 0; i < m_torrentIds.length(); i++) {
         int id = m_torrentIds.at(i);
+
         if (!newTorrentIds.contains(id)) {
             beginRemoveRows(QModelIndex(), i, i);
             delete m_torrents.takeAt(i);
             m_torrentIds.removeAt(i);
             endRemoveRows();
 
-            m_torrentIds.removeAt(i);
+            i--;
 
             emit torrentRemoved();
 
