@@ -43,9 +43,6 @@ public:
 private:
     QList<TorrentPeer*> *m_peers;
     QStringList *m_addresses;
-
-    QList<TorrentPeer*> m_newPeers;
-    QStringList m_newAddresses;
 signals:
     void done(const QList<TorrentPeer*> &newPeers, const QStringList &newAddresses);
 };

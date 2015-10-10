@@ -216,7 +216,7 @@ void Torrent::update(const QVariantMap &torrentMap)
     trackerList = torrentMap.value("trackerStats").toList();
 }
 
-TorrentModelWorker::TorrentModelWorker(QList<Torrent*> *torrents, QList<int> *torrentIds)
+TorrentModelWorker::TorrentModelWorker(const QList<Torrent*> *torrents, const QList<int> *torrentIds)
 {
     m_torrents = torrents;
     m_torrentIds = torrentIds;
@@ -224,8 +224,8 @@ TorrentModelWorker::TorrentModelWorker(QList<Torrent*> *torrents, QList<int> *to
 
 void TorrentModelWorker::doWork(const QByteArray &replyData)
 {
-    m_newTorrents.clear();
-    m_newTorrentIds.clear();
+    QList<Torrent*> newTorrents;
+    QList<int> newTorrentIds;
 
     QVariantList torrentList = QJsonDocument::fromJson(replyData).toVariant()
             .toMap()
@@ -246,12 +246,12 @@ void TorrentModelWorker::doWork(const QByteArray &replyData)
                                   torrentMap.value("name").toString());
         else
             torrent = m_torrents->at(index);
-        m_newTorrents.append(torrent);
-        m_newTorrentIds.append(id);
+        newTorrents.append(torrent);
+        newTorrentIds.append(id);
         torrent->update(torrentMap);
     }
 
-    emit done(m_newTorrents, m_newTorrentIds);
+    emit done(newTorrents, newTorrentIds);
 }
 
 TorrentModel::TorrentModel()

@@ -83,14 +83,11 @@ class TorrentModelWorker : public QObject
 {
     Q_OBJECT
 public:
-    TorrentModelWorker(QList<Torrent*> *torrents, QList<int> *torrentIds);
+    TorrentModelWorker(const QList<Torrent*> *torrents, const QList<int> *torrentIds);
     void doWork(const QByteArray &replyData);
 private:
-    QList<Torrent*> *m_torrents;
-    QList<int> *m_torrentIds;
-
-    QList<Torrent*> m_newTorrents;
-    QList<int> m_newTorrentIds;
+    const QList<Torrent*> *m_torrents;
+    const QList<int> *m_torrentIds;
 signals:
     void done(const QList<Torrent*> &newTorrents, const QList<int> &newTorrentIds);
 };

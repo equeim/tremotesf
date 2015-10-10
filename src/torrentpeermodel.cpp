@@ -30,8 +30,8 @@ TorrentPeerModelWorker::TorrentPeerModelWorker(QList<TorrentPeer *> *peers, QStr
 
 void TorrentPeerModelWorker::doWork(const QVariantList &peerList)
 {
-    m_newPeers.clear();
-    m_newAddresses.clear();
+    QList<TorrentPeer*> newPeers;
+    QStringList newAddresses;
 
     for (int i = 0; i < peerList.length(); i++) {
         QVariantMap peerMap = peerList.at(i).toMap();
@@ -45,8 +45,8 @@ void TorrentPeerModelWorker::doWork(const QVariantList &peerList)
         } else {
             peer = m_peers->at(index);
         }
-        m_newPeers.append(peer);
-        m_newAddresses.append(address);
+        newPeers.append(peer);
+        newAddresses.append(address);
 
         peer->changed = false;
 
@@ -69,7 +69,7 @@ void TorrentPeerModelWorker::doWork(const QVariantList &peerList)
         }
     }
 
-    emit done(m_newPeers, m_newAddresses);
+    emit done(newPeers, newAddresses);
 }
 
 TorrentPeerModel::TorrentPeerModel()
@@ -182,6 +182,8 @@ void TorrentPeerModel::endUpdateModel(const QList<TorrentPeer *> &newPeers, cons
             delete m_peers.takeAt(i);
             m_addresses.removeAt(i);
             endRemoveRows();
+
+            i--;
         }
     }
 
