@@ -19,58 +19,68 @@
 #include "torrenttrackermodel.h"
 #include "torrenttrackermodel.moc"
 
-#include <QEventLoop>
+#include <QThread>
 
-TorrentTrackerModelWorker::TorrentTrackerModelWorker()
+TorrentTrackerModelWorker::TorrentTrackerModelWorker(const QList<TorrentTracker*> *trackers, const QList<int> *trackerIds)
 {
-
+    m_trackers = trackers;
+    m_trackerIds = trackerIds;
 }
 
-void TorrentTrackerModelWorker::setTrackerList(const QVariantList &trackerList)
+void TorrentTrackerModelWorker::doWork(const QVariantList &trackerList)
 {
-    m_trackerList = trackerList;
-}
+    QList<TorrentTracker*> newTrackers;
+    QList<int> newTrackerIds;
 
-void TorrentTrackerModelWorker::run() Q_DECL_OVERRIDE
-{
-    QList<TorrentTracker> trackers;
+    for (int i = 0; i < trackerList.length(); i++) {
+        QVariantMap trackerMap = trackerList.at(i).toMap();
 
-    for (int i = 0; i < m_trackerList.length(); i++) {
-        TorrentTracker tracker;
-        QVariantMap trackerMap = m_trackerList.at(i).toMap();
+        TorrentTracker *tracker;
+        int trackerId = trackerMap.value("id").toInt();
+        int index = m_trackerIds->indexOf(trackerId);
+        if (index == -1) {
+            tracker = new TorrentTracker;
+            tracker->announce = trackerMap.value("announce").toString();
+            tracker->host = trackerMap.value("host").toString();
+            tracker->id = trackerId;
+        } else {
+            tracker = m_trackers->at(index);
+        }
+        newTrackers.append(tracker);
+        newTrackerIds.append(trackerId);
 
-        tracker.announce = trackerMap.value("announce").toString();
-        tracker.host = trackerMap.value("host").toString();
-        tracker.id = trackerMap.value("id").toInt();
-        if (trackerMap.value("lastAnnounceTime").toUInt() != 0)
-            tracker.lastAnnounceTime = QDateTime::fromTime_t(trackerMap.value("lastAnnounceTime").toUInt());
+        tracker->changed = false;
 
-        trackers.append(tracker);
+        QDateTime lastAnnounceTime = QDateTime::fromTime_t(trackerMap.value("lastAnnounceTime").toUInt());
+        if (lastAnnounceTime != tracker->lastAnnounceTime) {
+            tracker->lastAnnounceTime = lastAnnounceTime;
+            tracker->changed = true;
+        }
     }
 
-    emit done(trackers);
+    emit done(newTrackers, newTrackerIds);
 }
 
 TorrentTrackerModel::TorrentTrackerModel()
 {
-   m_worker = new TorrentTrackerModelWorker;
-   connect(m_worker, &TorrentTrackerModelWorker::done, this, &TorrentTrackerModel::endUpdateModel);
+    qRegisterMetaType< QList<TorrentTracker*> >();
 
-   m_isActive = false;
+    m_worker = new TorrentTrackerModelWorker(&m_trackers, &m_trackerIds);
+    connect(this, &TorrentTrackerModel::requestModelUpdate, m_worker, &TorrentTrackerModelWorker::doWork);
+    connect(m_worker, &TorrentTrackerModelWorker::done, this, &TorrentTrackerModel::endUpdateModel);
 
-   m_changingModel = false;
+    m_workerThread = new QThread(this);
+    connect(m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
+    m_worker->moveToThread(m_workerThread);
+    m_workerThread->start(QThread::LowPriority);
+
+    m_isActive = false;
 }
 
 TorrentTrackerModel::~TorrentTrackerModel()
 {
-    m_worker->wait();
-    m_worker->deleteLater();
-}
-
-int TorrentTrackerModel::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return m_trackers.length();
+    m_workerThread->quit();
+    m_workerThread->wait();
 }
 
 QVariant TorrentTrackerModel::data(const QModelIndex &index, int role) const
@@ -78,20 +88,26 @@ QVariant TorrentTrackerModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const TorrentTracker &tracker = m_trackers.at(index.row());
+    const TorrentTracker *tracker = m_trackers.at(index.row());
 
     switch (role) {
     case AnnounceRole:
-        return tracker.announce;
+        return tracker->announce;
     case HostRole:
-        return tracker.host;
+        return tracker->host;
     case IdRole:
-        return tracker.id;
+        return tracker->id;
     case LastAnnounceTimeRole:
-        return tracker.lastAnnounceTime;
+        return tracker->lastAnnounceTime;
     default:
         return QVariant();
     }
+}
+
+int TorrentTrackerModel::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return m_trackers.length();
 }
 
 bool TorrentTrackerModel::isActive() const
@@ -116,75 +132,69 @@ void TorrentTrackerModel::setTorrentId(int torrentId)
 
 void TorrentTrackerModel::beginUpdateModel(const QVariantList &trackerList)
 {
-    m_worker->wait();
-    m_worker->setTrackerList(trackerList);
-    m_worker->start(QThread::LowPriority);
+    m_mutex.lock();
+    emit requestModelUpdate(trackerList);
 }
 
 void TorrentTrackerModel::removeAtIndex(int index)
 {
-    if (m_changingModel) {
-        QEventLoop loop;
-        connect(this, &TorrentTrackerModel::modelChanged, &loop, &QEventLoop::quit);
-        loop.exec();
-    }
-    m_changingModel = true;
+    if (index >= rowCount())
+        return;
+
+    m_mutex.lock();
 
     beginRemoveRows(QModelIndex(), index, index);
-    m_trackers.removeAt(index);
+    delete m_trackers.takeAt(index);
+    m_trackerIds.removeAt(index);
     endRemoveRows();
 
-    m_changingModel = false;
-    emit modelChanged();
+    m_mutex.unlock();
 }
 
 void TorrentTrackerModel::resetModel()
 {
-    if (m_changingModel) {
-        QEventLoop loop;
-        connect(this, &TorrentTrackerModel::modelChanged, &loop, &QEventLoop::quit);
-        loop.exec();
-    }
-    m_changingModel = true;
+    m_mutex.lock();
 
     beginResetModel();
+    qDeleteAll(m_trackers);
     m_trackers.clear();
+    m_trackerIds.clear();
     endResetModel();
 
-    m_isActive = false;
-
-    m_changingModel = false;
-    emit modelChanged();
+    m_mutex.unlock();
 }
 
-void TorrentTrackerModel::endUpdateModel(const QList<TorrentTracker> &trackers)
+void TorrentTrackerModel::endUpdateModel(const QList<TorrentTracker *> &newTrackers, const QList<int> &newTrackerIds)
 {
-    if (m_changingModel) {
-        QEventLoop loop;
-        connect(this, &TorrentTrackerModel::modelChanged, &loop, &QEventLoop::quit);
-        loop.exec();
+    for (int i = 0; i < m_trackerIds.length(); i++) {
+        int trackerId = m_trackerIds.at(i);
+        if (!newTrackerIds.contains(trackerId)) {
+            beginRemoveRows(QModelIndex(), i, i);
+            delete m_trackers.takeAt(i);
+            m_trackerIds.removeAt(i);
+            endRemoveRows();
+
+            i--;
+        }
     }
-    m_changingModel = true;
 
-    int oldCount = m_trackers.length();
-    m_trackers = trackers;
-
-    if (m_trackers.length() > oldCount) {
-        for (int i = oldCount; i < m_trackers.length(); i++) {
-            beginInsertRows(QModelIndex(), i, i);
+    for (int i = 0; i < newTrackerIds.length(); i++) {
+        int trackerId = newTrackerIds.at(i);
+        if (m_trackerIds.contains(trackerId)) {
+            int row = m_trackerIds.indexOf(trackerId);
+            if (m_trackers.at(row)->changed) {
+                QModelIndex modelIndex = index(row, 0);
+                emit dataChanged(modelIndex, modelIndex);
+            }
+        } else {
+            beginInsertRows(QModelIndex(), rowCount(), rowCount());
+            m_trackers.append(newTrackers.at(i));
+            m_trackerIds.append(newTrackerIds.at(i));
             endInsertRows();
         }
-    } else if (m_trackers.length() < oldCount) {
-        for (int i = oldCount; i > m_trackers.length(); i--) {
-            beginRemoveRows(QModelIndex(), i - 1, i - 1);
-            endRemoveRows();
-        }
     }
 
-    emit dataChanged(index(0), index(rowCount() - 1));
-
-    m_changingModel = false;
-    emit modelChanged();
+    m_mutex.unlock();
 }
 
 QHash<int, QByteArray> TorrentTrackerModel::roleNames() const

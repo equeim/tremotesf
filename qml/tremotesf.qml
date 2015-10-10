@@ -40,6 +40,7 @@ ApplicationWindow
     property alias proxyPeerModel: proxyPeerModel
 
     property alias trackerModel: trackerModel
+    property alias proxyTrackerModel: proxyTrackerModel
 
     initialPage: Component { TorrentsPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
@@ -94,11 +95,17 @@ ApplicationWindow
 
     BaseProxyModel {
         id: proxyPeerModel
-        sortRole: TorrentFileModel.AddressRole
+        sortRole: TorrentPeerModel.AddressRole
         sourceModel: root.peerModel
     }
 
     TorrentTrackerModel {
         id: trackerModel
+    }
+
+    BaseProxyModel {
+        id: proxyTrackerModel
+        sortRole: TorrentTrackerModel.AnnounceRole
+        sourceModel: root.trackerModel
     }
 }

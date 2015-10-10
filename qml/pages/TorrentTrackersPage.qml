@@ -46,7 +46,7 @@ Page {
         delegate: ListItem {
             function removeTracker() {
                 root.transmission.changeTorrent(torrentId, "trackerRemove", [model.id])
-                root.trackerModel.removeAtIndex(model.index)
+                root.trackerModel.removeAtIndex(root.proxyTrackerModel.getSourceIndex(model.index))
             }
 
             contentHeight: Theme.itemSizeMedium
@@ -89,7 +89,7 @@ Page {
                 EditTrackerPage { }
             }
         }
-        model: root.trackerModel
+        model: root.proxyTrackerModel
 
 
         PullDownMenu {

@@ -258,9 +258,6 @@ TorrentModel::TorrentModel()
 {
     qRegisterMetaType< QList<Torrent*> >();
 
-    qRegisterMetaType<TorrentTracker>();
-    qRegisterMetaType< QList<TorrentTracker> >();
-
     m_worker = new TorrentModelWorker(&m_torrents, &m_torrentIds);
     connect(this, &TorrentModel::requestModelUpdate, m_worker, &TorrentModelWorker::doWork);
     connect(m_worker, &TorrentModelWorker::done, this, &TorrentModel::endUpdateModel);
