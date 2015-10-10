@@ -36,9 +36,9 @@ Page {
         header: PageHeader {
             title: "Tremotesf"
             description: {
-                if (transmission.error === Transmission.NoError)
-                    return "↓ %1/s  ↑ %2/s".arg(Format.formatFileSize(appSettings.downloadSpeed))
-                    .arg(Format.formatFileSize(appSettings.uploadSpeed))
+                if (root.transmission.error === Transmission.NoError)
+                    return "↓ %1/s  ↑ %2/s".arg(Format.formatFileSize(root.appSettings.downloadSpeed))
+                    .arg(Format.formatFileSize(root.appSettings.uploadSpeed))
 
                 return root.transmission.errorString
             }
@@ -51,7 +51,7 @@ Page {
 
             function removeTorrent(deleteLocalData) {
                 root.transmission.removeTorrent(torrentId, deleteLocalData)
-                root.torrentModel.removeAtIndex(root.proxyModel.getSourceIndex(model.index))
+                root.torrentModel.removeAtIndex(root.proxyTorrentModel.getSourceIndex(model.index))
             }
 
             function remorseItemRemove(deleteLocalData) {
@@ -116,7 +116,7 @@ Page {
                 TorrentDetailsPage { }
             }
         }
-        model: proxyModel
+        model: root.proxyTorrentModel
 
         PullDownMenu {
             id: pullDownMenu

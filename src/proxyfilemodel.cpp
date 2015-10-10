@@ -16,18 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
-import Sailfish.Silica 1.0
+#include "proxyfilemodel.h"
+#include "proxyfilemodel.moc"
 
-CommonListItem {
-    property int sortRole
+#include "torrentfilemodel.h"
 
-    textColor: {
-        if (highlighted || root.proxyTorrentModel.sortRole === sortRole)
-            return Theme.highlightColor
-        else
-            return Theme.primaryColor
-    }
+ProxyFileModel::ProxyFileModel()
+{
+    setSortRole(TorrentFileModel::NameRole);
+}
 
-    onClicked: root.proxyTorrentModel.sortRole = sortRole
+bool ProxyFileModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    bool leftIsDirectory = left.data(TorrentFileModel::IsDirectoryRole).toBool();
+    bool rightIsDirectory = right.data(TorrentFileModel::IsDirectoryRole).toBool();
+
+    if (leftIsDirectory == rightIsDirectory)
+        return BaseProxyModel::lessThan(left, right);
+
+    if (leftIsDirectory)
+        return true;
+    return false;
 }

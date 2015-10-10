@@ -100,8 +100,3 @@ void ProxyTorrentModel::setSortRole(int sortRole)
     m_appSettings->setSortRole(sortRole);
     emit sortRoleChanged();
 }
-
-int ProxyTorrentModel::getSourceIndex(int proxyIndex) const
-{
-    return mapToSource(index(proxyIndex, 0)).row();
-}

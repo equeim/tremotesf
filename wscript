@@ -17,8 +17,10 @@ def build(context):
         source=[
             "src/accountmodel.cpp",
             "src/appsettings.cpp",
+            "src/baseproxymodel.cpp",
             "src/dbusproxy.cpp",
             "src/notifications.cpp",
+            "src/proxyfilemodel.cpp",
             "src/proxytorrentmodel.cpp",
             "src/transmission.cpp",
             "src/tremotesf.cpp",

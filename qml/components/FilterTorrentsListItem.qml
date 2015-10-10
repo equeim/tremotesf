@@ -23,11 +23,11 @@ CommonListItem {
     property int filterMode
 
     textColor: {
-        if (highlighted || root.proxyModel.filterMode === filterMode)
+        if (highlighted || root.proxyTorrentModel.filterMode === filterMode)
             return Theme.highlightColor
         else
             return Theme.primaryColor
     }
 
-    onClicked: root.proxyModel.filterMode = filterMode
+    onClicked: root.proxyTorrentModel.filterMode = filterMode
 }

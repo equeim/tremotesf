@@ -16,18 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
-import Sailfish.Silica 1.0
+#ifndef PROXYFILEMODEL_H
+#define PROXYFILEMODEL_H
 
-CommonListItem {
-    property int sortRole
+#include "baseproxymodel.h"
 
-    textColor: {
-        if (highlighted || root.proxyTorrentModel.sortRole === sortRole)
-            return Theme.highlightColor
-        else
-            return Theme.primaryColor
-    }
+class ProxyFileModel : public BaseProxyModel
+{
+    Q_OBJECT
+public:
+    ProxyFileModel();
+protected:
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+};
 
-    onClicked: root.proxyTorrentModel.sortRole = sortRole
-}
+#endif // PROXYFILEMODEL_H

@@ -29,7 +29,7 @@ Page {
 
     Component.onCompleted: {
         if (!root.fileModel.isActive)
-            root.torrentModel.loadFileModel(root.proxyModel.getSourceIndex(model.index))
+            root.torrentModel.loadFileModel(root.proxyTorrentModel.getSourceIndex(model.index))
     }
 
     Connections {
@@ -42,7 +42,6 @@ Page {
 
     DelegateModel {
         id: delegateModel
-        model: root.fileModel
         delegate: ListItem {
             contentHeight: Math.max(Theme.itemSizeSmall,
                                     labelColumn.height + 2 * Theme.paddingMedium)
@@ -152,6 +151,7 @@ Page {
                 }
             }
         }
+        model: root.proxyFileModel
     }
 
     SilicaListView {

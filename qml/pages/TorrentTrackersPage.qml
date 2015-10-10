@@ -27,7 +27,7 @@ Page {
 
     Component.onCompleted: {
         if (!root.trackerModel.isActive)
-            root.torrentModel.loadTrackerModel(proxyModel.getSourceIndex(model.index))
+            root.torrentModel.loadTrackerModel(root.proxyTorrentModel.getSourceIndex(model.index))
     }
 
     Connections {

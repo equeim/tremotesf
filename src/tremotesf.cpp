@@ -23,6 +23,7 @@
 
 #include "accountmodel.h"
 #include "appsettings.h"
+#include "proxyfilemodel.h"
 #include "proxytorrentmodel.h"
 #include "transmission.h"
 #include "torrentfilemodel.h"
@@ -44,6 +45,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<TorrentModel>("harbour.tremotesf", 0, 1, "TorrentModel");
     qmlRegisterType<ProxyTorrentModel>("harbour.tremotesf", 0, 1, "ProxyTorrentModel");
     qmlRegisterType<TorrentFileModel>("harbour.tremotesf", 0, 1, "TorrentFileModel");
+    qmlRegisterType<ProxyFileModel>("harbour.tremotesf", 0, 1, "ProxyFileModel");
     qmlRegisterType<TorrentPeerModel>("harbour.tremotesf", 0, 1, "TorrentPeerModel");
     qmlRegisterType<TorrentTrackerModel>("harbour.tremotesf", 0, 1, "TorrentTrackerModel");
     qmlRegisterType<AccountModel>("harbour.tremotesf", 0, 1, "AccountModel");

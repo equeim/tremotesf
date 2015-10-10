@@ -27,7 +27,7 @@ Page {
     allowedOrientations: Orientation.All
 
     Connections {
-        target: root.proxyModel
+        target: root.proxyTorrentModel
         onFilterModeChanged: pageStack.pop()
     }
 

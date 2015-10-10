@@ -19,12 +19,13 @@
 #ifndef PROXYTORRENTMODEL_H
 #define PROXYTORRENTMODEL_H
 
-#include <QSortFilterProxyModel>
 #include <QQmlParserStatus>
+
+#include "baseproxymodel.h"
 
 class AppSettings;
 
-class ProxyTorrentModel : public QSortFilterProxyModel, public QQmlParserStatus
+class ProxyTorrentModel : public BaseProxyModel, public QQmlParserStatus
 {
     Q_OBJECT
     Q_ENUMS(FilterMode)
@@ -54,8 +55,6 @@ public:
     void setFilterMode(int filterMode);
     void setSortOrder(Qt::SortOrder sortOrder);
     void setSortRole(int sortRole);
-
-    Q_INVOKABLE int getSourceIndex(int proxyIndex) const;
 private:
     AppSettings *m_appSettings;
     int m_filterMode;

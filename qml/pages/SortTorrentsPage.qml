@@ -27,7 +27,7 @@ Page {
     allowedOrientations: Orientation.All
 
     Connections {
-        target: root.proxyModel
+        target: root.proxyTorrentModel
         onSortRoleChanged: pageStack.pop()
     }
 
@@ -48,17 +48,17 @@ Page {
                 menu: ContextMenu {
                     MenuItem {
                         text: qsTr("Ascending")
-                        onClicked: root.proxyModel.sortOrder = Qt.AscendingOrder
+                        onClicked: root.proxyTorrentModel.sortOrder = Qt.AscendingOrder
                     }
 
                     MenuItem {
                         text: qsTr("Descending")
-                        onClicked: root.proxyModel.sortOrder = Qt.DescendingOrder
+                        onClicked: root.proxyTorrentModel.sortOrder = Qt.DescendingOrder
                     }
                 }
 
                 Component.onCompleted: {
-                    if (root.proxyModel.sortOrder === Qt.AscendingOrder)
+                    if (root.proxyTorrentModel.sortOrder === Qt.AscendingOrder)
                         currentIndex = 0
                     else
                         currentIndex = 1

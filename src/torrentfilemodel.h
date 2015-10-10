@@ -75,6 +75,7 @@ class TorrentFileModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_ENUMS(Priority)
+    Q_ENUMS(TorrentFileRole)
     Q_ENUMS(WantedStatus)
     Q_PROPERTY(bool isActive READ isActive WRITE setIsActive)
     Q_PROPERTY(Transmission* transmission READ transmission WRITE setTransmission)

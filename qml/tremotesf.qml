@@ -30,8 +30,9 @@ ApplicationWindow
     property alias appSettings: appSettings
     property alias transmission: transmission
     property alias torrentModel: torrentModel
-    property alias proxyModel: proxyModel
+    property alias proxyTorrentModel: proxyTorrentModel
     property alias fileModel: fileModel
+    property alias proxyFileModel: proxyFileModel
     property alias peerModel: peerModel
     property alias trackerModel: trackerModel
 
@@ -67,7 +68,7 @@ ApplicationWindow
     }
 
     ProxyTorrentModel {
-        id: proxyModel
+        id: proxyTorrentModel
         appSettings: root.appSettings
         sourceModel: root.torrentModel
     }
@@ -75,6 +76,11 @@ ApplicationWindow
     TorrentFileModel {
         id: fileModel
         transmission: root.transmission
+    }
+
+    ProxyFileModel {
+        id: proxyFileModel
+        sourceModel: fileModel
     }
 
     TorrentPeerModel {

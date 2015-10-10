@@ -8,10 +8,14 @@ src/accountmodel.cpp
 src/accountmodel.h
 src/appsettings.cpp
 src/appsettings.h
+src/baseproxymodel.cpp
+src/baseproxymodel.h
 src/dbusproxy.cpp
 src/dbusproxy.h
 src/notifications.cpp
 src/notifications.h
+src/proxyfilemodel.cpp
+src/proxyfilemodel.h
 src/proxytorrentmodel.cpp
 src/proxytorrentmodel.h
 src/torrentfilemodel.cpp

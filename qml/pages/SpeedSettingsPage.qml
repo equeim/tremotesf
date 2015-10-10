@@ -124,7 +124,7 @@ Page {
 
             CommonComboBox {
                 currentIndex: {
-                    switch (appSettings.serverValue("alt-speed-time-day")) {
+                    switch (root.appSettings.serverValue("alt-speed-time-day")) {
                     case 127: // every day
                         return 0
                     case 62: // weekdays
