@@ -72,9 +72,9 @@ public:
     Q_INVOKABLE void changeServerSettings(const QString &key, const QVariant &value);
     Q_INVOKABLE void changeTorrent(int id, const QString &key, const QVariant &value);
     Q_INVOKABLE void removeTorrent(int id, bool deleteLocalData);
-    Q_INVOKABLE void stopTorrent(int id);
-    Q_INVOKABLE void startTorrent(int id);
-    Q_INVOKABLE void verifyTorrent(int id);
+    void stopTorrent(int id);
+    void startTorrent(int id);
+    void verifyTorrent(int id);
 
     Q_INVOKABLE void checkRpcVersion();
 private:
