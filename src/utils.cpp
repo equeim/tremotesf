@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QGuiApplication>
 #include <QFile>
+#include <QLocale>
 #include <QSslCertificate>
 #include <QSslKey>
 
@@ -118,6 +119,17 @@ QString Utils::formatEta(int seconds)
         etaString +=  tr("%1 s").arg(seconds);
 
     return etaString;
+}
+
+float Utils::parseFloat(const QString &string)
+{
+    bool ok;
+    float result;
+    result = QLocale::system().toFloat(string, &ok);
+    if (ok)
+        return result;
+
+    return QLocale::c().toFloat(string);
 }
 
 void Utils::publishFinishedNotification(const QString &torrentName)

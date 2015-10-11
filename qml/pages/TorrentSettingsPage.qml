@@ -183,7 +183,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed()) {
-                        model.seedRatioLimit = parseFloat(text.replace(",", "."))
+                        model.seedRatioLimit = root.utils.parseFloat(text)
                     }
                 }
             }

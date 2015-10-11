@@ -35,7 +35,7 @@ CommonTextField {
         if (changed()) {
             if (isFloat)
                 root.transmission.changeServerSettings(key,
-                                                       parseFloat(text.replace(",", ".")))
+                                                       root.utils.parseFloat(text))
             else
                 root.transmission.changeServerSettings(key, parseInt(text));
         }

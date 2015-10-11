@@ -32,6 +32,8 @@ public:
 
     Q_INVOKABLE static QString formatEta(int seconds);
 
+    Q_INVOKABLE float parseFloat(const QString &string);
+
     static void publishFinishedNotification(const QString &torrentName);
 };
 
