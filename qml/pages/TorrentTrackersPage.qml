@@ -54,23 +54,29 @@ Page {
             onClicked: pageStack.push(editTrackerPage)
             ListView.onRemove: animateRemoval()
 
-            ListItemMargin {
-                Label {
-                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
-                    text: model.host
-                    truncationMode: TruncationMode.Fade
-                    width: parent.width
+            Label {
+                anchors {
+                    left: parent.left
+                    leftMargin: Theme.horizontalPageMargin
+                    top: parent.top
+                    topMargin: Theme.paddingMedium
                 }
+                color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                text: model.host
+                truncationMode: TruncationMode.Fade
+                width: parent.width
+            }
 
-                Label {
-                    anchors {
-                        right: parent.right
-                        bottom: parent.bottom
-                    }
-                    color: Theme.secondaryColor
-                    font.pixelSize: Theme.fontSizeSmall
-                    text: Format.formatDate(model.lastAnnounceTime, Format.DurationElapsed)
+            Label {
+                anchors {
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
+                    bottom: parent.bottom
+                    bottomMargin: Theme.paddingMedium
                 }
+                color: Theme.secondaryColor
+                font.pixelSize: Theme.fontSizeSmall
+                text: Format.formatDate(model.lastAnnounceTime, Format.DurationElapsed)
             }
 
             Component {

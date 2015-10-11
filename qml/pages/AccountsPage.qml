@@ -60,46 +60,45 @@ Page {
                 EditAccountPage { }
             }
 
-            ListItemMargin {
-                Switch {
-                    id: currentSwitch
-                    anchors {
-                        left: parent.left
-                        leftMargin: -Theme.paddingLarge
-                        verticalCenter: parent.verticalCenter
-                    }
-                    automaticCheck: false
-                    checked: model.name === currentAccount
+            Switch {
+                id: currentSwitch
+                anchors {
+                    left: parent.left
+                    leftMargin: Theme.horizontalPageMargin - Theme.paddingLarge
+                    verticalCenter: parent.verticalCenter
+                }
+                automaticCheck: false
+                checked: model.name === currentAccount
 
-                    onClicked: {
-                        if (!checked)
-                            root.appSettings.currentAccount = model.name
-                    }
+                onClicked: {
+                    if (!checked)
+                        root.appSettings.currentAccount = model.name
+                }
+            }
+
+            Column {
+                anchors {
+                    left: currentSwitch.right
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
+                    verticalCenter: parent.verticalCenter
                 }
 
-                Column {
-                    anchors {
-                        left: currentSwitch.right
-                        right: parent.right
-                        verticalCenter: parent.verticalCenter
-                    }
+                Label {
+                    id: nameLabel
+                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                    text: model.name
+                    truncationMode: TruncationMode.Fade
+                    width: parent.width
+                }
 
-                    Label {
-                        id: nameLabel
-                        color: highlighted ? Theme.highlightColor : Theme.primaryColor
-                        text: model.name
-                        truncationMode: TruncationMode.Fade
-                        width: parent.width
-                    }
-
-                    Label {
-                        id: addressLabel
-                        color: Theme.secondaryColor
-                        font.pixelSize: Theme.fontSizeSmall
-                        text: model.address
-                        truncationMode: TruncationMode.Fade
-                        width: parent.width
-                    }
+                Label {
+                    id: addressLabel
+                    color: Theme.secondaryColor
+                    font.pixelSize: Theme.fontSizeSmall
+                    text: model.address
+                    truncationMode: TruncationMode.Fade
+                    width: parent.width
                 }
             }
 

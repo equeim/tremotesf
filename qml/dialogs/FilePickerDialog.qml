@@ -59,30 +59,30 @@ Dialog {
             }
         }
         delegate: BackgroundItem {
-            ListItemMargin {
-                Image {
-                    id: icon
+            Image {
+                id: icon
 
-                    anchors {
-                        left: parent.left
-                        verticalCenter: parent.verticalCenter
-                    }
-                    asynchronous: true
-                    source: model.fileIsDir ? "image://theme/icon-m-folder"
-                                            : "image://theme/icon-m-other"
+                anchors {
+                    left: parent.left
+                    leftMargin: Theme.horizontalPageMargin
+                    verticalCenter: parent.verticalCenter
                 }
+                asynchronous: true
+                source: model.fileIsDir ? "image://theme/icon-m-folder"
+                                        : "image://theme/icon-m-other"
+            }
 
-                Label {
-                    anchors {
-                        left: icon.right
-                        leftMargin: Theme.paddingMedium
-                        right: parent.right
-                        verticalCenter: parent.verticalCenter
-                    }
-                    text: model.fileName
-                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
-                    truncationMode: TruncationMode.Fade
+            Label {
+                anchors {
+                    left: icon.right
+                    leftMargin: Theme.paddingMedium
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
+                    verticalCenter: parent.verticalCenter
                 }
+                text: model.fileName
+                color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                truncationMode: TruncationMode.Fade
             }
 
             onClicked: {

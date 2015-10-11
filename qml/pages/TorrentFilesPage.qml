@@ -43,8 +43,7 @@ Page {
     DelegateModel {
         id: delegateModel
         delegate: ListItem {
-            contentHeight: Math.max(Theme.itemSizeSmall,
-                                    labelColumn.height + 2 * Theme.paddingMedium)
+            contentHeight: labelColumn.height + 2 * Theme.paddingMedium
             menu: contextMenu
 
             onClicked: {
@@ -54,68 +53,70 @@ Page {
                     wantedSwitch.toggle()
             }
 
-            ListItemMargin {
-                Image {
-                    id: icon
+            Image {
+                id: icon
 
-                    anchors.verticalCenter: parent.verticalCenter
-                    asynchronous: true
-                    source: model.isDirectory ? "image://theme/icon-m-folder"
-                                                       : "image://theme/icon-m-other"
-                    sourceSize.height: Theme.iconSizeMedium
-                    sourceSize.width: Theme.iconSizeMedium
+                anchors {
+                    left: parent.left
+                    leftMargin: Theme.horizontalPageMargin
+                    verticalCenter: parent.verticalCenter
                 }
 
-                Column {
-                    id: labelColumn
+                asynchronous: true
+                source: model.isDirectory ? "image://theme/icon-m-folder"
+                                          : "image://theme/icon-m-other"
+            }
 
-                    anchors {
-                        left: icon.right
-                        leftMargin: Theme.paddingMedium
-                        right: wantedSwitch.left
-                    }
+            Column {
+                id: labelColumn
 
-                    Label {
-                        id: label
-                        color: highlighted ? Theme.highlightColor : Theme.primaryColor
-                        maximumLineCount: 3
-                        text: model.name
-                        width: parent.width
-                        wrapMode: Text.WordWrap
-                    }
-
-                    Label {
-                        color: Theme.secondaryColor
-                        font.pixelSize: Theme.fontSizeSmall
-                        text: qsTr("%1 of %2 (%3%)").arg(Format.formatFileSize(model.bytesCompleted))
-                        .arg(Format.formatFileSize(model.length))
-                        .arg(model.progress)
-                        truncationMode: TruncationMode.Fade
-                        width: parent.width
-                    }
+                anchors {
+                    left: icon.right
+                    leftMargin: Theme.paddingMedium
+                    right: wantedSwitch.left
+                    verticalCenter: parent.verticalCenter
                 }
 
-                Switch {
-                    id: wantedSwitch
-
-                    function toggle() {
-                        if (model.wantedStatus === TorrentFileModel.AllWanted)
-                            model.wantedStatus = TorrentFileModel.NoWanted
-                        else
-                            model.wantedStatus = TorrentFileModel.AllWanted
-                    }
-
-                    anchors {
-                        right: parent.right
-                        rightMargin: -Theme.paddingLarge
-                        verticalCenter: parent.verticalCenter
-                    }
-                    automaticCheck: false
-                    checked: model.wantedStatus !== TorrentFileModel.NoWanted
-                    opacity: model.wantedStatus === TorrentFileModel.SomeWanted ? 0.6 : 1
-
-                    onClicked: toggle()
+                Label {
+                    id: label
+                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                    maximumLineCount: 3
+                    text: model.name
+                    width: parent.width
+                    wrapMode: Text.WordWrap
                 }
+
+                Label {
+                    color: Theme.secondaryColor
+                    font.pixelSize: Theme.fontSizeSmall
+                    text: qsTr("%1 of %2 (%3%)").arg(Format.formatFileSize(model.bytesCompleted))
+                    .arg(Format.formatFileSize(model.length))
+                    .arg(model.progress)
+                    truncationMode: TruncationMode.Fade
+                    width: parent.width
+                }
+            }
+
+            Switch {
+                id: wantedSwitch
+
+                function toggle() {
+                    if (model.wantedStatus === TorrentFileModel.AllWanted)
+                        model.wantedStatus = TorrentFileModel.NoWanted
+                    else
+                        model.wantedStatus = TorrentFileModel.AllWanted
+                }
+
+                anchors {
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin - Theme.paddingLarge
+                    verticalCenter: parent.verticalCenter
+                }
+                automaticCheck: false
+                checked: model.wantedStatus !== TorrentFileModel.NoWanted
+                opacity: model.wantedStatus === TorrentFileModel.SomeWanted ? 0.6 : 1
+
+                onClicked: toggle()
             }
 
             Component {

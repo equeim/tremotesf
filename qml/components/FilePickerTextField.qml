@@ -64,7 +64,6 @@ Item {
             id: filePickerDialog
 
             FilePickerDialog {
-                //folder: dialogFolder
                 nameFilters: dialogNameFilters
                 showFiles: dialogShowFiles
                 onAccepted: textField.text = path

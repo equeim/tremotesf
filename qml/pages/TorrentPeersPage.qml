@@ -49,35 +49,42 @@ Page {
 
             ListView.onRemove: animateRemoval()
 
-            ListItemMargin {
-                Column {
-                    id: leftColumn
+            Column {
+                id: leftColumn
 
-                    Label {
-                        color: highlighted ? Theme.highlightColor : Theme.primaryColor
-                        text: model.address
-                        width: parent.width
-                    }
-
-                    Label {
-                        color: Theme.secondaryColor
-                        font.pixelSize: Theme.fontSizeSmall
-                        text: qsTr("↓ %1/s").arg(Format.formatFileSize(model.rateToClient))
-                    }
-
-                    Label {
-                        color: Theme.secondaryColor
-                        font.pixelSize: Theme.fontSizeSmall
-                        text: qsTr("↑ %1/s").arg(Format.formatFileSize(model.rateToPeer))
-                    }
+                anchors {
+                    left: parent.left
+                    leftMargin: Theme.horizontalPageMargin
+                    verticalCenter: parent.verticalCenter
                 }
 
                 Label {
-                    anchors.right: parent.right
+                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                    text: model.address
+                    width: parent.width
+                }
+
+                Label {
                     color: Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
-                    text: model.progress + "%"
+                    text: qsTr("↓ %1/s").arg(Format.formatFileSize(model.rateToClient))
                 }
+
+                Label {
+                    color: Theme.secondaryColor
+                    font.pixelSize: Theme.fontSizeSmall
+                    text: qsTr("↑ %1/s").arg(Format.formatFileSize(model.rateToPeer))
+                }
+            }
+
+            Label {
+                anchors {
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
+                }
+                color: Theme.secondaryColor
+                font.pixelSize: Theme.fontSizeSmall
+                text: model.progress + "%"
             }
         }
         model: root.proxyPeerModel

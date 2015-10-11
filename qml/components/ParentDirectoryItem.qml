@@ -22,28 +22,27 @@ import Sailfish.Silica 1.0
 import "../components"
 
 BackgroundItem {
-    ListItemMargin {
-        Image {
-            id: icon
+    Image {
+        id: icon
 
-            anchors {
-                left: parent.left
-                verticalCenter: parent.verticalCenter
-            }
-            rotation: -90
-            source: "image://theme/icon-m-shortcut"
-            sourceSize.width: Theme.itemSizeMedium / 2
-            sourceSize.height: Theme.itemSizeMedium / 2
+        anchors {
+            left: parent.left
+            leftMargin: Theme.horizontalPageMargin
+            verticalCenter: parent.verticalCenter
         }
+        rotation: -90
+        source: "image://theme/icon-m-shortcut"
+        sourceSize.width: Theme.itemSizeMedium / 2
+        sourceSize.height: Theme.itemSizeMedium / 2
+    }
 
-        Label {
-            anchors {
-                left: icon.right
-                leftMargin: Theme.paddingMedium
-                verticalCenter: parent.verticalCenter
-            }
-            color: highlighted ? Theme.highlightColor : Theme.primaryColor
-            text: ".."
+    Label {
+        anchors {
+            left: icon.right
+            leftMargin: Theme.paddingMedium
+            verticalCenter: parent.verticalCenter
         }
+        color: highlighted ? Theme.highlightColor : Theme.primaryColor
+        text: ".."
     }
 }
