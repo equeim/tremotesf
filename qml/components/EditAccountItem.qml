@@ -135,7 +135,7 @@ Column {
                                     right: parent.right
                                     rightMargin: Theme.horizontalPageMargin
                                 }
-                                text: "Local certificate should be a .pem file containing both certificate and RSA private key."
+                                text: qsTr("Local certificate should be a .pem file containing both certificate and RSA private key.")
                                 wrapMode: Text.WordWrap
                             }
                         }

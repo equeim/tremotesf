@@ -26,7 +26,7 @@ CommonTextField {
     inputMethodHints: Qt.ImhDigitsOnly
     text: {
         if (isFloat)
-            return qsTr("%L1").arg(root.appSettings.serverValue(key))
+            return "%L1".arg(root.appSettings.serverValue(key))
         else
             return root.appSettings.serverValue(key)
     }

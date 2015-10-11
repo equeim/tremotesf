@@ -139,7 +139,7 @@ void Utils::publishFinishedNotification(const QString &torrentName)
 
     Notification notification;
 
-    notification.setSummary(QObject::tr("Torrent finished"));
+    notification.setSummary(tr("Torrent finished"));
     notification.setBody(torrentName);
 
     notification.setPreviewSummary(notification.summary());
