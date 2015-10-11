@@ -25,7 +25,7 @@ CommonTextSwitch {
     checked: root.appSettings.serverValue(key)
 
     Component.onDestruction: {
-        if (changed)
+        if (changed())
             root.transmission.changeServerSettings(key, checked)
     }
 }

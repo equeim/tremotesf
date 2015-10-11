@@ -32,7 +32,7 @@ CommonTextField {
     }
 
     Component.onDestruction: {
-        if (changed) {
+        if (changed()) {
             if (isFloat)
                 root.transmission.changeServerSettings(key,
                                                        parseFloat(text.replace(",", ".")))
