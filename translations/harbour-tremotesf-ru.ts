@@ -1106,12 +1106,12 @@ to %1 of %n peer(s)</source>
     <message>
         <location filename="../src/utils.cpp" line="111"/>
         <source>%1 h </source>
-        <translation>%1 ч</translation>
+        <translation>%1 ч </translation>
     </message>
     <message>
         <location filename="../src/utils.cpp" line="114"/>
         <source>%1 m </source>
-        <translation>%1 м</translation>
+        <translation>%1 м </translation>
     </message>
     <message>
         <location filename="../src/utils.cpp" line="119"/>
