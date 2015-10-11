@@ -95,6 +95,29 @@ QString Utils::formatByteSize(double size)
     }
 }
 
+QString Utils::formatEta(int seconds)
+{
+    int hours = seconds / 3600;
+    seconds %= 3600;
+    int minutes = seconds / 60;
+    seconds %= 60;
+
+    QString etaString;
+
+    if (hours > 0)
+        etaString +=  tr("%1 h ").arg(hours);
+
+    if (minutes > 0)
+        etaString +=  tr("%1 m ").arg(minutes);
+
+    if (hours == 0 &&
+            (seconds > 0 ||
+             minutes == 0))
+        etaString +=  tr("%1 s").arg(seconds);
+
+    return etaString;
+}
+
 void Utils::publishFinishedNotification(const QString &torrentName)
 {
     if (QGuiApplication::applicationState() == Qt::ApplicationActive)

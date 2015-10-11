@@ -499,29 +499,6 @@ void TorrentModel::removeAtIndex(int index)
     m_mutex.unlock();
 }
 
-QString TorrentModel::formatEta(int seconds) const
-{
-    int hours = seconds / 3600;
-    seconds %= 3600;
-    int minutes = seconds / 60;
-    seconds %= 60;
-
-    QString etaString;
-
-    if (hours > 0)
-        etaString +=  tr("%1 h ").arg(hours);
-
-    if (minutes > 0)
-        etaString +=  tr("%1 m ").arg(minutes);
-
-    if (hours == 0 &&
-            (seconds > 0 ||
-             minutes == 0))
-        etaString +=  tr("%1 s").arg(seconds);
-
-    return etaString;
-}
-
 void TorrentModel::loadFileModel(int index)
 {
     m_fileModel->setIsActive(true);

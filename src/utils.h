@@ -30,6 +30,8 @@ public:
     Q_INVOKABLE static QString formatByteSize(double size);
     Q_INVOKABLE static QString formatByteSpeed(double speed);
 
+    Q_INVOKABLE static QString formatEta(int seconds);
+
     static void publishFinishedNotification(const QString &torrentName);
 };
 

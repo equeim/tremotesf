@@ -108,7 +108,7 @@ Item {
                     if (model.eta < 0 ||
                             torrentStatus === TorrentModel.StoppedStatus)
                         return "∞"
-                    return root.torrentModel.formatEta(model.eta)
+                    return root.utils.formatEta(model.eta)
                 }
             }
         }

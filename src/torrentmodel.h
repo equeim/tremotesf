@@ -169,7 +169,6 @@ public:
     void beginUpdateModel(const QByteArray &replyData);
 
     Q_INVOKABLE void removeAtIndex(int index);
-    Q_INVOKABLE QString formatEta(int seconds) const;
 
     Q_INVOKABLE void loadFileModel (int index);
     Q_INVOKABLE void loadPeerModel (int index);
