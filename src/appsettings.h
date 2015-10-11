@@ -19,39 +19,21 @@
 #ifndef APPSETTINGS_H
 #define APPSETTINGS_H
 
-#include <QThread>
-#include <QVariant>
+#include <QObject>
+#include <QVariantMap>
 
+class QThread;
 class QSettings;
 
-class ServerStatsWorker : public QThread
+class AppSettingsWorker : public QObject
 {
     Q_OBJECT
 public:
-    ServerStatsWorker();
-
-    void setReplyData(const QByteArray &replyData);
-private:
-    QByteArray m_replyData;
-protected:
-    void run();
+    void parseServerSettings(const QByteArray &replyData);
+    void parseServerStats(const QByteArray &replyData);
 signals:
-    void dataParsed(int downloadSpeed, int uploadSpeed);
-};
-
-class ServerSettingsWorker : public QThread
-{
-    Q_OBJECT
-public:
-    ServerSettingsWorker();
-
-    void setReplyData(const QByteArray &replyData);
-private:
-    QByteArray m_replyData;
-protected:
-    void run();
-signals:
-    void dataParsed(const QVariantMap &serverSettings);
+    void serverSettingsParsed(const QVariantMap &serverSettings);
+    void serverStatsParsed(int downloadSpeed, int uploadSpeed);
 };
 
 class AppSettings : public QObject
@@ -143,9 +125,10 @@ private:
     void endUpdateServerStats(int downloadSpeed, int uploadSpeed);
 private:
     QSettings *m_clientSettings;
-    ServerStatsWorker *m_statsWorker;
-    ServerSettingsWorker *m_settingsWorker;
     QVariantMap m_serverSettings;
+
+    AppSettingsWorker *m_worker;
+    QThread *m_workerThread;
 
     int m_downloadSpeed;
     int m_uploadSpeed;
@@ -156,8 +139,11 @@ signals:
 
     void currentAccountChanged();
 
-    void serverStatsUpdated();
+    void requestUpdateServerSettings(const QByteArray &replyData);
+    void requestUpdateServerStats(const QByteArray &replyData);
+
     void serverSettingsUpdated();
+    void serverStatsUpdated();
 };
 
 #endif // APPSETTINGS_H

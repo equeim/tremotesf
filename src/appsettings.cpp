@@ -25,51 +25,36 @@
 #include <QJsonDocument>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QThread>
 
 #include "proxytorrentmodel.h"
 #include "torrentmodel.h"
 #include "utils.h"
 
-ServerStatsWorker::ServerStatsWorker()
+void AppSettingsWorker::parseServerSettings(const QByteArray &replyData)
 {
-
+    emit serverSettingsParsed(QJsonDocument::fromJson(replyData).toVariant().toMap().value("arguments").toMap());
 }
 
-void ServerStatsWorker::setReplyData(const QByteArray &replyData)
+void AppSettingsWorker::parseServerStats(const QByteArray &replyData)
 {
-    m_replyData = replyData;
-}
-
-void ServerStatsWorker::run() Q_DECL_OVERRIDE
-{
-    QVariantMap serverStats = QJsonDocument::fromJson(m_replyData).toVariant().toMap().value("arguments").toMap();;
-    int downloadSpeed = serverStats.value("downloadSpeed").toInt();
-    int uploadSpeed = serverStats.value("uploadSpeed").toInt();
-    emit dataParsed(downloadSpeed, uploadSpeed);
-}
-
-ServerSettingsWorker::ServerSettingsWorker()
-{
-
-}
-
-void ServerSettingsWorker::setReplyData(const QByteArray &replyData)
-{
-    m_replyData = replyData;
-}
-
-void ServerSettingsWorker::run() Q_DECL_OVERRIDE
-{
-    QVariantMap serverSettings = QJsonDocument::fromJson(m_replyData).toVariant().toMap().value("arguments").toMap();
-    emit dataParsed(serverSettings);
+    QVariantMap serverStats = QJsonDocument::fromJson(replyData).toVariant().toMap().value("arguments").toMap();
+    emit serverStatsParsed(serverStats.value("downloadSpeed").toInt(),
+                           serverStats.value("uploadSpeed").toInt());
 }
 
 AppSettings::AppSettings()
 {
-    m_settingsWorker = new ServerSettingsWorker;
-    connect(m_settingsWorker, &ServerSettingsWorker::dataParsed, this, &AppSettings::endUpdateServerSettings);
-    m_statsWorker = new ServerStatsWorker;
-    connect(m_statsWorker, &ServerStatsWorker::dataParsed, this, &AppSettings::endUpdateServerStats);
+    m_worker = new AppSettingsWorker;
+    connect(this, &AppSettings::requestUpdateServerSettings, m_worker, &AppSettingsWorker::parseServerSettings);
+    connect(this, &AppSettings::requestUpdateServerStats, m_worker, &AppSettingsWorker::parseServerStats);
+    connect(m_worker, &AppSettingsWorker::serverSettingsParsed, this, &AppSettings::endUpdateServerSettings);
+    connect(m_worker, &AppSettingsWorker::serverStatsParsed, this, &AppSettings::endUpdateServerStats);
+
+    m_workerThread = new QThread(this);
+    connect(m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
+    m_worker->moveToThread(m_workerThread);
+    m_workerThread->start(QThread::LowPriority);
 
     m_clientSettings = new QSettings(this);
     m_clientSettings->setIniCodec("UTF-8");
@@ -80,10 +65,8 @@ AppSettings::AppSettings()
 
 AppSettings::~AppSettings()
 {
-    m_settingsWorker->wait();
-    m_settingsWorker->deleteLater();
-    m_statsWorker->wait();
-    m_statsWorker->deleteLater();
+    m_workerThread->quit();
+    m_workerThread->wait();
 }
 
 void AppSettings::checkClientSettings()
@@ -391,14 +374,12 @@ int AppSettings::uploadSpeed() const
 
 void AppSettings::beginUpdateServerSettings(const QByteArray &replyData)
 {
-    m_settingsWorker->setReplyData(replyData);
-    m_settingsWorker->start(QThread::LowPriority);
+    emit requestUpdateServerSettings(replyData);
 }
 
 void AppSettings::beginUpdateServerStats(const QByteArray &replyData)
 {
-    m_statsWorker->setReplyData(replyData);
-    m_statsWorker->start(QThread::LowPriority);
+    emit requestUpdateServerStats(replyData);
 }
 
 void AppSettings::endUpdateServerSettings(const QVariantMap &serverSettings)
