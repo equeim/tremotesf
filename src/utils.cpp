@@ -93,6 +93,8 @@ QString Utils::formatByteSize(double size)
     case 8:
         return tr("%1 YiB").arg(string);
     }
+
+    return QString();
 }
 
 QString Utils::formatEta(int seconds)
