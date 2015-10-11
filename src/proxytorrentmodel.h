@@ -44,7 +44,6 @@ public:
         StoppedMode
     };
 
-    ProxyTorrentModel();
     void classBegin();
     void componentComplete();
 

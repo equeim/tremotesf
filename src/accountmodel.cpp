@@ -43,11 +43,6 @@ void Account::update()
     timeout = m_appSettings->accountTimeout(name);
 }
 
-AccountModel::AccountModel()
-{
-
-}
-
 void AccountModel::classBegin()
 {
 

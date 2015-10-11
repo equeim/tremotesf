@@ -22,11 +22,6 @@
 #include "appsettings.h"
 #include "torrentmodel.h"
 
-ProxyTorrentModel::ProxyTorrentModel()
-{
-
-}
-
 void ProxyTorrentModel::classBegin()
 {
 

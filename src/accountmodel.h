@@ -22,24 +22,7 @@
 #include <QAbstractListModel>
 #include <QQmlParserStatus>
 
-//class Account;
 class AppSettings;
-
-/*struct Account {
-    QString name;
-    QString address;
-    int port;
-    QString apiPath;
-    bool https;
-    bool localCertificate;
-    bool authentication;
-    QString username;
-    QString password;
-    int updateInterval;
-    int timeout;
-    //bool isCurrent;
-};
-Q_DECLARE_METATYPE(Account)*/
 
 class Account
 {
@@ -82,7 +65,6 @@ public:
         TimeoutRole
     };
 
-    AccountModel();
     void classBegin();
     void componentComplete();
 
