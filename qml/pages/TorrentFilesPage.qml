@@ -17,7 +17,6 @@
  */
 
 import QtQuick 2.1
-import QtQml.Models 2.1
 import Sailfish.Silica 1.0
 
 import harbour.tremotesf 0.1
@@ -40,7 +39,7 @@ Page {
         }
     }
 
-    DelegateModel {
+    VisualDataModel {
         id: delegateModel
         delegate: ListItem {
             contentHeight: labelColumn.height + 2 * Theme.paddingMedium
