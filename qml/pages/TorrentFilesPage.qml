@@ -176,11 +176,11 @@ Page {
         PullDownMenu {
             MenuItem {
                 text: qsTr("Download all files")
-                onClicked: root.transmission.changeTorrent(torrentId, "files-wanted", [])
+                onClicked: root.fileModel.setAllWanted(true)
             }
             MenuItem {
                 text: qsTr("Ignore all files")
-                onClicked: root.transmission.changeTorrent(torrentId, "files-unwanted", [])
+                onClicked: root.fileModel.setAllWanted(false)
             }
         }
 

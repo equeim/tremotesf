@@ -125,6 +125,8 @@ public:
     void setTorrentId(int torrentId);
     void setTransmission(Transmission *transmission);
 
+    Q_INVOKABLE void setAllWanted(bool wanted);
+
     void beginUpdateModel(const QVariantList &fileList, const QVariantList &fileStatsList);
     Q_INVOKABLE void resetModel();
 private:

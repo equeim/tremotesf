@@ -373,6 +373,23 @@ void TorrentFileModel::setTransmission(Transmission *transmission)
     m_transmission = transmission;
 }
 
+void TorrentFileModel::setAllWanted(bool wanted)
+{
+    m_mutex.lock();
+
+    if (wanted) {
+        foreach (TorrentFile *file, m_rootDirectory->childFiles)
+            setRoleValueRecursively(file, AllWanted, WantedStatusRole);
+        m_transmission->changeTorrent(m_torrentId, "files-wanted", QVariantList());
+    } else {
+        foreach (TorrentFile *file, m_rootDirectory->childFiles)
+            setRoleValueRecursively(file, NoWanted, WantedStatusRole);
+        m_transmission->changeTorrent(m_torrentId, "files-unwanted", QVariantList());
+    }
+
+    m_mutex.unlock();
+}
+
 void TorrentFileModel::beginUpdateModel(const QVariantList &fileList, const QVariantList &fileStatsList)
 {
     m_mutex.lock();
