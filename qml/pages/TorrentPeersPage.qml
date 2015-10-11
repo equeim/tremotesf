@@ -81,6 +81,8 @@ Page {
                 anchors {
                     right: parent.right
                     rightMargin: Theme.horizontalPageMargin
+                    top: parent.top
+                    topMargin: Theme.paddingMedium
                 }
                 color: Theme.secondaryColor
                 font.pixelSize: Theme.fontSizeSmall
