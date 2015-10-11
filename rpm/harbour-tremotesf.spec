@@ -6,6 +6,7 @@ Group: Applications/Internet
 License: GPLv3
 URL: https://github.com/equeim/tremotesf
 Source0: %{name}-%{version}.tar.xz
+Requires: qt5-qtdeclarative-import-models2
 Requires: sailfishsilica-qt5
 BuildRequires: pkgconfig(nemonotifications-qt5)
 BuildRequires: pkgconfig(Qt5Quick)
