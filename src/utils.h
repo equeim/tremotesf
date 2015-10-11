@@ -26,6 +26,10 @@ class Utils : public QObject
     Q_OBJECT
 public:
     Q_INVOKABLE static bool checkLocalCertificate(const QString &filePath);
+
+    Q_INVOKABLE static QString formatByteSize(double size);
+    Q_INVOKABLE static QString formatByteSpeed(double speed);
+
     static void publishFinishedNotification(const QString &torrentName);
 };
 

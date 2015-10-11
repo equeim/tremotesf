@@ -67,13 +67,13 @@ Page {
                 Label {
                     color: Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
-                    text: qsTr("↓ %1/s").arg(Format.formatFileSize(model.rateToClient))
+                    text: "↓ %1".arg(root.utils.formatByteSpeed(model.rateToClient))
                 }
 
                 Label {
                     color: Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
-                    text: qsTr("↑ %1/s").arg(Format.formatFileSize(model.rateToPeer))
+                    text: "↑ %1".arg(root.utils.formatByteSpeed(model.rateToPeer))
                 }
             }
 

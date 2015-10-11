@@ -54,6 +54,47 @@ bool Utils::checkLocalCertificate(const QString &filePath)
     return false;
 }
 
+QString Utils::formatByteSpeed(double rate)
+{
+    return tr("%1/s").arg(formatByteSize(rate));
+}
+
+QString Utils::formatByteSize(double size)
+{
+    int unit = 0;
+    while (size >= 1024.0 && unit < 8) {
+        size /= 1024.0;
+        unit++;
+    }
+
+    QString string;
+    if (unit == 0)
+        string = QString::number(size);
+    else
+        string = QLocale::system().toString(size, 'f', 1);
+
+    switch (unit) {
+    case 0:
+        return tr("%1 B").arg(string);
+    case 1:
+        return tr("%1 KiB").arg(string);
+    case 2:
+        return tr("%1 MiB").arg(string);
+    case 3:
+        return tr("%1 GiB").arg(string);
+    case 4:
+        return tr("%1 TiB").arg(string);
+    case 5:
+        return tr("%1 PiB").arg(string);
+    case 6:
+        return tr("%1 EiB").arg(string);
+    case 7:
+        return tr("%1 ZiB").arg(string);
+    case 8:
+        return tr("%1 YiB").arg(string);
+    }
+}
+
 void Utils::publishFinishedNotification(const QString &torrentName)
 {
     if (QGuiApplication::applicationState() == Qt::ApplicationActive)

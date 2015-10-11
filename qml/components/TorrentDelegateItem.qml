@@ -92,10 +92,10 @@ Item {
                 font.pixelSize: Theme.fontSizeSmall
                 text: {
                     if (model.percentDone === 100)
-                        return qsTr("%1, uploaded %2").arg(Format.formatFileSize(model.sizeWhenDone)).arg(Format.formatFileSize(model.uploadedEver))
+                        return qsTr("%1, uploaded %2").arg(root.utils.formatByteSize(model.sizeWhenDone)).arg(root.utils.formatByteSize(model.uploadedEver))
                     else
-                        return qsTr("%1 of %2 (%L3%)").arg(Format.formatFileSize(model.sizeWhenDone - model.leftUntilDone))
-                    .arg(Format.formatFileSize(model.sizeWhenDone))
+                        return qsTr("%1 of %2 (%L3%)").arg(root.utils.formatByteSize(model.sizeWhenDone - model.leftUntilDone))
+                    .arg(root.utils.formatByteSize(model.sizeWhenDone))
                     .arg(model.percentDone);
                 }
             }
@@ -150,13 +150,13 @@ Item {
                     Label {
                         color: Theme.secondaryColor
                         font.pixelSize: Theme.fontSizeSmall
-                        text: qsTr("↓ %1/s").arg(Format.formatFileSize(model.rateDownload))
+                        text: "↓ %1".arg(root.utils.formatByteSpeed(model.rateDownload))
                     }
 
                     Label {
                         color: Theme.secondaryColor
                         font.pixelSize: Theme.fontSizeSmall
-                        text: qsTr("↑ %1/s").arg(Format.formatFileSize(model.rateUpload))
+                        text: "↑ %1".arg(root.utils.formatByteSpeed(model.rateUpload))
                     }
                 }
 

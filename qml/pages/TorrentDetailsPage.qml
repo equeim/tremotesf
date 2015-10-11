@@ -161,17 +161,17 @@ Page {
 
             DetailItem {
                 label: qsTr("Total size")
-                value: Format.formatFileSize(model.totalSize)
+                value: root.utils.formatByteSize(model.totalSize)
             }
 
             DetailItem {
                 label: qsTr("Downloaded")
-                value: qsTr("%1 of %2").arg(Format.formatFileSize(model.sizeWhenDone - model.leftUntilDone)).arg(Format.formatFileSize(model.sizeWhenDone))
+                value: qsTr("%1 of %2").arg(root.utils.formatByteSize(model.sizeWhenDone - model.leftUntilDone)).arg(root.utils.formatByteSize(model.sizeWhenDone))
             }
 
             DetailItem {
                 label: qsTr("Uploaded")
-                value: Format.formatFileSize(model.uploadedEver)
+                value: root.utils.formatByteSize(model.uploadedEver)
             }
 
             DetailItem {

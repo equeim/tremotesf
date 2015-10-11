@@ -89,8 +89,8 @@ Page {
                 Label {
                     color: Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
-                    text: qsTr("%1 of %2 (%3%)").arg(Format.formatFileSize(model.bytesCompleted))
-                    .arg(Format.formatFileSize(model.length))
+                    text: qsTr("%1 of %2 (%3%)").arg(root.utils.formatByteSize(model.bytesCompleted))
+                    .arg(root.utils.formatByteSize(model.length))
                     .arg(model.progress)
                     truncationMode: TruncationMode.Fade
                     width: parent.width

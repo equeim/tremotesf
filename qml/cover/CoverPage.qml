@@ -65,7 +65,7 @@ CoverBackground {
 
             Label {
                 id: downLabel
-                text: qsTr("↓ %1/s").arg(Format.formatFileSize(root.appSettings.downloadSpeed))
+                text: "↓ %1".arg(root.utils.formatByteSpeed(root.appSettings.downloadSpeed))
                 font.pixelSize: Theme.fontSizeLarge
                 truncationMode: TruncationMode.Fade
                 width: parent.width
@@ -73,7 +73,7 @@ CoverBackground {
 
             Label {
                 id: upLabel
-                text: qsTr("↑ %1/s").arg(Format.formatFileSize(root.appSettings.uploadSpeed))
+                text: "↑ %1".arg(root.utils.formatByteSpeed(root.appSettings.uploadSpeed))
                 font.pixelSize: Theme.fontSizeLarge
                 truncationMode: TruncationMode.Fade
                 width: parent.width

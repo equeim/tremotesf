@@ -40,8 +40,8 @@ Page {
                     return qsTr("No account connected")
 
                 if (root.transmission.error === Transmission.NoError)
-                    return "↓ %1/s  ↑ %2/s".arg(Format.formatFileSize(root.appSettings.downloadSpeed))
-                    .arg(Format.formatFileSize(root.appSettings.uploadSpeed))
+                    return "↓ %1  ↑ %2".arg(root.utils.formatByteSpeed(root.appSettings.downloadSpeed))
+                    .arg(root.utils.formatByteSpeed(root.appSettings.uploadSpeed))
 
                 return root.transmission.errorString
             }
