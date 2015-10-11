@@ -69,6 +69,7 @@ public:
     // Client settings
     //
     void checkClientSettings();
+    void checkLocalCertificates();
 
     int accountCount() const;
     QStringList accounts() const;
@@ -76,6 +77,9 @@ public:
     QString currentAccount() const;
     void setCurrentAccount(const QString &name);
 
+    Q_INVOKABLE bool isAccountLocalCertificateExists(const QString &account) const;
+    Q_INVOKABLE void setAccountLocalCertificate(const QString &account, const QString &filePath);
+    Q_INVOKABLE void removeAccountLocalCertificate(const QString &account);
 
     Q_INVOKABLE QString accountAddress(const QString &account) const;
     Q_INVOKABLE QString accountApiPath(const QString &account) const;
@@ -108,6 +112,7 @@ public:
                                 const QString &apiPath,
                                 bool https,
                                 bool localCertificate,
+                                bool localCertificateChanged,
                                 bool authentication,
                                 const QString &username,
                                 const QString &password,

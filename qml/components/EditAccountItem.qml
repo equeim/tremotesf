@@ -19,6 +19,10 @@
 import QtQuick 2.1
 import Sailfish.Silica 1.0
 
+import harbour.tremotesf 0.1
+
+import "../dialogs"
+
 Column {
     property alias name: nameField.text
     property bool nameChanged: nameField.changed()
@@ -26,11 +30,9 @@ Column {
     property alias address: addressField.text
     property alias port: portField.text
     property alias apiPath: apiField.text
-
-    // FIXME
-    property bool https: false
-    property bool localCertificate: false
-
+    property alias https: httpsSwitch.checked
+    property alias localCertificate: localCertificateSwitch.checked
+    property bool localCertificateChanged: false
     property alias authentication: authenticationSwitch.checked
     property alias username: usernameField.text
     property alias password: passwordField.text
@@ -62,7 +64,98 @@ Column {
         label: qsTr("API path")
     }
 
-    CommonTextSwitch {
+    TextSwitch {
+        id: httpsSwitch
+        text: qsTr("HTTPS")
+    }
+
+    TextSwitch {
+        id: localCertificateSwitch
+        text: qsTr("Local certificate")
+        visible: httpsSwitch.checked
+    }
+
+    Column {
+        spacing: Theme.paddingMedium
+        visible: localCertificateSwitch.visible && localCertificateSwitch.checked
+        width: parent.width
+
+        Button {
+            anchors.horizontalCenter: parent.horizontalCenter
+            enabled: name.length !== 0
+            text: qsTr("Load certificate")
+            onClicked: pageStack.push(filePickerDialog)
+
+            Component {
+                id: filePickerDialog
+
+                FilePickerDialog {
+                    nameFilters: ["*.pem"]
+                    showFiles: true
+                    onAccepted: {
+                        if (root.utils.checkLocalCertificate(path)) {
+                            root.appSettings.setAccountLocalCertificate(name, path)
+                            localCertificateChanged = true
+                            removeButton.enabled = appSettings.isAccountLocalCertificateExists(name)
+                        } else {
+                            pageStack.push(warningDialog)
+                        }
+                    }
+                }
+            }
+
+            Component {
+                id: warningDialog
+
+                Dialog {
+                    allowedOrientations: Orientation.All
+
+                    SilicaFlickable {
+                        anchors.fill: parent
+                        contentHeight: column.height
+
+                        Column {
+                            id: column
+                            width: parent.width
+
+                            DialogHeader {
+                                title: qsTr("Error")
+                            }
+
+                            Label {
+                                anchors {
+                                    left: parent.left
+                                    leftMargin: Theme.horizontalPageMargin
+                                    right: parent.right
+                                    rightMargin: Theme.horizontalPageMargin
+                                }
+                                text: "Local certificate should be a .pem file containing both certificate and RSA private key."
+                                wrapMode: Text.WordWrap
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Button {
+            id: removeButton
+            anchors.horizontalCenter: parent.horizontalCenter
+            enabled: {
+                if (name.length === 0)
+                    return false
+                return appSettings.isAccountLocalCertificateExists(name)
+            }
+            text: qsTr("Remove certificate")
+            onClicked: {
+                root.appSettings.removeAccountLocalCertificate(name)
+                localCertificateChanged = true
+                enabled = appSettings.isAccountLocalCertificateExists(name)
+            }
+        }
+    }
+
+    TextSwitch {
         id: authenticationSwitch
         text: qsTr("Authentication")
     }

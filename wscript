@@ -19,7 +19,6 @@ def build(context):
             "src/appsettings.cpp",
             "src/baseproxymodel.cpp",
             "src/dbusproxy.cpp",
-            "src/notifications.cpp",
             "src/proxyfilemodel.cpp",
             "src/proxytorrentmodel.cpp",
             "src/transmission.cpp",
@@ -28,6 +27,7 @@ def build(context):
             "src/torrentfilemodel.cpp",
             "src/torrentpeermodel.cpp",
             "src/torrenttrackermodel.cpp",
+            "src/utils.cpp",
             "src/folderlistmodel/fileinfothread.cpp",
             "src/folderlistmodel/qquickfolderlistmodel.cpp"
         ],

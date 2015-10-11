@@ -30,6 +30,7 @@
 #include "torrentmodel.h"
 #include "torrentpeermodel.h"
 #include "torrenttrackermodel.h"
+#include "utils.h"
 #include "folderlistmodel/qquickfolderlistmodel.h"
 
 #include "dbusproxy.h"
@@ -50,6 +51,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<TorrentTrackerModel>("harbour.tremotesf", 0, 1, "TorrentTrackerModel");
     qmlRegisterType<AccountModel>("harbour.tremotesf", 0, 1, "AccountModel");
     qmlRegisterType<BaseProxyModel>("harbour.tremotesf", 0, 1, "BaseProxyModel");
+    qmlRegisterType<Utils>("harbour.tremotesf", 0, 1, "Utils");
     qmlRegisterType<QQuickFolderListModel, 1>("harbour.tremotesf", 0, 1, "FolderListModel");
     qmlRegisterType<QAbstractItemModel>();
 

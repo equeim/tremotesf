@@ -42,6 +42,8 @@ ApplicationWindow
     property alias trackerModel: trackerModel
     property alias proxyTrackerModel: proxyTrackerModel
 
+    property alias utils: utils
+
     initialPage: Component { TorrentsPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
 
@@ -107,5 +109,9 @@ ApplicationWindow
         id: proxyTrackerModel
         sortRole: TorrentTrackerModel.AnnounceRole
         sourceModel: root.trackerModel
+    }
+
+    Utils {
+        id: utils
     }
 }

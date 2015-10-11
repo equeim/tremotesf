@@ -29,6 +29,8 @@ src/torrenttrackermodel.h
 src/transmission.cpp
 src/transmission.h
 src/tremotesf.cpp
+src/utils.cpp
+src/utils.h
 
 src/folderlistmodel/fileinfothread.cpp
 src/folderlistmodel/fileinfothread_p.h

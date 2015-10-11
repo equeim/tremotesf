@@ -16,9 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QString>
+#ifndef UTILS_H
+#define UTILS_H
 
-namespace Notifications
+#include <QObject>
+
+class Utils : public QObject
 {
-    void torrentFinished(const QString &name);
-}
+    Q_OBJECT
+public:
+    Q_INVOKABLE static bool checkLocalCertificate(const QString &filePath);
+    static void publishFinishedNotification(const QString &torrentName);
+};
+
+#endif // UTILS_H

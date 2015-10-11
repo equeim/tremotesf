@@ -16,13 +16,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "notifications.h"
+#include "utils.h"
+#include "utils.moc"
 
 #include <notification.h>
 #include <QDBusConnection>
+#include <QDebug>
 #include <QGuiApplication>
+#include <QFile>
+#include <QSslCertificate>
+#include <QSslKey>
 
-void Notifications::torrentFinished(const QString &name)
+bool Utils::checkLocalCertificate(const QString &filePath)
+{
+    QFile pemFile(filePath);
+    if (pemFile.open(QIODevice::ReadOnly)) {
+        QByteArray pemFileData = pemFile.readAll();
+        pemFile.close();
+
+        QSslCertificate localCertificate = QSslCertificate(pemFileData);
+        if (localCertificate.isNull()) {
+            qWarning() << "error loading local certificate";
+            return false;
+        }
+
+        QSslKey privateKey = QSslKey(pemFileData, QSsl::Rsa);
+        if (privateKey.isNull()) {
+            qWarning() << "error loading private key";
+            return false;
+        }
+
+        return true;
+    }
+
+    qWarning() << "error loading .pem file: " << pemFile.errorString();
+
+    return false;
+}
+
+void Utils::publishFinishedNotification(const QString &torrentName)
 {
     if (QGuiApplication::applicationState() == Qt::ApplicationActive)
             return;
@@ -30,7 +62,7 @@ void Notifications::torrentFinished(const QString &name)
     Notification notification;
 
     notification.setSummary(QObject::tr("Torrent finished"));
-    notification.setBody(name);
+    notification.setBody(torrentName);
 
     notification.setPreviewSummary(notification.summary());
     notification.setPreviewBody(notification.body());

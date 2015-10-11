@@ -418,6 +418,8 @@ void Transmission::updateAccount()
 
     m_torrentModel->resetModel();
 
+    m_network->clearAccessCache();
+
     m_accountConfigured = false;
     emit accountConfiguredChanged();
     emit accountConnectedChanged();
@@ -439,16 +441,26 @@ void Transmission::updateAccount()
         m_sslConfiguration.setPeerVerifyMode(QSslSocket::QueryPeer);
 
         if (m_appSettings->accountLocalCertificate(m_currentAccount)) {
-            QString pemFilePath = QString("%1/%2.pem")
-                    .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
-                    .arg(m_currentAccount);
-
-            QFile pemFile(pemFilePath);
+            QFile pemFile(QString("%1/%2.pem")
+                          .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+                          .arg(m_currentAccount));
             if (pemFile.open(QIODevice::ReadOnly)) {
                 QByteArray pemFileData = pemFile.readAll();
-                m_sslConfiguration.setLocalCertificate(QSslCertificate(pemFileData));
-                m_sslConfiguration.setPrivateKey(QSslKey(pemFileData, QSsl::Rsa));
                 pemFile.close();
+
+                QSslCertificate localCertificate = QSslCertificate(pemFileData);
+                if (localCertificate.isNull())
+                    qWarning() << "error loading local certificate";
+                else
+                    m_sslConfiguration.setLocalCertificate(localCertificate);
+
+                QSslKey privateKey = QSslKey(pemFileData, QSsl::Rsa);
+                if (privateKey.isNull())
+                    qWarning() << "error loading private key";
+                else
+                    m_sslConfiguration.setPrivateKey(privateKey);
+            } else{
+                qWarning() << "error loading certificate .pem file: " << pemFile.errorString();
             }
         }
     } else {

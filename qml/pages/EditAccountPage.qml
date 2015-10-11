@@ -51,6 +51,7 @@ Page {
                                             editItem.apiPath,
                                             editItem.https,
                                             editItem.localCertificate,
+                                            editItem.localCertificateChanged,
                                             editItem.authentication,
                                             editItem.username,
                                             editItem.password,
@@ -97,11 +98,8 @@ Page {
                 address: model.address
                 port: model.port
                 apiPath: model.apiPath
-
-                // FIXME
-                //https:
-                //localCertificate:
-
+                https: model.https
+                localCertificate: model.localCertificate
                 authentication: model.authentication
                 username: model.username
                 password: model.password

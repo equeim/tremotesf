@@ -25,11 +25,11 @@
 
 #include <QDebug>
 
-#include "notifications.h"
 #include "torrentfilemodel.h"
 #include "torrentpeermodel.h"
 #include "torrenttrackermodel.h"
 #include "transmission.h"
+#include "utils.h"
 
 Torrent::Torrent(const QString &hashString, int id, const QString &name)
 {
@@ -584,7 +584,7 @@ void TorrentModel::endUpdateModel(const QList<Torrent*> &newTorrents, const QLis
                 emit dataChanged(modelIndex, modelIndex);
 
                 if (torrent->finished)
-                    Notifications::torrentFinished(torrent->name);
+                    Utils::publishFinishedNotification(torrent->name);
             }
         } else {
             beginInsertRows(QModelIndex(), rowCount(), rowCount());

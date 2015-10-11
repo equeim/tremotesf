@@ -19,11 +19,16 @@
 #include "appsettings.h"
 #include "appsettings.moc"
 
+#include <QDebug>
+#include <QDir>
+#include <QFile>
 #include <QJsonDocument>
 #include <QSettings>
+#include <QStandardPaths>
 
 #include "proxytorrentmodel.h"
 #include "torrentmodel.h"
+#include "utils.h"
 
 ServerStatsWorker::ServerStatsWorker()
 {
@@ -69,6 +74,8 @@ AppSettings::AppSettings()
     m_clientSettings = new QSettings(this);
     m_clientSettings->setIniCodec("UTF-8");
     checkClientSettings();
+
+    checkLocalCertificates();
 }
 
 AppSettings::~AppSettings()
@@ -91,6 +98,23 @@ void AppSettings::checkClientSettings()
         m_clientSettings->setValue("sortRole", TorrentModel::NameRole);
 }
 
+void AppSettings::checkLocalCertificates()
+{
+    QDir dir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+
+    foreach (const QString &fileName, dir.entryList()) {
+        QString filePath = dir.absoluteFilePath(fileName);
+
+        if (fileName.endsWith(".pem")) {
+            if (accounts().contains(fileName.left(fileName.length() - 4))) {
+                if (Utils::checkLocalCertificate(filePath))
+                    continue;
+            }
+            QFile(filePath).remove();
+        }
+    }
+}
+
 int AppSettings::accountCount() const
 {
     return m_clientSettings->childGroups().length();
@@ -110,6 +134,36 @@ void AppSettings::setCurrentAccount(const QString &name)
 {
     m_clientSettings->setValue("currentAccount", name);
     emit currentAccountChanged();
+}
+
+bool AppSettings::isAccountLocalCertificateExists(const QString &account) const
+{
+    return QFile(QString("%1/%2.pem")
+                 .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+                 .arg(account)).exists();
+}
+
+void AppSettings::setAccountLocalCertificate(const QString &account, const QString &filePath)
+{
+    QFile pemFile(QString("%1/%2.pem")
+                  .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+                  .arg(account));
+    if (pemFile.exists())
+        pemFile.remove();
+
+    QFile originFile(filePath);
+    if (!originFile.copy(pemFile.fileName()))
+        qWarning() << "error setting local certificate: " << originFile.errorString();
+}
+
+void AppSettings::removeAccountLocalCertificate(const QString &account)
+{
+    QFile pemFile(QString("%1/%2.pem")
+                  .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+                  .arg(account));
+
+    if (!pemFile.remove())
+        qWarning() << "error removing local certificate: " << pemFile.errorString();
 }
 
 QString AppSettings::accountAddress(const QString &account) const
@@ -197,6 +251,9 @@ void AppSettings::removeAccount(const QString &name)
 
     m_clientSettings->remove(name);
 
+    if (isAccountLocalCertificateExists(name))
+        removeAccountLocalCertificate(name);
+
     if (name == currentAccount()) {
         if (accounts().isEmpty())
             setCurrentAccount(QString());
@@ -213,6 +270,7 @@ void AppSettings::setAccount(const QString &name,
                              const QString &apiPath,
                              bool https,
                              bool localCertificate,
+                             bool localCertificateChanged,
                              bool authentication,
                              const QString &username,
                              const QString &password,
@@ -245,6 +303,9 @@ void AppSettings::setAccount(const QString &name,
         m_clientSettings->setValue(name + "/localCertificate", localCertificate);
         changed = true;
     }
+
+    if (localCertificateChanged)
+        changed = true;
 
     if (authentication != accountAuthentication(name)) {
         m_clientSettings->setValue(name + "/authentication", authentication);
