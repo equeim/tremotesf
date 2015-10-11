@@ -36,6 +36,9 @@ Page {
         header: PageHeader {
             title: "Tremotesf"
             description: {
+                if (!root.transmission.accountConfigured)
+                    return qsTr("No account connected")
+
                 if (root.transmission.error === Transmission.NoError)
                     return "↓ %1/s  ↑ %2/s".arg(Format.formatFileSize(root.appSettings.downloadSpeed))
                     .arg(Format.formatFileSize(root.appSettings.uploadSpeed))

@@ -181,7 +181,13 @@ Page {
 
             DetailItem {
                 label: qsTr("Last activity")
-                value: "%1, %2".arg(Format.formatDate(model.activityDate, Format.DurationElapsed)).arg(Format.formatDate(model.activityDate, Format.Timepoint))
+                value: {
+                    var tmp = model.activityDate
+                    if (isNaN(tmp.getTime()))
+                        return qsTr("Never")
+                    return "%1, %2".arg(Format.formatDate(tmp, Format.DurationElapsed))
+                    .arg(Format.formatDate(tmp, Format.Timepoint))
+                }
             }
 
             DetailItem {

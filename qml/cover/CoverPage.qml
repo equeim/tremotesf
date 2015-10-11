@@ -43,11 +43,16 @@ CoverBackground {
 
         Label {
             id: errorLabel
-            text: root.transmission.errorString
             elide: Text.ElideRight
             font.pixelSize: Theme.fontSizeLarge
             maximumLineCount: 2
-            visible: root.transmission.error !== Transmission.NoError
+            text: {
+                if (!root.transmission.accountConfigured)
+                    return qsTr("No account connected")
+                return root.transmission.errorString
+            }
+            visible: root.transmission.error !== Transmission.NoError ||
+                     !root.transmission.accountConfigured
             width: parent.width
             wrapMode: Text.Wrap
         }

@@ -67,6 +67,12 @@ Column {
     TextSwitch {
         id: httpsSwitch
         text: qsTr("HTTPS")
+        onCheckedChanged: {
+            if (checked)
+                port = 443
+            else
+                port = 9091
+        }
     }
 
     TextSwitch {

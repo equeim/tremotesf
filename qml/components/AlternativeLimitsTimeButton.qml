@@ -24,7 +24,7 @@ ValueButton {
 
     property string key
     property int oldTime
-    property int timeInMinutes
+    property int timeInMinutes: root.appSettings.serverValue(key)
 
     function changed() {
         return oldTime !== timeInMinutes
@@ -32,15 +32,12 @@ ValueButton {
 
     value: Qt.formatTime(new Date((timeInMinutes + (new Date).getTimezoneOffset()) * 60000), "hh:mm")
 
-    onClicked: {
-        var dialog = pageStack.push(timePickerDialog)
-        dialog.accepted.connect(function() {
-            value = dialog.timeText
-            timeInMinutes = (dialog.hour * 60) + dialog.minute
-        })
-    }
-
+    onClicked: pageStack.push(timePickerDialog)
     Component.onCompleted: oldTime = timeInMinutes
+    Component.onDestruction: {
+        if (changed())
+            root.transmission.changeServerSettings(key, timeInMinutes)
+    }
 
     Component {
         id: timePickerDialog
@@ -50,6 +47,11 @@ ValueButton {
             hourMode: DateTime.TwentyFourHours
             hour: (timeInMinutes - minute) / 60
             minute: timeInMinutes % 60
+
+            onAccepted: {
+                value = timeText
+                timeInMinutes = (hour * 60) + minute
+            }
         }
     }
 }

@@ -124,6 +124,11 @@ Page {
             }
         }
 
+        ViewPlaceholder {
+            enabled: listView.count === 0
+            text: qsTr("No accounts")
+        }
+
         VerticalScrollDecorator { }
     }
 }

@@ -95,30 +95,18 @@ Page {
 
             Row {
                 height: Theme.itemSizeSmall
-                visible: scheduleSwitch.checked && scheduleSwitch.visible
+                visible: scheduleSwitch.visible && scheduleSwitch.checked
 
                 AlternativeLimitsTimeButton {
-                    id: beginTimeButton
+                    key: "alt-speed-time-begin"
                     label: qsTr("From")
-                    timeInMinutes: root.appSettings.serverValue("alt-speed-time-begin")
                     width: column.width / 2
-
-                    Component.onDestruction: {
-                        if (changed())
-                            root.transmission.changeServerSettings("alt-speed-time-begin", timeInMinutes)
-                    }
                 }
 
                 AlternativeLimitsTimeButton {
-                    id: endTimeButton
+                    key: "alt-speed-time-end"
                     label: qsTr("to")
-                    timeInMinutes: root.appSettings.serverValue("alt-speed-time-end")
                     width: column.width / 2
-
-                    Component.onDestruction: {
-                        if (changed())
-                            root.transmission.changeServerSettings("alt-speed-time-end", timeInMinutes)
-                    }
                 }
             }
 
