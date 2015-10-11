@@ -85,6 +85,7 @@ CoverBackground {
                 top: errorLabel.visible ? errorLabel.bottom : speedColumn.bottom
                 topMargin: Theme.paddingLarge
             }
+            visible: root.transmission.accountConfigured
             width: parent.width
 
             Label {
@@ -99,11 +100,7 @@ CoverBackground {
             Label {
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
-                text: {
-                    if (accountLabel.text)
-                        return root.appSettings.accountAddress(accountLabel.text)
-                    return String()
-                }
+                text: root.appSettings.accountAddress(accountLabel.text)
                 truncationMode: TruncationMode.Fade
                 width: parent.width
             }
