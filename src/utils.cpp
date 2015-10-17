@@ -134,16 +134,15 @@ float Utils::parseFloat(const QString &string)
 
 void Utils::publishFinishedNotification(const QString &torrentName)
 {
-    if (QGuiApplication::applicationState() == Qt::ApplicationActive)
-            return;
-
     Notification notification;
 
     notification.setSummary(tr("Torrent finished"));
     notification.setBody(torrentName);
 
-    notification.setPreviewSummary(notification.summary());
-    notification.setPreviewBody(notification.body());
+    if (QGuiApplication::applicationState() != Qt::ApplicationActive) {
+        notification.setPreviewSummary(notification.summary());
+        notification.setPreviewBody(notification.body());
+    }
 
     notification.setRemoteAction(Notification::remoteAction("default",
                                                             QString(),
