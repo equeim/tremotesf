@@ -110,7 +110,7 @@ void TorrentFileModelWorker::createTree(const QVariantList &fileList, const QVar
         }
     }
 
-    foreach (TorrentFile *file, m_rootDirectory->childFiles.values()) {
+    foreach (TorrentFile *file, m_rootDirectory->childFiles) {
         if (file->isDirectory)
             setDirectory(file);
     }
@@ -150,7 +150,7 @@ void TorrentFileModelWorker::updateTree(const QVariantList &fileStatsList)
             m_changedFiles.append(file);
     }
 
-    foreach (TorrentFile *file, m_rootDirectory->childFiles.values()) {
+    foreach (TorrentFile *file, m_rootDirectory->childFiles) {
         if (file->isDirectory)
             updateDirectory(file);
     }
@@ -160,7 +160,7 @@ void TorrentFileModelWorker::updateTree(const QVariantList &fileStatsList)
 
 void TorrentFileModelWorker::setDirectory(TorrentFile *directory)
 {
-    foreach (TorrentFile *file, directory->childFiles.values()) {
+    foreach (TorrentFile *file, directory->childFiles) {
         if (file->isDirectory)
             setDirectory(file);
     }
@@ -170,7 +170,7 @@ void TorrentFileModelWorker::setDirectory(TorrentFile *directory)
     int priority = directory->childFiles.first()->priority;
     int wantedStatus = directory->childFiles.first()->wantedStatus;
 
-    foreach (TorrentFile *file, directory->childFiles.values()) {
+    foreach (TorrentFile *file, directory->childFiles) {
         bytesCompleted += file->bytesCompleted;
         length += file->length;
         if (file->priority != priority)
@@ -188,7 +188,7 @@ void TorrentFileModelWorker::setDirectory(TorrentFile *directory)
 
 void TorrentFileModelWorker::updateDirectory(TorrentFile *directory)
 {
-    foreach (TorrentFile *file, directory->childFiles.values()) {
+    foreach (TorrentFile *file, directory->childFiles) {
         if (file->isDirectory)
             updateDirectory(file);
     }
@@ -198,7 +198,7 @@ void TorrentFileModelWorker::updateDirectory(TorrentFile *directory)
     int priority = directory->childFiles.first()->priority;
     int wantedStatus = directory->childFiles.first()->wantedStatus;
 
-    foreach (TorrentFile *file, directory->childFiles.values()) {
+    foreach (TorrentFile *file, directory->childFiles) {
         bytesCompleted += file->bytesCompleted;
         if (file->priority != priority)
             priority = TorrentFileModel::MixedPriority;
@@ -434,7 +434,12 @@ void TorrentFileModel::endUpdateTree(const QList<TorrentFile*> &changedFiles)
 
 void TorrentFileModel::setFilePriority(TorrentFile *file, int priority)
 {
-    setRoleValueRecursively(file, priority, PriorityRole);
+    setFilePriorityRecursively(file, priority);
+
+    foreach (TorrentFile *file, m_rootDirectory->childFiles) {
+        if (file->isDirectory)
+            updateDirectoryPriority(file);
+    }
 
     QString key;
     if (priority == LowPriority)
@@ -447,9 +452,49 @@ void TorrentFileModel::setFilePriority(TorrentFile *file, int priority)
     m_transmission->changeTorrent(m_torrentId, key, getSubtreeFileIndexes(file));
 }
 
+void TorrentFileModel::setFilePriorityRecursively(TorrentFile *file, int priority)
+{
+    if (file->isDirectory) {
+        foreach (TorrentFile *childFile, file->childFiles)
+            setFilePriorityRecursively(childFile, priority);
+    } else {
+        file->priority = priority;
+
+        QModelIndex modelIndex = createIndex(file->row, 0, file);
+        emit dataChanged(modelIndex, modelIndex, QVector<int>() << PriorityRole);
+    }
+}
+
+void TorrentFileModel::updateDirectoryPriority(TorrentFile *directory)
+{
+    foreach (TorrentFile *file, directory->childFiles) {
+        if (file->isDirectory)
+            updateDirectoryPriority(file);
+    }
+
+    int priority = directory->childFiles.first()->priority;
+    foreach (TorrentFile *file, directory->childFiles) {
+        if (file->priority != priority) {
+            priority = TorrentFileModel::MixedPriority;
+            break;
+        }
+    }
+
+    if (priority != directory->priority) {
+        directory->priority = priority;
+        QModelIndex modelIndex = createIndex(directory->row, 0, directory);
+        emit dataChanged(modelIndex, modelIndex, QVector<int>() << PriorityRole);
+    }
+}
+
 void TorrentFileModel::setFileWantedStatus(TorrentFile *file, int wantedStatus)
 {
-    setRoleValueRecursively(file, wantedStatus, WantedStatusRole);
+    setFileWantedStatusRecursively(file, wantedStatus);
+
+    foreach (TorrentFile *file, m_rootDirectory->childFiles) {
+        if (file->isDirectory)
+            updateDirectoryWantedStatus(file);
+    }
 
     QString key;
     if (wantedStatus == NoWanted)
@@ -460,23 +505,39 @@ void TorrentFileModel::setFileWantedStatus(TorrentFile *file, int wantedStatus)
     m_transmission->changeTorrent(m_torrentId, key, getSubtreeFileIndexes(file));
 }
 
-void TorrentFileModel::setRoleValueRecursively(TorrentFile *file, const QVariant &value, int role)
+void TorrentFileModel::setFileWantedStatusRecursively(TorrentFile *file, int wantedStatus)
 {
-    foreach (TorrentFile *childFile, file->childFiles)
-        setRoleValueRecursively(childFile, value, role);
+    if (file->isDirectory) {
+        foreach (TorrentFile *childFile, file->childFiles)
+            setFileWantedStatusRecursively(childFile, wantedStatus);
+    } else {
+        file->wantedStatus = wantedStatus;
 
-    QModelIndex modelIndex = createIndex(file->row, 0, file);
-    QVector<int> roles;
+        QModelIndex modelIndex = createIndex(file->row, 0, file);
+        emit dataChanged(modelIndex, modelIndex, QVector<int>() << WantedStatusRole);
+    }
+}
 
-    if (role == PriorityRole) {
-        file->priority = value.toInt();
-        roles.append(PriorityRole);
-    } else if (role == WantedStatusRole) {
-        file->wantedStatus = value.toInt();
-        roles.append(WantedStatusRole);
+void TorrentFileModel::updateDirectoryWantedStatus(TorrentFile *directory)
+{
+    foreach (TorrentFile *file, directory->childFiles) {
+        if (file->isDirectory)
+            updateDirectoryWantedStatus(file);
     }
 
-    emit dataChanged(modelIndex, modelIndex, roles);
+    int wantedStatus = directory->childFiles.first()->wantedStatus;
+    foreach (TorrentFile *file, directory->childFiles) {
+        if (file->wantedStatus != wantedStatus) {
+            wantedStatus = TorrentFileModel::SomeWanted;
+            break;
+        }
+    }
+
+    if (wantedStatus != directory->wantedStatus) {
+        directory->wantedStatus = wantedStatus;
+        QModelIndex modelIndex = createIndex(directory->row, 0, directory);
+        emit dataChanged(modelIndex, modelIndex, QVector<int>() << WantedStatusRole);
+    }
 }
 
 QVariantList TorrentFileModel::getSubtreeFileIndexes(const TorrentFile *file) {

@@ -136,9 +136,13 @@ private:
     void endUpdateTree(const QList<TorrentFile*> &changedFiles);
 
     void setFilePriority(TorrentFile *file, int priority);
-    void setFileWantedStatus(TorrentFile *file, int wantedStatus);
+    void setFilePriorityRecursively(TorrentFile *file, int priority);
+    void updateDirectoryPriority(TorrentFile *directory);
 
-    void setRoleValueRecursively(TorrentFile *file, const QVariant &value, int role);
+    void setFileWantedStatus(TorrentFile *file, int wantedStatus);
+    void setFileWantedStatusRecursively(TorrentFile *file, int wantedStatus);
+    void updateDirectoryWantedStatus(TorrentFile *directory);
+
     QVariantList getSubtreeFileIndexes(const TorrentFile *file);
 protected:
     QHash<int, QByteArray> roleNames() const;
