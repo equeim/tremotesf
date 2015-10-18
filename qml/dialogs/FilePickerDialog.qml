@@ -100,11 +100,11 @@ Dialog {
         }
         width: parent.width
 
-        VerticalScrollDecorator { }
-    }
+        ViewPlaceholder {
+            enabled: folderModel.count === 0
+            text: qsTr("No files")
+        }
 
-    ViewPlaceholder {
-        enabled: folderModel.count === 0
-        text: qsTr("No files")
+        VerticalScrollDecorator { }
     }
 }
