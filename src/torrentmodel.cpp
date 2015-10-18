@@ -272,7 +272,10 @@ TorrentModel::~TorrentModel()
 {
     m_workerThread->quit();
     m_workerThread->wait();
+
+    m_mutex.lock();
     qDeleteAll(m_torrents);
+    m_mutex.unlock();
 }
 
 QVariant TorrentModel::data(const QModelIndex &index, int role) const
@@ -359,49 +362,44 @@ bool TorrentModel::setData(const QModelIndex &index, const QVariant &value, int 
     if (!index.isValid())
         return false;
 
-    m_mutex.lock();
+    QMutexLocker locker(&m_mutex);
 
     Torrent *torrent = m_torrents.at(index.row());
 
     switch (role) {
     case BandwidthPriorityRole:
         setTorrentBandwidthPriority(torrent, index, value.toInt());
-        break;
+        return true;
     case DownloadLimitRole:
         setTorrentDownloadLimit(torrent, index, value.toInt());
-        break;
+        return true;
     case DownloadLimitedRole:
         setTorrentDownloadLimited(torrent, index, value.toBool());
-        break;
+        return true;
     case HonorsSessionLimitsRole:
         setTorrentHonorsSessionLimits(torrent, index, value.toBool());
-        break;
+        return true;
     case PeerLimitRole:
         setTorrentPeerLimit(torrent, index, value.toInt());
-        break;
+        return true;
     case SeedRatioLimitRole:
         setTorrentSeedRatioLimit(torrent, index, value.toFloat());
-        break;
+        return true;
     case SeedRatioModeRole:
         setTorrentSeedRatioMode(torrent, index, value.toInt());
-        break;
+        return true;
     case StatusRole:
         setTorrentStatus(torrent, index, value.toInt());
-        break;
+        return true;
     case UploadLimitRole:
         setTorrentUploadLimit(torrent, index, value.toInt());
-        break;
+        return true;
     case UploadLimitedRole:
         setTorrentUploadLimited(torrent, index, value.toBool());
-        break;
+        return true;
     default:
-        m_mutex.unlock();
         return false;
     }
-
-    m_mutex.unlock();
-
-    return true;
 }
 
 void TorrentModel::resetModel()
@@ -468,7 +466,6 @@ void TorrentModel::setTransmission(Transmission *transmission)
 
 void TorrentModel::beginUpdateModel(const QByteArray &replyData)
 {
-    m_mutex.lock();
     emit requestModelUpdate(replyData);
 }
 
@@ -522,6 +519,8 @@ void TorrentModel::loadTrackerModel(int index)
 
 void TorrentModel::endUpdateModel(const QList<Torrent*> &newTorrents, const QList<int> newTorrentIds)
 {
+    m_mutex.lock();
+
     qDebug() << "update";
 
     for (int i = 0; i < m_torrentIds.length(); i++) {

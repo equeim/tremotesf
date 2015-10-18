@@ -81,6 +81,10 @@ TorrentTrackerModel::~TorrentTrackerModel()
 {
     m_workerThread->quit();
     m_workerThread->wait();
+
+    m_mutex.lock();
+    qDeleteAll(m_trackers);
+    m_mutex.unlock();
 }
 
 QVariant TorrentTrackerModel::data(const QModelIndex &index, int role) const
@@ -132,7 +136,6 @@ void TorrentTrackerModel::setTorrentId(int torrentId)
 
 void TorrentTrackerModel::beginUpdateModel(const QVariantList &trackerList)
 {
-    m_mutex.lock();
     emit requestModelUpdate(trackerList);
 }
 
@@ -166,6 +169,8 @@ void TorrentTrackerModel::resetModel()
 
 void TorrentTrackerModel::endUpdateModel(const QList<TorrentTracker *> &newTrackers, const QList<int> &newTrackerIds)
 {
+    m_mutex.lock();
+
     for (int i = 0; i < m_trackerIds.length(); i++) {
         int trackerId = m_trackerIds.at(i);
         if (!newTrackerIds.contains(trackerId)) {

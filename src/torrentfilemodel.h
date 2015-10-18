@@ -51,7 +51,7 @@ class TorrentFileModelWorker : public QObject
 {
     Q_OBJECT
 public:
-    TorrentFileModelWorker(TorrentFile *rootDirectory);
+    TorrentFileModelWorker(TorrentFile *rootDirectory, QMutex *mutex);
     void reset();
 public slots:
     void beginWork(const QVariantList &fileList, const QVariantList &fileStatsList);
@@ -63,6 +63,8 @@ private:
     void updateDirectory(TorrentFile *directory);
 
     TorrentFile *m_rootDirectory;
+    QMutex *m_mutex;
+
     QList<TorrentFile*> m_files;
     QList<TorrentFile*> m_changedFiles;
     QStringList m_filePaths;

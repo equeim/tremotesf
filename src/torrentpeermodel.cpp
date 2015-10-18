@@ -92,7 +92,10 @@ TorrentPeerModel::~TorrentPeerModel()
 {
     m_workerThread->quit();
     m_workerThread->wait();
+
+    m_mutex.lock();
     qDeleteAll(m_peers);
+    m_mutex.unlock();
 }
 
 QVariant TorrentPeerModel::data(const QModelIndex &index, int role) const
@@ -144,7 +147,6 @@ void TorrentPeerModel::setTorrentId(int torrentId)
 
 void TorrentPeerModel::beginUpdateModel(const QVariantList &peerList)
 {
-    m_mutex.lock();
     emit requestModelUpdate(peerList);
 }
 
@@ -175,6 +177,8 @@ QHash<int, QByteArray> TorrentPeerModel::roleNames() const
 
 void TorrentPeerModel::endUpdateModel(const QList<TorrentPeer *> &newPeers, const QStringList &newAddresses)
 {
+    m_mutex.lock();
+
     for (int i = 0; i < m_addresses.length(); i++) {
         QString address = m_addresses.at(i);
         if (!newAddresses.contains(address)) {

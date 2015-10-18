@@ -19,6 +19,7 @@
 #include "torrentfilemodel.h"
 #include "torrentfilemodel.moc"
 
+#include <QMutexLocker>
 #include <QThread>
 
 #include "transmission.h"
@@ -34,9 +35,10 @@ TorrentFile::~TorrentFile()
     qDeleteAll(childFiles);
 }
 
-TorrentFileModelWorker::TorrentFileModelWorker(TorrentFile *rootDirectory)
+TorrentFileModelWorker::TorrentFileModelWorker(TorrentFile *rootDirectory, QMutex *mutex)
 {
     m_rootDirectory = rootDirectory;
+    m_mutex = mutex;
 }
 
 void TorrentFileModelWorker::reset()
@@ -54,6 +56,8 @@ void TorrentFileModelWorker::beginWork(const QVariantList &fileList, const QVari
         QVariantMap fileMap = fileList.at(i).toMap();
         filePaths.append(fileMap.value("name").toString());
     }
+
+    QMutexLocker locker(m_mutex);
 
     if (m_filePaths == filePaths) {
         updateTree(fileStatsList);
@@ -228,7 +232,7 @@ TorrentFileModel::TorrentFileModel()
 
     m_rootDirectory = new TorrentFile;
 
-    m_worker = new TorrentFileModelWorker(m_rootDirectory);
+    m_worker = new TorrentFileModelWorker(m_rootDirectory, &m_mutex);
     connect(this, &TorrentFileModel::requestModelUpdate, m_worker, &TorrentFileModelWorker::beginWork);
     connect(m_worker, &TorrentFileModelWorker::treeCreated, this, &TorrentFileModel::endCreateTree);
     connect(m_worker, &TorrentFileModelWorker::treeUpdated, this, &TorrentFileModel::endUpdateTree);
@@ -246,8 +250,9 @@ TorrentFileModel::~TorrentFileModel()
     m_workerThread->quit();
     m_workerThread->wait();
 
-    qDeleteAll(m_rootDirectory->childFiles);
+    m_mutex.lock();
     delete m_rootDirectory;
+    m_mutex.unlock();
 }
 
 int TorrentFileModel::columnCount(const QModelIndex &parent) const
@@ -330,6 +335,8 @@ bool TorrentFileModel::setData(const QModelIndex &index, const QVariant &value, 
     if (!index.isValid())
         return false;
 
+    QMutexLocker locker(&m_mutex);
+
     TorrentFile *file = static_cast<TorrentFile*>(index.internalPointer());
 
     if (role == PriorityRole) {
@@ -392,7 +399,6 @@ void TorrentFileModel::setAllWanted(bool wanted)
 
 void TorrentFileModel::beginUpdateModel(const QVariantList &fileList, const QVariantList &fileStatsList)
 {
-    m_mutex.lock();
     emit requestModelUpdate(fileList, fileStatsList);
 }
 
@@ -414,15 +420,12 @@ void TorrentFileModel::resetModel()
 
 void TorrentFileModel::endCreateTree()
 {
-    m_mutex.unlock();
     beginResetModel();
     endResetModel();
 }
 
 void TorrentFileModel::endUpdateTree(const QList<TorrentFile*> &changedFiles)
 {
-    m_mutex.unlock();
-
     foreach (TorrentFile *file, changedFiles) {
         QModelIndex modelIndex = createIndex(file->row, 0, file);
         emit dataChanged(modelIndex, modelIndex);
