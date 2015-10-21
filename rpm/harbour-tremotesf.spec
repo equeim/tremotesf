@@ -1,6 +1,6 @@
 Name: harbour-tremotesf
 Summary: Transmission Remote for Sailfish OS
-Version: 0.3
+Version: 0.3.1
 Release: 1
 Group: Applications/Internet
 License: GPLv3
