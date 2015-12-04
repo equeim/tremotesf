@@ -16,14 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef APPSETTINGS_H
-#define APPSETTINGS_H
+#ifndef TREMOTESF_APPSETTINGS_H
+#define TREMOTESF_APPSETTINGS_H
 
 #include <QObject>
 #include <QVariantMap>
 
 class QThread;
 class QSettings;
+
+namespace Tremotesf
+{
 
 class AppSettingsWorker : public QObject
 {
@@ -146,4 +149,6 @@ signals:
     void serverStatsUpdated();
 };
 
-#endif // APPSETTINGS_H
+}
+
+#endif // TREMOTESF_APPSETTINGS_H

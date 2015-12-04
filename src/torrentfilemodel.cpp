@@ -24,6 +24,9 @@
 
 #include "transmission.h"
 
+namespace Tremotesf
+{
+
 TorrentFile::TorrentFile(TorrentFile *parentDirectory, int row)
 {
     this->parentDirectory = parentDirectory;
@@ -575,4 +578,6 @@ QHash<int, QByteArray> TorrentFileModel::roleNames() const {
     roles.insert(WantedStatusRole, "wantedStatus");
 
     return roles;
+}
+
 }

@@ -16,13 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TORRENTFILEMODEL_H
-#define TORRENTFILEMODEL_H
+#ifndef TREMOTESF_TORRENTFILEMODEL_H
+#define TREMOTESF_TORRENTFILEMODEL_H
 
 #include <QAbstractListModel>
 #include <QMutex>
 
 class QThread;
+
+namespace Tremotesf
+{
+
 class Transmission;
 
 class TorrentFile
@@ -45,7 +49,6 @@ public:
     float progress;
     int wantedStatus;
 };
-Q_DECLARE_METATYPE(TorrentFile*)
 
 class TorrentFileModelWorker : public QObject
 {
@@ -161,4 +164,8 @@ signals:
     void requestModelUpdate(const QVariantList &fileList, const QVariantList &fileStatsList);
 };
 
-#endif // TORRENTFILEMODEL_H
+}
+
+Q_DECLARE_METATYPE(Tremotesf::TorrentFile*)
+
+#endif // TREMOTESF_TORRENTFILEMODEL_H

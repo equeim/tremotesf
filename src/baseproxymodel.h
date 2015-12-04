@@ -16,11 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BASEPROXYMODEL_H
-#define BASEPROXYMODEL_H
+#ifndef TREMOTESF_BASEPROXYMODEL_H
+#define TREMOTESF_BASEPROXYMODEL_H
 
 #include <QCollator>
 #include <QSortFilterProxyModel>
+
+namespace Tremotesf
+{
 
 class BaseProxyModel : public QSortFilterProxyModel
 {
@@ -34,4 +37,6 @@ private:
     QCollator m_collator;
 };
 
-#endif // BASEPROXYMODEL_H
+}
+
+#endif // TREMOTESF_BASEPROXYMODEL_H

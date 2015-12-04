@@ -16,10 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PROXYFILEMODEL_H
-#define PROXYFILEMODEL_H
+#ifndef TREMOTESF_PROXYFILEMODEL_H
+#define TREMOTESF_PROXYFILEMODEL_H
 
 #include "baseproxymodel.h"
+
+namespace Tremotesf
+{
 
 class ProxyFileModel : public BaseProxyModel
 {
@@ -30,4 +33,6 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 };
 
-#endif // PROXYFILEMODEL_H
+}
+
+#endif // TREMOTESF_PROXYFILEMODEL_H

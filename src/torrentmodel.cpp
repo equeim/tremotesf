@@ -31,6 +31,9 @@
 #include "transmission.h"
 #include "utils.h"
 
+namespace Tremotesf
+{
+
 Torrent::Torrent(const QString &hashString, int id, const QString &name)
 {
     this->hashString = hashString;
@@ -701,4 +704,6 @@ QHash<int, QByteArray> TorrentModel::roleNames() const
     roles.insert(UploadRatioRole, "uploadRatio");
 
     return roles;
+}
+
 }

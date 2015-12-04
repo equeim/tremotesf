@@ -22,6 +22,9 @@
 #include "appsettings.h"
 #include "torrentmodel.h"
 
+namespace Tremotesf
+{
+
 void ProxyTorrentModel::classBegin()
 {
 
@@ -94,4 +97,6 @@ void ProxyTorrentModel::setSortRole(int sortRole)
     QSortFilterProxyModel::setSortRole(sortRole);
     m_appSettings->setSortRole(sortRole);
     emit sortRoleChanged();
+}
+
 }

@@ -16,12 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBUSPROXY_H
-#define DBUSPROXY_H
+#ifndef TREMOTESF_DBUSPROXY_H
+#define TREMOTESF_DBUSPROXY_H
 
 #include <QObject>
 
 class QWindow;
+
+namespace Tremotesf
+{
 
 class DBusProxy : public QObject
 {
@@ -35,4 +38,6 @@ private:
     QWindow *m_window;
 };
 
-#endif // DBUSPROXY_H
+}
+
+#endif // TREMOTESF_DBUSPROXY_H

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRANSMISSION_H
-#define TRANSMISSION_H
+#ifndef TREMOTESF_TRANSMISSION_H
+#define TREMOTESF_TRANSMISSION_H
 
 #include <QSslConfiguration>
 #include <QUrl>
@@ -27,6 +27,9 @@ class QAuthenticator;
 class QNetworkAccessManager;
 class QNetworkReply;
 class QTimer;
+
+namespace Tremotesf
+{
 
 class AppSettings;
 class TorrentModel;
@@ -131,4 +134,6 @@ signals:
     void errorChanged();
 };
 
-#endif // TRANSMISSION_H
+}
+
+#endif // TREMOTESF_TRANSMISSION_H

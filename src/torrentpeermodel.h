@@ -16,13 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TORRENTPEERMODEL_H
-#define TORRENTPEERMODEL_H
+#ifndef TREMOTESF_TORRENTPEERMODEL_H
+#define TREMOTESF_TORRENTPEERMODEL_H
 
 #include <QAbstractListModel>
 #include <QMutex>
 
 class QThread;
+
+namespace Tremotesf
+{
 
 struct TorrentPeer {
     QString address;
@@ -32,7 +35,6 @@ struct TorrentPeer {
 
     bool changed;
 };
-Q_DECLARE_METATYPE(TorrentPeer*)
 
 class TorrentPeerModelWorker : public QObject
 {
@@ -93,4 +95,9 @@ private:
 signals:
     void requestModelUpdate(const QVariantList &peerList);
 };
-#endif // TORRENTPEERMODEL_H
+
+}
+
+Q_DECLARE_METATYPE(Tremotesf::TorrentPeer*)
+
+#endif // TREMOTESF_TORRENTPEERMODEL_H

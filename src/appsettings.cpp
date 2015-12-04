@@ -31,6 +31,9 @@
 #include "torrentmodel.h"
 #include "utils.h"
 
+namespace Tremotesf
+{
+
 void AppSettingsWorker::parseServerSettings(const QByteArray &replyData)
 {
     emit serverSettingsParsed(QJsonDocument::fromJson(replyData).toVariant().toMap().value("arguments").toMap());
@@ -393,4 +396,6 @@ void AppSettings::endUpdateServerStats(int downloadSpeed, int uploadSpeed)
     m_downloadSpeed = downloadSpeed;
     m_uploadSpeed = uploadSpeed;
     emit serverStatsUpdated();
+}
+
 }

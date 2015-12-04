@@ -28,6 +28,9 @@
 #include <QSslCertificate>
 #include <QSslKey>
 
+namespace Tremotesf
+{
+
 bool Utils::checkLocalCertificate(const QString &filePath)
 {
     QFile pemFile(filePath);
@@ -152,4 +155,6 @@ void Utils::publishFinishedNotification(const QString &torrentName)
                                                             "activate"));
 
     notification.publish();
+}
+
 }

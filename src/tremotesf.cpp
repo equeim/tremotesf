@@ -39,19 +39,19 @@ int main(int argc, char *argv[])
 {
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
     QScopedPointer<QQuickView> view(SailfishApp::createView());
-    new DBusProxy(view.data(), view.data());
+    new Tremotesf::DBusProxy(view.data(), view.data());
 
-    qmlRegisterType<AppSettings>("harbour.tremotesf", 0, 1, "AppSettings");
-    qmlRegisterType<Transmission>("harbour.tremotesf", 0, 1, "Transmission");
-    qmlRegisterType<TorrentModel>("harbour.tremotesf", 0, 1, "TorrentModel");
-    qmlRegisterType<ProxyTorrentModel>("harbour.tremotesf", 0, 1, "ProxyTorrentModel");
-    qmlRegisterType<TorrentFileModel>("harbour.tremotesf", 0, 1, "TorrentFileModel");
-    qmlRegisterType<ProxyFileModel>("harbour.tremotesf", 0, 1, "ProxyFileModel");
-    qmlRegisterType<TorrentPeerModel>("harbour.tremotesf", 0, 1, "TorrentPeerModel");
-    qmlRegisterType<TorrentTrackerModel>("harbour.tremotesf", 0, 1, "TorrentTrackerModel");
-    qmlRegisterType<AccountModel>("harbour.tremotesf", 0, 1, "AccountModel");
-    qmlRegisterType<BaseProxyModel>("harbour.tremotesf", 0, 1, "BaseProxyModel");
-    qmlRegisterType<Utils>("harbour.tremotesf", 0, 1, "Utils");
+    qmlRegisterType<Tremotesf::AppSettings>("harbour.tremotesf", 0, 1, "AppSettings");
+    qmlRegisterType<Tremotesf::Transmission>("harbour.tremotesf", 0, 1, "Transmission");
+    qmlRegisterType<Tremotesf::TorrentModel>("harbour.tremotesf", 0, 1, "TorrentModel");
+    qmlRegisterType<Tremotesf::ProxyTorrentModel>("harbour.tremotesf", 0, 1, "ProxyTorrentModel");
+    qmlRegisterType<Tremotesf::TorrentFileModel>("harbour.tremotesf", 0, 1, "TorrentFileModel");
+    qmlRegisterType<Tremotesf::ProxyFileModel>("harbour.tremotesf", 0, 1, "ProxyFileModel");
+    qmlRegisterType<Tremotesf::TorrentPeerModel>("harbour.tremotesf", 0, 1, "TorrentPeerModel");
+    qmlRegisterType<Tremotesf::TorrentTrackerModel>("harbour.tremotesf", 0, 1, "TorrentTrackerModel");
+    qmlRegisterType<Tremotesf::AccountModel>("harbour.tremotesf", 0, 1, "AccountModel");
+    qmlRegisterType<Tremotesf::BaseProxyModel>("harbour.tremotesf", 0, 1, "BaseProxyModel");
+    qmlRegisterType<Tremotesf::Utils>("harbour.tremotesf", 0, 1, "Utils");
     qmlRegisterType<QQuickFolderListModel, 1>("harbour.tremotesf", 0, 1, "FolderListModel");
     qmlRegisterType<QAbstractItemModel>();
 

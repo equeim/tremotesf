@@ -21,6 +21,9 @@
 
 #include "torrentfilemodel.h"
 
+namespace Tremotesf
+{
+
 ProxyFileModel::ProxyFileModel()
 {
     setSortRole(TorrentFileModel::NameRole);
@@ -37,4 +40,6 @@ bool ProxyFileModel::lessThan(const QModelIndex &left, const QModelIndex &right)
     if (leftIsDirectory)
         return true;
     return false;
+}
+
 }

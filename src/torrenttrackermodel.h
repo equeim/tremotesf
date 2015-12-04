@@ -16,12 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TORRENTTRACKERMODEL_H
-#define TORRENTTRACKERMODEL_H
+#ifndef TREMOTESF_TORRENTTRACKERMODEL_H
+#define TREMOTESF_TORRENTTRACKERMODEL_H
 
 #include <QAbstractListModel>
 #include <QDateTime>
 #include <QMutex>
+
+namespace Tremotesf
+{
 
 struct TorrentTracker {
     QString announce;
@@ -31,7 +34,6 @@ struct TorrentTracker {
 
     bool changed;
 };
-Q_DECLARE_METATYPE(TorrentTracker*)
 
 class TorrentTrackerModelWorker: public QObject
 {
@@ -94,4 +96,8 @@ signals:
     void requestModelUpdate(const QVariantList &peerList);
 };
 
-#endif // TORRENTTRACKERMODEL_H
+}
+
+Q_DECLARE_METATYPE(Tremotesf::TorrentTracker*)
+
+#endif // TREMOTESF_TORRENTTRACKERMODEL_H

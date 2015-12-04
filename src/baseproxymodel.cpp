@@ -21,6 +21,9 @@
 
 #include <QDebug>
 
+namespace Tremotesf
+{
+
 BaseProxyModel::BaseProxyModel()
 {
     m_collator.setNumericMode(true);
@@ -46,4 +49,6 @@ bool BaseProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right)
     }
 
     return QSortFilterProxyModel::lessThan(left, right);
+}
+
 }

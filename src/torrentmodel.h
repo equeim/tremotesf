@@ -16,14 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TORRENTMODEL_H
-#define TORRENTMODEL_H
+#ifndef TREMOTESF_TORRENTMODEL_H
+#define TREMOTESF_TORRENTMODEL_H
 
 #include <QAbstractListModel>
 #include <QDateTime>
 #include <QMutex>
 
 class QThread;
+
+namespace Tremotesf
+{
 
 class TorrentFileModel;
 class TorrentPeerModel;
@@ -77,7 +80,6 @@ public:
     QVariantList peerList;
     QVariantList trackerList;
 };
-Q_DECLARE_METATYPE(Torrent*)
 
 class TorrentModelWorker : public QObject
 {
@@ -206,4 +208,8 @@ signals:
     void torrentRemoved();
 };
 
-#endif // TORRENTMODEL_H
+}
+
+Q_DECLARE_METATYPE(Tremotesf::Torrent*)
+
+#endif // TREMOTESF_TORRENTMODEL_H

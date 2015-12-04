@@ -22,6 +22,9 @@
 #include <QDBusConnection>
 #include <QWindow>
 
+namespace Tremotesf
+{
+
 DBusProxy::DBusProxy(QWindow *window, QObject *parent) : QObject(parent)
 {
     m_window = window;
@@ -31,4 +34,6 @@ DBusProxy::DBusProxy(QWindow *window, QObject *parent) : QObject(parent)
 void DBusProxy::activate()
 {
     m_window->raise();
+}
+
 }

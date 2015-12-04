@@ -16,12 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PROXYTORRENTMODEL_H
-#define PROXYTORRENTMODEL_H
+#ifndef TREMOTESF_PROXYTORRENTMODEL_H
+#define TREMOTESF_PROXYTORRENTMODEL_H
 
 #include <QQmlParserStatus>
 
 #include "baseproxymodel.h"
+
+namespace Tremotesf
+{
 
 class AppSettings;
 
@@ -62,4 +65,6 @@ signals:
     void sortRoleChanged();
 };
 
-#endif // PROXYTORRENTMODEL_H
+}
+
+#endif // TREMOTESF_PROXYTORRENTMODEL_H

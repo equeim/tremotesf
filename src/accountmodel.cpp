@@ -23,6 +23,9 @@
 
 #include "appsettings.h"
 
+namespace Tremotesf
+{
+
 Account::Account(const QString &name, AppSettings *appSettings)
 {
     this->name = name;
@@ -155,4 +158,6 @@ QHash<int, QByteArray> AccountModel::roleNames() const
     roles.insert(TimeoutRole, "timeout");
 
     return roles;
+}
+
 }

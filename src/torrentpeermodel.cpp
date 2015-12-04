@@ -22,6 +22,9 @@
 #include <QDebug>
 #include <QThread>
 
+namespace Tremotesf
+{
+
 TorrentPeerModelWorker::TorrentPeerModelWorker(QList<TorrentPeer *> *peers, QStringList *addresses)
 {
     m_peers = peers;
@@ -209,4 +212,6 @@ void TorrentPeerModel::endUpdateModel(const QList<TorrentPeer *> &newPeers, cons
     }
 
     m_mutex.unlock();
+}
+
 }

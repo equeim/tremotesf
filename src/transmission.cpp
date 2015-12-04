@@ -39,6 +39,9 @@
 #include "appsettings.h"
 #include "torrentmodel.h"
 
+namespace Tremotesf
+{
+
 static const QByteArray ModelDataRequest =
         "{\n"
         "    \"arguments\": {\n"
@@ -561,4 +564,6 @@ void Transmission::authenticate(const QNetworkReply *reply, QAuthenticator *auth
         }
         m_authenticationRequested = true;
     }
+}
+
 }

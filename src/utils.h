@@ -16,10 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef TREMOTESF_UTILS_H
+#define TREMOTESF_UTILS_H
 
 #include <QObject>
+
+namespace Tremotesf
+{
 
 class Utils : public QObject
 {
@@ -37,4 +40,6 @@ public:
     static void publishFinishedNotification(const QString &torrentName);
 };
 
-#endif // UTILS_H
+}
+
+#endif // TREMOTESF_UTILS_H

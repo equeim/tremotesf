@@ -16,11 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACCOUNTMODEL_H
-#define ACCOUNTMODEL_H
+#ifndef TREMOTESF_ACCOUNTMODEL_H
+#define TREMOTESF_ACCOUNTMODEL_H
 
 #include <QAbstractListModel>
 #include <QQmlParserStatus>
+
+namespace Tremotesf
+{
 
 class AppSettings;
 
@@ -87,4 +90,6 @@ private:
     AppSettings *m_appSettings;
 };
 
-#endif // ACCOUNTMODEL_H
+}
+
+#endif // TREMOTESF_ACCOUNTMODEL_H

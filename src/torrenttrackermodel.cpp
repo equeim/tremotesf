@@ -21,6 +21,9 @@
 
 #include <QThread>
 
+namespace Tremotesf
+{
+
 TorrentTrackerModelWorker::TorrentTrackerModelWorker(const QList<TorrentTracker*> *trackers, const QList<int> *trackerIds)
 {
     m_trackers = trackers;
@@ -212,4 +215,6 @@ QHash<int, QByteArray> TorrentTrackerModel::roleNames() const
     roles.insert(LastAnnounceTimeRole, "lastAnnounceTime");
 
     return roles;
+}
+
 }
