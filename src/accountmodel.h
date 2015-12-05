@@ -52,35 +52,21 @@ class AccountModel : public QAbstractListModel, public QQmlParserStatus
 {
     Q_OBJECT
     Q_INTERFACES(QQmlParserStatus)
-    Q_PROPERTY(AppSettings* appSettings READ appSettings WRITE setAppSettings)
+    Q_PROPERTY(Tremotesf::AppSettings* appSettings READ appSettings WRITE setAppSettings)
 public:
-    enum AccountRoles {
-        NameRole = Qt::UserRole,
-        AddressRole,
-        PortRole,
-        ApiPathRole,
-        HttpsRole,
-        LocalCertificateRole,
-        AuthenticationRole,
-        UsernameRole,
-        PasswordRole,
-        UpdateIntervalRole,
-        TimeoutRole
-    };
-
     void classBegin();
     void componentComplete();
 
     AppSettings* appSettings() const;
-    void setAppSettings(AppSettings *appSettings);
+    void setAppSettings(AppSettings *settings);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 private:
     void setupModel();
-    void addAccount(const QString &name, int index);
-    void removeAccount(int index);
-    void updateAccount(int index);
+    void addAccount(const QString &name, int accountIndex);
+    void removeAccount(int accountIndex);
+    void updateAccount(int accountIndex);
 protected:
     QHash<int, QByteArray> roleNames() const;
 private:

@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
-import harbour.tremotesf 0.1
+import harbour.tremotesf 0.1 as Tremotesf
 
 Item {
     height: column.height + Theme.paddingMedium
@@ -46,24 +46,24 @@ Item {
                 id: statusIcon
 
                 rotation: {
-                    if (torrentStatus === TorrentModel.StalledStatus ||
-                            torrentStatus === TorrentModel.DownloadingStatus)
+                    if (torrentStatus === Tremotesf.TorrentModel.StalledStatus ||
+                            torrentStatus === Tremotesf.TorrentModel.DownloadingStatus)
                         return 90
-                    if (torrentStatus === TorrentModel.QueuedForSeedingStatus ||
-                            torrentStatus === TorrentModel.SeedingStatus)
+                    if (torrentStatus === Tremotesf.TorrentModel.QueuedForSeedingStatus ||
+                            torrentStatus === Tremotesf.TorrentModel.SeedingStatus)
                         return -90
                     return 0
                 }
                 source: {
-                    if (torrentStatus === TorrentModel.StoppedStatus ||
-                            torrentStatus === TorrentModel.QueuedForCheckingStatus ||
-                            torrentStatus === TorrentModel.CheckingStatus ||
-                            torrentStatus === TorrentModel.IsolatedStatus)
+                    if (torrentStatus === Tremotesf.TorrentModel.StoppedStatus ||
+                            torrentStatus === Tremotesf.TorrentModel.QueuedForCheckingStatus ||
+                            torrentStatus === Tremotesf.TorrentModel.CheckingStatus ||
+                            torrentStatus === Tremotesf.TorrentModel.IsolatedStatus)
                         return "image://theme/icon-m-pause"
-                    if (torrentStatus === TorrentModel.StalledStatus ||
-                            torrentStatus === TorrentModel.DownloadingStatus ||
-                            torrentStatus === TorrentModel.QueuedForSeedingStatus ||
-                            torrentStatus === TorrentModel.SeedingStatus)
+                    if (torrentStatus === Tremotesf.TorrentModel.StalledStatus ||
+                            torrentStatus === Tremotesf.TorrentModel.DownloadingStatus ||
+                            torrentStatus === Tremotesf.TorrentModel.QueuedForSeedingStatus ||
+                            torrentStatus === Tremotesf.TorrentModel.SeedingStatus)
                         return "image://theme/icon-m-play"
                 }
                 sourceSize.height: Theme.iconSizeMedium
@@ -92,10 +92,10 @@ Item {
                 font.pixelSize: Theme.fontSizeSmall
                 text: {
                     if (model.percentDone === 100)
-                        return qsTr("%1, uploaded %2").arg(root.utils.formatByteSize(model.sizeWhenDone)).arg(root.utils.formatByteSize(model.uploadedEver))
+                        return qsTr("%1, uploaded %2").arg(Tremotesf.Utils.formatByteSize(model.sizeWhenDone)).arg(Tremotesf.Utils.formatByteSize(model.uploadedEver))
                     else
-                        return qsTr("%1 of %2 (%L3%)").arg(root.utils.formatByteSize(model.sizeWhenDone - model.leftUntilDone))
-                    .arg(root.utils.formatByteSize(model.sizeWhenDone))
+                        return qsTr("%1 of %2 (%L3%)").arg(Tremotesf.Utils.formatByteSize(model.sizeWhenDone - model.leftUntilDone))
+                    .arg(Tremotesf.Utils.formatByteSize(model.sizeWhenDone))
                     .arg(model.percentDone);
                 }
             }
@@ -106,9 +106,9 @@ Item {
                 font.pixelSize: Theme.fontSizeSmall
                 text: {
                     if (model.eta < 0 ||
-                            torrentStatus === TorrentModel.StoppedStatus)
+                            torrentStatus === Tremotesf.TorrentModel.StoppedStatus)
                         return "∞"
-                    return root.utils.formatEta(model.eta)
+                    return Tremotesf.Utils.formatEta(model.eta)
                 }
             }
         }
@@ -126,7 +126,7 @@ Item {
                 }
                 maximumValue: 100
                 value: {
-                    if (torrentStatus === TorrentModel.CheckingStatus)
+                    if (torrentStatus === Tremotesf.TorrentModel.CheckingStatus)
                         return model.recheckProgress
                     return model.percentDone
                 }
@@ -150,13 +150,13 @@ Item {
                     Label {
                         color: Theme.secondaryColor
                         font.pixelSize: Theme.fontSizeSmall
-                        text: "↓ %1".arg(root.utils.formatByteSpeed(model.rateDownload))
+                        text: "↓ %1".arg(Tremotesf.Utils.formatByteSpeed(model.rateDownload))
                     }
 
                     Label {
                         color: Theme.secondaryColor
                         font.pixelSize: Theme.fontSizeSmall
-                        text: "↑ %1".arg(root.utils.formatByteSpeed(model.rateUpload))
+                        text: "↑ %1".arg(Tremotesf.Utils.formatByteSpeed(model.rateUpload))
                     }
                 }
 
@@ -175,23 +175,23 @@ Item {
                             return model.errorString
 
                         switch (torrentStatus) {
-                        case TorrentModel.StoppedStatus:
+                        case Tremotesf.TorrentModel.StoppedStatus:
                             return qsTr("Stopped")
-                        case TorrentModel.QueuedForCheckingStatus:
+                        case Tremotesf.TorrentModel.QueuedForCheckingStatus:
                             return qsTr("Queued for checking")
-                        case TorrentModel.CheckingStatus:
+                        case Tremotesf.TorrentModel.CheckingStatus:
                             return qsTr("Checking")
-                        case TorrentModel.StalledStatus:
+                        case Tremotesf.TorrentModel.StalledStatus:
                             return qsTr("Stalled")
-                        case TorrentModel.DownloadingStatus:
+                        case Tremotesf.TorrentModel.DownloadingStatus:
                             return qsTr("Downloading\nfrom %1 of %n peer(s)", String(), model.peersConnected).arg(model.peersSendingToUs)
-                        case TorrentModel.QueuedForSeedingStatus:
+                        case Tremotesf.TorrentModel.QueuedForSeedingStatus:
                             return qsTr("Queued to seeding")
-                        case TorrentModel.SeedingStatus:
+                        case Tremotesf.TorrentModel.SeedingStatus:
                             return qsTr("Seeding\nto %1 of %n peer(s)", String(), model.peersConnected).arg(model.peersGettingFromUs)
-                        case TorrentModel.IsolatedStatus:
+                        case Tremotesf.TorrentModel.IsolatedStatus:
                             return qsTr("Isolated")
-                        case TorrentModel.ErrorStatus:
+                        case Tremotesf.TorrentModel.ErrorStatus:
                             return qsTr("Error")
                         default:
                             return String()

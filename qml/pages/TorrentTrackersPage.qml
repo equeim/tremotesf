@@ -16,25 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
+
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 import "../dialogs"
 
 Page {
-    allowedOrientations: Orientation.All
+    id: page
+
+    property int torrentIndex
+    property int torrentId
 
     Component.onCompleted: {
-        if (!root.trackerModel.isActive)
-            root.torrentModel.loadTrackerModel(root.proxyTorrentModel.getSourceIndex(model.index))
+        if (!trackerModel.active)
+            torrentModel.loadTrackerModel(torrentIndex)
     }
 
     Connections {
-        target: root.torrentModel
+        target: torrentModel
         onTorrentRemoved: {
             if (model.index === -1)
-                pageStack.pop(torrentsPage, PageStackAction.Immediate)
+                pageStack.pop(pageStack.previousPage(pageStack.previousPage()), PageStackAction.Immediate)
         }
     }
 
@@ -45,12 +50,20 @@ Page {
         }
         delegate: ListItem {
             function removeTracker() {
-                root.transmission.changeTorrent(torrentId, "trackerRemove", [model.id])
-                root.trackerModel.removeAtIndex(root.proxyTrackerModel.getSourceIndex(model.index))
+                transmission.changeTorrent(torrentId, "trackerRemove", [model.id])
+                trackerModel.removeAtIndex(proxyTrackerModel.sourceIndex(model.index))
             }
 
             contentHeight: Theme.itemSizeMedium
-            menu: contextMenu
+            menu: Component {
+                ContextMenu {
+                    MenuItem {
+                        text: qsTr("Remove")
+                        onClicked: remorseAction(qsTr("Removing tracker"), removeTracker)
+                    }
+                }
+            }
+
             onClicked: pageStack.push(editTrackerPage)
             ListView.onRemove: animateRemoval()
 
@@ -74,20 +87,9 @@ Page {
                     bottom: parent.bottom
                     bottomMargin: Theme.paddingMedium
                 }
-                color: Theme.secondaryColor
+                color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 font.pixelSize: Theme.fontSizeSmall
                 text: Format.formatDate(model.lastAnnounceTime, Format.DurationElapsed)
-            }
-
-            Component {
-                id: contextMenu
-
-                ContextMenu {
-                    MenuItem {
-                        text: qsTr("Remove")
-                        onClicked: remorseAction(qsTr("Removing tracker"), removeTracker)
-                    }
-                }
             }
 
             Component {
@@ -95,18 +97,17 @@ Page {
                 EditTrackerPage { }
             }
         }
-        model: root.proxyTrackerModel
+        model: Tremotesf.BaseProxyModel {
+            id: proxyTrackerModel
+            sortRole: Tremotesf.TorrentTrackerModel.AnnounceRole
+            sourceModel: trackerModel
+        }
 
 
         PullDownMenu {
             MenuItem {
                 text: qsTr("Add tracker...")
-                onClicked: pageStack.push(addTorrentTrackerDialog)
-
-                Component {
-                    id: addTorrentTrackerDialog
-                    AddTrackerDialog { }
-                }
+                onClicked: pageStack.push("../dialogs/AddTrackerDialog.qml", { torrentId: page.torrentId })
             }
         }
 

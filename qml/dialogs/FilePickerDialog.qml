@@ -16,28 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
-import harbour.tremotesf 0.1
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
 Dialog {
-    property string path
+    property string filePath
 
-    property alias nameFilters: folderModel.nameFilters
-    property alias showFiles: folderModel.showFiles
+    property alias nameFilters: folderListModel.nameFilters
+    property alias showFiles: folderListModel.showFiles
 
     onAccepted: {
-        if (!showFiles) {
-            path = folderModel.folder
-            path = path.slice(7, path.length)
-        }
+        if (!showFiles)
+            filePath = Tremotesf.Utils.urlToPath(folderListModel.folder)
     }
 
-    allowedOrientations: Orientation.All
-    canAccept: path || !showFiles
+    canAccept: filePath.length !== 0 || !showFiles
 
     DialogHeader {
         id: header
@@ -46,16 +43,21 @@ Dialog {
     }
 
     SilicaListView {
+        id: listView
+
         anchors {
             top: header.bottom
             bottom: parent.bottom
         }
+        width: parent.width
+
         clip: true
         header: Column {
-            width: parent.width
+            width: listView.width
+
             ParentDirectoryItem {
-                visible: folderModel.parentFolder.toString().length !== 0
-                onClicked: folderModel.folder = folderModel.parentFolder
+                visible: folderListModel.folder.toString() !== "file:///"
+                onClicked: folderListModel.folder = folderListModel.parentFolder
             }
         }
         delegate: BackgroundItem {
@@ -68,8 +70,15 @@ Dialog {
                     verticalCenter: parent.verticalCenter
                 }
                 asynchronous: true
-                source: model.fileIsDir ? "image://theme/icon-m-folder"
-                                        : "image://theme/icon-m-other"
+                source: {
+                    var iconSource = model.fileIsDir ? "image://theme/icon-m-folder"
+                                                     : "image://theme/icon-m-other"
+
+                    if (highlighted)
+                        iconSource += "?" + Theme.highlightColor
+
+                    return iconSource
+                }
             }
 
             Label {
@@ -87,21 +96,20 @@ Dialog {
 
             onClicked: {
                 if (model.fileIsDir) {
-                    folderModel.folder = model.filePath
+                    folderListModel.folder = model.filePath
                 } else {
-                    path = model.filePath
+                    filePath = model.filePath
                     accept()
                 }
             }
         }
-        model: FolderListModel {
-            id: folderModel
+        model: Tremotesf.FolderListModel {
+            id: folderListModel
             showDirsFirst: true
         }
-        width: parent.width
 
         ViewPlaceholder {
-            enabled: folderModel.count === 0
+            enabled: folderListModel.count === 0
             text: qsTr("No files")
         }
 

@@ -25,9 +25,10 @@
 namespace Tremotesf
 {
 
-DBusProxy::DBusProxy(QWindow *window, QObject *parent) : QObject(parent)
+DBusProxy::DBusProxy(QWindow *window)
+    : QObject(window),
+      m_window(window)
 {
-    m_window = window;
     QDBusConnection::sessionBus().registerObject("/", this, QDBusConnection::ExportAllSlots);
 }
 

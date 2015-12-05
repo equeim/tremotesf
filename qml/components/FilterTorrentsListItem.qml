@@ -16,18 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
 import Sailfish.Silica 1.0
 
 CommonListItem {
     property int filterMode
 
     textColor: {
-        if (highlighted || root.proxyTorrentModel.filterMode === filterMode)
+        if (highlighted || proxyTorrentModel.filterMode === filterMode)
             return Theme.highlightColor
         else
             return Theme.primaryColor
     }
 
-    onClicked: root.proxyTorrentModel.filterMode = filterMode
+    onClicked: proxyTorrentModel.filterMode = filterMode
 }

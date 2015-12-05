@@ -16,15 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
+
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
 Dialog {
-    property alias name: editItem.name
-
-    allowedOrientations: Orientation.All
     canAccept: {
         if (editItem.name &&
                 editItem.address &&
@@ -43,17 +42,17 @@ Dialog {
     }
 
     onAccepted: {
-        root.appSettings.addAccount(editItem.name,
-                               editItem.address,
-                               editItem.port,
-                               editItem.apiPath,
-                               editItem.https,
-                               editItem.localCertificate,
-                               editItem.authentication,
-                               editItem.username,
-                               editItem.password,
-                               editItem.updateInterval,
-                               editItem.timeout)
+        Tremotesf.AppSettings.addAccount(editItem.name,
+                                         editItem.address,
+                                         editItem.port,
+                                         editItem.apiPath,
+                                         editItem.https,
+                                         editItem.localCertificate,
+                                         editItem.authentication,
+                                         editItem.username,
+                                         editItem.password,
+                                         editItem.updateInterval,
+                                         editItem.timeout)
     }
 
     SilicaFlickable {

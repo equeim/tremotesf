@@ -32,21 +32,23 @@ class AppSettingsWorker : public QObject
 {
     Q_OBJECT
 public:
-    void parseServerSettings(const QByteArray &replyData);
-    void parseServerStats(const QByteArray &replyData);
+    void parseServerSettings(QByteArray replyData);
+    void parseServerStats(QByteArray replyData);
 signals:
-    void serverSettingsParsed(const QVariantMap &serverSettings);
+    void serverSettingsParsed(QVariantMap serverSettings);
     void serverStatsParsed(int downloadSpeed, int uploadSpeed);
 };
 
 class AppSettings : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int accountCount READ accountCount)
+    Q_PROPERTY(int accountsCount READ accountsCount)
     Q_PROPERTY(QString currentAccount READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
     Q_PROPERTY(int downloadSpeed READ downloadSpeed NOTIFY serverStatsUpdated)
     Q_PROPERTY(int uploadSpeed READ uploadSpeed NOTIFY serverStatsUpdated)
 public:
+    static const QString CertificatesDirectory;
+
     AppSettings();
     ~AppSettings();
 
@@ -56,7 +58,7 @@ public:
     void checkClientSettings();
     void checkLocalCertificates();
 
-    int accountCount() const;
+    int accountsCount() const;
     QStringList accounts() const;
 
     QString currentAccount() const;
@@ -115,7 +117,7 @@ public:
 
     // Server settings
     int rpcVersion() const;
-    Q_INVOKABLE QVariant serverValue(QString key) const;
+    Q_INVOKABLE QVariant serverValue(const QString &key) const;
 
     // Server stats
     int downloadSpeed() const;
@@ -124,13 +126,12 @@ public:
     void beginUpdateServerSettings(const QByteArray &replyData);
     void beginUpdateServerStats(const QByteArray &replyData);
 private:
-    void endUpdateServerSettings(const QVariantMap &serverSettings);
+    void endUpdateServerSettings(QVariantMap serverSettings);
     void endUpdateServerStats(int downloadSpeed, int uploadSpeed);
 private:
     QSettings *m_clientSettings;
     QVariantMap m_serverSettings;
 
-    AppSettingsWorker *m_worker;
     QThread *m_workerThread;
 
     int m_downloadSpeed;
@@ -142,8 +143,8 @@ signals:
 
     void currentAccountChanged();
 
-    void requestUpdateServerSettings(const QByteArray &replyData);
-    void requestUpdateServerStats(const QByteArray &replyData);
+    void requestUpdateServerSettings(QByteArray replyData);
+    void requestUpdateServerStats(QByteArray replyData);
 
     void serverSettingsUpdated();
     void serverStatsUpdated();

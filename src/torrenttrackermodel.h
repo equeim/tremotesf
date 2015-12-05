@@ -40,19 +40,19 @@ class TorrentTrackerModelWorker: public QObject
     Q_OBJECT
 public:
     TorrentTrackerModelWorker(const QList<TorrentTracker*> *trackers, const QList<int> *trackerIds);
-    void doWork(const QVariantList &trackerList);
+    void doWork(QVariantList trackerVariants);
 private:
     const QList<TorrentTracker*> *m_trackers;
     const QList<int> *m_trackerIds;
 signals:
-    void done(const QList<TorrentTracker*> &newTrackers, const QList<int> &newTrackerIds);
+    void done(QList<Tremotesf::TorrentTracker*> newTrackers, QList<int> newTrackerIds);
 };
 
 class TorrentTrackerModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_ENUMS(TorrentPeerRoles)
-    Q_PROPERTY(bool isActive READ isActive WRITE setIsActive)
+    Q_PROPERTY(bool active READ isActive WRITE setActive)
 public:
     enum TorrentPeerRoles {
         AnnounceRole = Qt::UserRole,
@@ -64,36 +64,35 @@ public:
     TorrentTrackerModel();
     ~TorrentTrackerModel();
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     bool isActive() const;
-    int torrentId() const;
+    void setActive(bool active);
 
-    void setIsActive(bool isActive);
+    int torrentId() const;
     void setTorrentId(int torrentId);
 
-    void beginUpdateModel(const QVariantList &trackerList);
+    void beginUpdateModel(const QVariantList &trackerVariants);
 
-    Q_INVOKABLE void removeAtIndex(int index);
+    Q_INVOKABLE void removeAtIndex(int trackerIndex);
     Q_INVOKABLE void resetModel();
 protected:
     QHash<int, QByteArray> roleNames() const;
 private:
-    void endUpdateModel(const QList<TorrentTracker*> &newTrackers, const QList<int> &newTrackerIds);
+    void endUpdateModel(QList<TorrentTracker*> newTrackers, QList<int> newTrackerIds);
 private:
     QList<TorrentTracker*> m_trackers;
     QList<int> m_trackerIds;
 
-    TorrentTrackerModelWorker *m_worker;
     QThread *m_workerThread;
 
-    bool m_isActive;
+    bool m_active;
     int m_torrentId;
 
     QMutex m_mutex;
 signals:
-    void requestModelUpdate(const QVariantList &peerList);
+    void requestModelUpdate(QVariantList peerList);
 };
 
 }

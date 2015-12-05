@@ -31,7 +31,7 @@ BaseProxyModel::BaseProxyModel()
     sort(0);
 }
 
-int BaseProxyModel::getSourceIndex(int proxyIndex) const
+int BaseProxyModel::sourceIndex(int proxyIndex) const
 {
     return mapToSource(index(proxyIndex, 0)).row();
 }

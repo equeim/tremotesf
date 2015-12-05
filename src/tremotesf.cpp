@@ -16,9 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <memory>
+
 #include <QGuiApplication>
 #include <QQuickView>
-#include <QScopedPointer>
 #include <sailfishapp.h>
 
 #include "accountmodel.h"
@@ -35,13 +36,28 @@
 
 #include "dbusproxy.h"
 
+
+static QObject *appsettings_singletontype_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+    return new Tremotesf::AppSettings;
+}
+
+static QObject *utils_singletontype_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+    return new Tremotesf::Utils;
+}
+
 int main(int argc, char *argv[])
 {
-    QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
-    QScopedPointer<QQuickView> view(SailfishApp::createView());
-    new Tremotesf::DBusProxy(view.data(), view.data());
+    std::unique_ptr<QGuiApplication> app(SailfishApp::application(argc, argv));
+    std::unique_ptr<QQuickView> view(SailfishApp::createView());
 
-    qmlRegisterType<Tremotesf::AppSettings>("harbour.tremotesf", 0, 1, "AppSettings");
+    new Tremotesf::DBusProxy(view.get());
+
     qmlRegisterType<Tremotesf::Transmission>("harbour.tremotesf", 0, 1, "Transmission");
     qmlRegisterType<Tremotesf::TorrentModel>("harbour.tremotesf", 0, 1, "TorrentModel");
     qmlRegisterType<Tremotesf::ProxyTorrentModel>("harbour.tremotesf", 0, 1, "ProxyTorrentModel");
@@ -51,12 +67,14 @@ int main(int argc, char *argv[])
     qmlRegisterType<Tremotesf::TorrentTrackerModel>("harbour.tremotesf", 0, 1, "TorrentTrackerModel");
     qmlRegisterType<Tremotesf::AccountModel>("harbour.tremotesf", 0, 1, "AccountModel");
     qmlRegisterType<Tremotesf::BaseProxyModel>("harbour.tremotesf", 0, 1, "BaseProxyModel");
-    qmlRegisterType<Tremotesf::Utils>("harbour.tremotesf", 0, 1, "Utils");
     qmlRegisterType<QQuickFolderListModel, 1>("harbour.tremotesf", 0, 1, "FolderListModel");
     qmlRegisterType<QAbstractItemModel>();
 
-    view.data()->setSource(SailfishApp::pathTo("qml/tremotesf.qml"));
-    view.data()->show();
+    qmlRegisterSingletonType<Tremotesf::AppSettings>("harbour.tremotesf", 0, 1, "AppSettings", appsettings_singletontype_provider);
+    qmlRegisterSingletonType<Tremotesf::Utils>("harbour.tremotesf", 0, 1, "Utils", utils_singletontype_provider);
 
-    return app.data()->exec();
+    view->setSource(SailfishApp::pathTo("qml/tremotesf.qml"));
+    view->show();
+
+    return app->exec();
 }

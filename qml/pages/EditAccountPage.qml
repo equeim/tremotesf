@@ -16,47 +16,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
+
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
 Page {
     id: editAccountPage
 
-    property string accountName
     property bool removing: false
-
-    allowedOrientations: Orientation.All
 
     Component.onDestruction: {
         if (!removing) {
             if (editItem.nameChanged) {
-                root.appSettings.addAccount(editItem.name,
-                                            editItem.address,
-                                            editItem.port,
-                                            editItem.apiPath,
-                                            editItem.https,
-                                            editItem.localCertificate,
-                                            editItem.authentication,
-                                            editItem.username,
-                                            editItem.password,
-                                            editItem.updateInterval,
-                                            editItem.timeout)
-                root.appSettings.removeAccount(model.name)
+                Tremotesf.AppSettings.addAccount(editItem.name,
+                                                 editItem.address,
+                                                 editItem.port,
+                                                 editItem.apiPath,
+                                                 editItem.https,
+                                                 editItem.localCertificate,
+                                                 editItem.authentication,
+                                                 editItem.username,
+                                                 editItem.password,
+                                                 editItem.updateInterval,
+                                                 editItem.timeout)
+                Tremotesf.AppSettings.removeAccount(model.name)
             } else {
-                root.appSettings.setAccount(editItem.name,
-                                            editItem.address,
-                                            editItem.port,
-                                            editItem.apiPath,
-                                            editItem.https,
-                                            editItem.localCertificate,
-                                            editItem.localCertificateChanged,
-                                            editItem.authentication,
-                                            editItem.username,
-                                            editItem.password,
-                                            editItem.updateInterval,
-                                            editItem.timeout)
+                Tremotesf.AppSettings.setAccount(editItem.name,
+                                                 editItem.address,
+                                                 editItem.port,
+                                                 editItem.apiPath,
+                                                 editItem.https,
+                                                 editItem.localCertificate,
+                                                 editItem.localCertificateChanged,
+                                                 editItem.authentication,
+                                                 editItem.username,
+                                                 editItem.password,
+                                                 editItem.updateInterval,
+                                                 editItem.timeout)
             }
         }
     }
@@ -74,11 +73,11 @@ Page {
                 text: qsTr("Remove")
                 onClicked: remorsePopup.execute(qsTr("Removing account"), function() {
                     removing = true
-                    if (root.appSettings.accountCount === 1)
-                        pageStack.pop(accountsPage, PageStackAction.Immediate)
+                    if (Tremotesf.AppSettings.accountsCount === 1)
+                        pageStack.pop(pageStack.previousPage(), PageStackAction.Immediate)
                     else
                         pageStack.pop()
-                    removeAccount()
+                    Tremotesf.AppSettings.removeAccount(model.name)
                 })
             }
         }

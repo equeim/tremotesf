@@ -14,6 +14,8 @@ def build(context):
         features="qt5",
         includes="src src/folderlistmodel",
         uselib="NEMONOTIFICATIONS-QT5 QT5DBUS QT5QUICK SAILFISHAPP",
+        cxxflags="-std=c++11",
+        linkflags="-pie -rdynamic",
         source=[
             "src/accountmodel.cpp",
             "src/appsettings.cpp",
@@ -31,7 +33,6 @@ def build(context):
             "src/folderlistmodel/fileinfothread.cpp",
             "src/folderlistmodel/qquickfolderlistmodel.cpp"
         ],
-        linkflags="-pie -rdynamic",
         lang=[
             "translations/harbour-tremotesf-en",
             "translations/harbour-tremotesf-ru"

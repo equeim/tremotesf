@@ -16,18 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
-import harbour.tremotesf 0.1
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
 Page {
-    allowedOrientations: Orientation.All
+    property var proxyTorrentModel
 
     Connections {
-        target: root.proxyTorrentModel
+        target: proxyTorrentModel
         onFilterModeChanged: pageStack.pop()
     }
 
@@ -44,7 +44,7 @@ Page {
             }
 
             FilterTorrentsListItem {
-                filterMode: ProxyTorrentModel.AllMode
+                filterMode: Tremotesf.ProxyTorrentModel.AllMode
                 text: qsTr("Show all")
             }
 
@@ -54,27 +54,27 @@ Page {
             }
 
             FilterTorrentsListItem {
-                filterMode: ProxyTorrentModel.ActiveMode
+                filterMode: Tremotesf.ProxyTorrentModel.ActiveMode
                 text: qsTr("Active")
             }
 
             FilterTorrentsListItem {
-                filterMode: ProxyTorrentModel.DownloadingMode
+                filterMode: Tremotesf.ProxyTorrentModel.DownloadingMode
                 text: qsTr("Downloading")
             }
 
             FilterTorrentsListItem {
-                filterMode: ProxyTorrentModel.SeedingMode
+                filterMode: Tremotesf.ProxyTorrentModel.SeedingMode
                 text: qsTr("Seeding")
             }
 
             FilterTorrentsListItem {
-                filterMode: ProxyTorrentModel.StoppedMode
+                filterMode: Tremotesf.ProxyTorrentModel.StoppedMode
                 text: qsTr("Stopped")
             }
 
             FilterTorrentsListItem {
-                filterMode: ProxyTorrentModel.FinishedMode
+                filterMode: Tremotesf.ProxyTorrentModel.FinishedMode
                 text: qsTr("Finished")
             }
         }

@@ -21,6 +21,7 @@
 
 #include <QAuthenticator>
 #include <QByteArray>
+#include <QDir>
 #include <QFile>
 #include <QHostAddress>
 #include <QJsonDocument>
@@ -98,16 +99,14 @@ static const QByteArray ServerStatsRequest =
 static const QByteArray SessionHeader = "X-Transmission-Session-Id";
 
 Transmission::Transmission()
+    : m_network(new QNetworkAccessManager(this)),
+      m_authenticationRequested(false),
+      m_accountConfigured(false),
+      m_updateTimer(new QTimer(this)),
+      m_error(NoError)
 {
-    m_network = new QNetworkAccessManager(this);
     connect(m_network, &QNetworkAccessManager::authenticationRequired, this, &Transmission::authenticate);
 
-    m_authenticationRequested = false;
-    m_accountConfigured = false;
-
-    m_error = NoError;
-
-    m_updateTimer = new QTimer(this);
     m_updateTimer->setSingleShot(true);
     connect(m_updateTimer, &QTimer::timeout, this, &Transmission::getData);
 }
@@ -128,17 +127,27 @@ AppSettings* Transmission::appSettings() const
     return m_appSettings;
 }
 
+void Transmission::setAppSettings(AppSettings *settings)
+{
+    m_appSettings = settings;
+}
+
 TorrentModel* Transmission::torrentModel() const
 {
     return m_torrentModel;
 }
 
-bool Transmission::accountConfigured() const
+void Transmission::setTorrentModel(TorrentModel *model)
+{
+    m_torrentModel = model;
+}
+
+bool Transmission::isAccountConfigured() const
 {
     return m_accountConfigured;
 }
 
-bool Transmission::accountConnected() const
+bool Transmission::isAccountConnected() const
 {
     return (m_error == NoError || m_error == TimeoutError) && m_accountConfigured;
 }
@@ -164,16 +173,6 @@ QString Transmission::errorString() const
     default:
         return QString();
     }
-}
-
-void Transmission::setAppSettings(AppSettings *appSettings)
-{
-    m_appSettings = appSettings;
-}
-
-void Transmission::setTorrentModel(TorrentModel *torrentModel)
-{
-    m_torrentModel = torrentModel;
 }
 
 bool Transmission::isLocal() const
@@ -444,9 +443,7 @@ void Transmission::updateAccount()
         m_sslConfiguration.setPeerVerifyMode(QSslSocket::QueryPeer);
 
         if (m_appSettings->accountLocalCertificate(m_currentAccount)) {
-            QFile pemFile(QString("%1/%2.pem")
-                          .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
-                          .arg(m_currentAccount));
+            QFile pemFile(AppSettings::CertificatesDirectory + QDir::separator() + m_currentAccount + ".pem");
             if (pemFile.open(QIODevice::ReadOnly)) {
                 QByteArray pemFileData = pemFile.readAll();
                 pemFile.close();

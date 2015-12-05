@@ -26,18 +26,22 @@ namespace Tremotesf
 {
 
 TorrentPeerModelWorker::TorrentPeerModelWorker(QList<TorrentPeer *> *peers, QStringList *addresses)
+    : m_peers(peers),
+      m_addresses(addresses)
 {
-    m_peers = peers;
-    m_addresses = addresses;
+
 }
 
-void TorrentPeerModelWorker::doWork(const QVariantList &peerList)
+void TorrentPeerModelWorker::doWork(QVariantList peerVariants)
 {
     QList<TorrentPeer*> newPeers;
     QStringList newAddresses;
 
-    for (int i = 0; i < peerList.length(); i++) {
-        QVariantMap peerMap = peerList.at(i).toMap();
+    for (QVariantList::const_iterator iterator = peerVariants.cbegin(), cend = peerVariants.cend();
+         iterator != cend;
+         iterator++) {
+
+        QVariantMap peerMap = iterator->toMap();
 
         TorrentPeer *peer;
         QString address = peerMap.value("address").toString();
@@ -76,19 +80,18 @@ void TorrentPeerModelWorker::doWork(const QVariantList &peerList)
 }
 
 TorrentPeerModel::TorrentPeerModel()
+    : m_workerThread(new QThread(this)),
+      m_active(false)
 {
     qRegisterMetaType< QList<TorrentPeer*> >();
 
-    m_worker = new TorrentPeerModelWorker(&m_peers, &m_addresses);
-    connect(this, &TorrentPeerModel::requestModelUpdate, m_worker, &TorrentPeerModelWorker::doWork);
-    connect(m_worker, &TorrentPeerModelWorker::done, this, &TorrentPeerModel::endUpdateModel);
+    TorrentPeerModelWorker *worker = new TorrentPeerModelWorker(&m_peers, &m_addresses);
+    connect(this, &TorrentPeerModel::requestModelUpdate, worker, &TorrentPeerModelWorker::doWork);
+    connect(worker, &TorrentPeerModelWorker::done, this, &TorrentPeerModel::endUpdateModel);
 
-    m_workerThread = new QThread(this);
-    connect(m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
-    m_worker->moveToThread(m_workerThread);
+    connect(m_workerThread, &QThread::finished, worker, &QObject::deleteLater);
+    worker->moveToThread(m_workerThread);
     m_workerThread->start(QThread::LowPriority);
-
-    m_isActive = false;
 }
 
 TorrentPeerModel::~TorrentPeerModel()
@@ -101,12 +104,12 @@ TorrentPeerModel::~TorrentPeerModel()
     m_mutex.unlock();
 }
 
-QVariant TorrentPeerModel::data(const QModelIndex &index, int role) const
+QVariant TorrentPeerModel::data(const QModelIndex &modelIndex, int role) const
 {
-    if (!index.isValid())
+    if (!modelIndex.isValid())
         return QVariant();
 
-    const TorrentPeer *peer = m_peers.at(index.row());
+    const TorrentPeer *peer = m_peers.at(modelIndex.row());
 
     switch (role) {
     case AddressRole:
@@ -130,7 +133,12 @@ int TorrentPeerModel::rowCount(const QModelIndex &parent) const
 
 bool TorrentPeerModel::isActive() const
 {
-    return m_isActive;
+    return m_active;
+}
+
+void TorrentPeerModel::setActive(bool active)
+{
+    m_active = active;
 }
 
 int TorrentPeerModel::torrentId() const
@@ -138,19 +146,14 @@ int TorrentPeerModel::torrentId() const
     return m_torrentId;
 }
 
-void TorrentPeerModel::setIsActive(bool isActive)
-{
-    m_isActive = isActive;
-}
-
 void TorrentPeerModel::setTorrentId(int torrentId)
 {
     m_torrentId = torrentId;
 }
 
-void TorrentPeerModel::beginUpdateModel(const QVariantList &peerList)
+void TorrentPeerModel::beginUpdateModel(const QVariantList &peerVariants)
 {
-    emit requestModelUpdate(peerList);
+    emit requestModelUpdate(peerVariants);
 }
 
 void TorrentPeerModel::resetModel()
@@ -178,11 +181,11 @@ QHash<int, QByteArray> TorrentPeerModel::roleNames() const
     return roles;
 }
 
-void TorrentPeerModel::endUpdateModel(const QList<TorrentPeer *> &newPeers, const QStringList &newAddresses)
+void TorrentPeerModel::endUpdateModel(QList<TorrentPeer*> newPeers, QStringList newAddresses)
 {
     m_mutex.lock();
 
-    for (int i = 0; i < m_addresses.length(); i++) {
+    for (int i = 0, addressesCount = m_addresses.size(); i < addressesCount; i++) {
         QString address = m_addresses.at(i);
         if (!newAddresses.contains(address)) {
             beginRemoveRows(QModelIndex(), i, i);
@@ -194,7 +197,7 @@ void TorrentPeerModel::endUpdateModel(const QList<TorrentPeer *> &newPeers, cons
         }
     }
 
-    for (int i = 0; i < newAddresses.length(); i++) {
+    for (int i = 0, newAddressesCount = newAddresses.size(); i < newAddressesCount; i++) {
         QString address = newAddresses.at(i);
         if (m_addresses.contains(address)) {
             int row = m_addresses.indexOf(address);

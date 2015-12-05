@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
-import harbour.tremotesf 0.1
+import harbour.tremotesf 0.1 as Tremotesf
 
 CoverBackground {
     Image {
@@ -47,12 +47,12 @@ CoverBackground {
             font.pixelSize: Theme.fontSizeLarge
             maximumLineCount: 2
             text: {
-                if (!root.transmission.accountConfigured)
+                if (!transmission.accountConfigured)
                     return qsTr("No account connected")
-                return root.transmission.errorString
+                return transmission.errorString
             }
-            visible: root.transmission.error !== Transmission.NoError ||
-                     !root.transmission.accountConfigured
+            visible: transmission.error !== Tremotesf.Transmission.NoError ||
+                     !transmission.accountConfigured
             width: parent.width
             wrapMode: Text.Wrap
         }
@@ -65,7 +65,7 @@ CoverBackground {
 
             Label {
                 id: downLabel
-                text: "↓ %1".arg(root.utils.formatByteSpeed(root.appSettings.downloadSpeed))
+                text: "↓ %1".arg(Tremotesf.Utils.formatByteSpeed(Tremotesf.AppSettings.downloadSpeed))
                 font.pixelSize: Theme.fontSizeLarge
                 truncationMode: TruncationMode.Fade
                 width: parent.width
@@ -73,7 +73,7 @@ CoverBackground {
 
             Label {
                 id: upLabel
-                text: "↑ %1".arg(root.utils.formatByteSpeed(root.appSettings.uploadSpeed))
+                text: "↑ %1".arg(Tremotesf.Utils.formatByteSpeed(Tremotesf.AppSettings.uploadSpeed))
                 font.pixelSize: Theme.fontSizeLarge
                 truncationMode: TruncationMode.Fade
                 width: parent.width
@@ -85,14 +85,14 @@ CoverBackground {
                 top: errorLabel.visible ? errorLabel.bottom : speedColumn.bottom
                 topMargin: Theme.paddingLarge
             }
-            visible: root.transmission.accountConfigured
+            visible: transmission.accountConfigured
             width: parent.width
 
             Label {
                 id: accountLabel
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
-                text: root.appSettings.currentAccount
+                text: Tremotesf.AppSettings.currentAccount
                 truncationMode: TruncationMode.Fade
                 width: parent.width
             }
@@ -100,7 +100,7 @@ CoverBackground {
             Label {
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
-                text: root.appSettings.accountAddress(accountLabel.text)
+                text: Tremotesf.AppSettings.accountAddress(accountLabel.text)
                 truncationMode: TruncationMode.Fade
                 width: parent.width
             }

@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
-import harbour.tremotesf 0.1
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
@@ -31,28 +31,21 @@ Page {
         })
     }
 
-    allowedOrientations: Orientation.All
+    Component.onDestruction: {
+        if (fileModel.active)
+            fileModel.resetModel()
+        if (peerModel.active)
+            peerModel.resetModel()
+        if (trackerModel.active)
+            trackerModel.resetModel()
+    }
 
     Connections {
-        target: root.torrentModel
+        target: torrentModel
         onTorrentRemoved: {
-            if (model.index === -1) {
-                pageStack.pop(torrentsPage, PageStackAction.Immediate)
-            }
+            if (model.index === -1)
+                pageStack.pop(PageStackAction.Immediate)
         }
-    }
-
-    Component.onDestruction: {
-        if (root.fileModel.isActive)
-            root.fileModel.resetModel()
-        if (root.peerModel.isActive)
-            root.peerModel.resetModel()
-        if (root.trackerModel.isActive)
-            root.trackerModel.resetModel()
-    }
-
-    RemorsePopup {
-        id: remorsePopup
     }
 
     SilicaFlickable {
@@ -70,10 +63,10 @@ Page {
             }
             MenuItem {
                 text: qsTr("Verify")
-                onClicked: model.status = TorrentModel.QueuedForCheckingStatus
+                onClicked: model.status = Tremotesf.TorrentModel.QueuedForCheckingStatus
             }
             MenuItem {
-                text: torrentStatus === TorrentModel.StoppedStatus ? qsTr("Start") : qsTr("Stop")
+                text: torrentStatus === Tremotesf.TorrentModel.StoppedStatus ? qsTr("Start") : qsTr("Stop")
                 onClicked: startStop()
             }
         }
@@ -115,32 +108,24 @@ Page {
 
                 DetailsPageGridButton {
                     text: qsTr("Files")
-                    onClicked: pageStack.push(torrentFilesPage)
-
-                    Component {
-                        id: torrentFilesPage
-                        TorrentFilesPage { }
-                    }
+                    onClicked: pageStack.push("TorrentFilesPage.qml", {
+                                                  torrentIndex: proxyTorrentModel.sourceIndex(model.index)
+                                              })
                 }
 
                 DetailsPageGridButton {
                     text: qsTr("Peers")
-                    onClicked: pageStack.push(torrentPeersPage)
-
-                    Component {
-                        id: torrentPeersPage
-                        TorrentPeersPage { }
-                    }
+                    onClicked: pageStack.push("TorrentPeersPage.qml", {
+                                                  torrentIndex: proxyTorrentModel.sourceIndex(model.index)
+                                              })
                 }
 
                 DetailsPageGridButton {
                     text: qsTr("Trackers")
-                    onClicked: pageStack.push(torrentTrackersPage)
-
-                    Component {
-                        id: torrentTrackersPage
-                        TorrentTrackersPage { }
-                    }
+                    onClicked: pageStack.push("TorrentTrackersPage.qml", {
+                                                  torrentIndex: proxyTorrentModel.sourceIndex(model.index),
+                                                  torrentId: model.id
+                                              })
                 }
 
                 DetailsPageGridButton {
@@ -161,17 +146,17 @@ Page {
 
             DetailItem {
                 label: qsTr("Total size")
-                value: root.utils.formatByteSize(model.totalSize)
+                value: Tremotesf.Utils.formatByteSize(model.totalSize)
             }
 
             DetailItem {
                 label: qsTr("Downloaded")
-                value: qsTr("%1 of %2").arg(root.utils.formatByteSize(model.sizeWhenDone - model.leftUntilDone)).arg(root.utils.formatByteSize(model.sizeWhenDone))
+                value: qsTr("%1 of %2").arg(Tremotesf.Utils.formatByteSize(model.sizeWhenDone - model.leftUntilDone)).arg(Tremotesf.Utils.formatByteSize(model.sizeWhenDone))
             }
 
             DetailItem {
                 label: qsTr("Uploaded")
-                value: root.utils.formatByteSize(model.uploadedEver)
+                value: Tremotesf.Utils.formatByteSize(model.uploadedEver)
             }
 
             DetailItem {

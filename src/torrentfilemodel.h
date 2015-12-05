@@ -29,9 +29,8 @@ namespace Tremotesf
 
 class Transmission;
 
-class TorrentFile
+struct TorrentFile
 {
-public:
     TorrentFile(TorrentFile *parentDirectory = 0, int row = 0);
     ~TorrentFile();
 
@@ -56,11 +55,10 @@ class TorrentFileModelWorker : public QObject
 public:
     TorrentFileModelWorker(TorrentFile *rootDirectory, QMutex *mutex);
     void reset();
-public slots:
-    void beginWork(const QVariantList &fileList, const QVariantList &fileStatsList);
+    void beginWork(QVariantList fileVariants, QVariantList fileStatsVariants);
 private:
-    void createTree(const QVariantList &fileList, const QVariantList &fileStatsList);
-    void updateTree(const QVariantList &fileStatsList);
+    void createTree(const QVariantList &fileVariants, const QVariantList &fileStatsVariants);
+    void updateTree(const QVariantList &fileStatsVariants);
 
     void setDirectory(TorrentFile *directory);
     void updateDirectory(TorrentFile *directory);
@@ -73,7 +71,7 @@ private:
     QStringList m_filePaths;
 signals:
     void treeCreated();
-    void treeUpdated(const QList<TorrentFile*> &changedFiles);
+    void treeUpdated(QList<Tremotesf::TorrentFile*> changedFiles);
 };
 
 class TorrentFileModel : public QAbstractItemModel
@@ -82,8 +80,8 @@ class TorrentFileModel : public QAbstractItemModel
     Q_ENUMS(Priority)
     Q_ENUMS(TorrentFileRole)
     Q_ENUMS(WantedStatus)
-    Q_PROPERTY(bool isActive READ isActive WRITE setIsActive)
-    Q_PROPERTY(Transmission* transmission READ transmission WRITE setTransmission)
+    Q_PROPERTY(bool active READ isActive WRITE setActive)
+    Q_PROPERTY(Tremotesf::Transmission* transmission READ transmission WRITE setTransmission)
 public:
     enum TorrentFileRole {
         BytesCompletedRole = Qt::UserRole,
@@ -114,29 +112,28 @@ public:
     ~TorrentFileModel();
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &index) const;
+    QModelIndex parent(const QModelIndex &modelIndex) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    bool setData(const QModelIndex &modelIndex, const QVariant &value, int role);
 
     bool isActive() const;
-    int torrentId() const;
-    Transmission* transmission() const;
-    QString currentDirectoryPath() const;
-    QString parentDirectoryPath() const;
+    void setActive(bool active);
 
-    void setIsActive(bool isActive);
-    void setTorrentId(int torrentId);
-    void setTransmission(Transmission *transmission);
+    int torrentId() const;
+    void setTorrentId(int id);
+
+    Transmission* transmission() const;
+    void setTransmission(Transmission *newTransmission);
 
     Q_INVOKABLE void setAllWanted(bool wanted);
 
-    void beginUpdateModel(const QVariantList &fileList, const QVariantList &fileStatsList);
+    void beginUpdateModel(const QVariantList &fileVariants, const QVariantList &fileStatsVariants);
     Q_INVOKABLE void resetModel();
 private:
     void endCreateTree();
-    void endUpdateTree(const QList<TorrentFile*> &changedFiles);
+    void endUpdateTree(QList<TorrentFile*> changedFiles);
 
     void setFilePriority(TorrentFile *file, int priority);
     void setFilePriorityRecursively(TorrentFile *file, int priority);
@@ -157,11 +154,11 @@ private:
 
     QMutex m_mutex;
 
-    bool m_isActive;
+    bool m_active;
     int m_torrentId;
     Transmission *m_transmission;
 signals:
-    void requestModelUpdate(const QVariantList &fileList, const QVariantList &fileStatsList);
+    void requestModelUpdate(QVariantList fileVariants, QVariantList fileStatsVariants);
 };
 
 }

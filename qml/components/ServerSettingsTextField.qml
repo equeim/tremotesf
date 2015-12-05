@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
-import Sailfish.Silica 1.0
+import QtQuick 2.2
+
+import harbour.tremotesf 0.1 as Tremotesf
 
 CommonTextField {
     property bool isFloat: false
@@ -26,18 +27,17 @@ CommonTextField {
     inputMethodHints: Qt.ImhDigitsOnly
     text: {
         if (isFloat)
-            return "%L1".arg(root.appSettings.serverValue(key))
+            return "%L1".arg(Tremotesf.AppSettings.serverValue(key))
         else
-            return root.appSettings.serverValue(key)
+            return Tremotesf.AppSettings.serverValue(key)
     }
 
     Component.onDestruction: {
         if (changed()) {
             if (isFloat)
-                root.transmission.changeServerSettings(key,
-                                                       root.utils.parseFloat(text))
+                transmission.changeServerSettings(key, Tremotesf.Utils.parseFloat(text))
             else
-                root.transmission.changeServerSettings(key, parseInt(text));
+                transmission.changeServerSettings(key, parseInt(text));
         }
     }
 }

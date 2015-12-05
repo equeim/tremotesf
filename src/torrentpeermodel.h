@@ -41,19 +41,19 @@ class TorrentPeerModelWorker : public QObject
     Q_OBJECT
 public:
     TorrentPeerModelWorker(QList<TorrentPeer*> *peers, QStringList *addresses);
-    void doWork(const QVariantList &peerList);
+    void doWork(QVariantList peerVariants);
 private:
     QList<TorrentPeer*> *m_peers;
     QStringList *m_addresses;
 signals:
-    void done(const QList<TorrentPeer*> &newPeers, const QStringList &newAddresses);
+    void done(QList<Tremotesf::TorrentPeer*> newPeers, QStringList newAddresses);
 };
 
 class TorrentPeerModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_ENUMS(TorrentPeerRoles)
-    Q_PROPERTY(bool isActive READ isActive WRITE setIsActive)
+    Q_PROPERTY(bool active READ isActive WRITE setActive)
 public:
     enum TorrentPeerRoles {
         AddressRole = Qt::UserRole,
@@ -65,35 +65,34 @@ public:
     TorrentPeerModel();
     ~TorrentPeerModel();
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     bool isActive() const;
-    int torrentId() const;
+    void setActive(bool active);
 
-    void setIsActive(bool isActive);
+    int torrentId() const;
     void setTorrentId(int torrentId);
 
-    void beginUpdateModel(const QVariantList &peerList);
+    void beginUpdateModel(const QVariantList &peerVariants);
 
     Q_INVOKABLE void resetModel();
 protected:
     QHash<int, QByteArray> roleNames() const;
 private:
-    void endUpdateModel(const QList<TorrentPeer*> &newPeers, const QStringList &newAddresses);
+    void endUpdateModel(QList<TorrentPeer*> newPeers, QStringList newAddresses);
 private:
     QList<TorrentPeer*> m_peers;
     QStringList m_addresses;
 
-    TorrentPeerModelWorker *m_worker;
     QThread *m_workerThread;
 
     QMutex m_mutex;
 
-    bool m_isActive;
+    bool m_active;
     int m_torrentId;
 signals:
-    void requestModelUpdate(const QVariantList &peerList);
+    void requestModelUpdate(QVariantList peerList);
 };
 
 }

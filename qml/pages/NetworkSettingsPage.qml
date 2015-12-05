@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
+
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
 Page {
-    allowedOrientations: Orientation.All
-
     SilicaFlickable {
         anchors.fill: parent
         contentHeight: column.height
@@ -58,7 +58,7 @@ Page {
 
             CommonComboBox {
                 currentIndex: {
-                    switch (root.appSettings.serverValue("encryption")) {
+                    switch (Tremotesf.AppSettings.serverValue("encryption")) {
                     case "tolerated":
                         return 0
                     case "preferred":
@@ -84,13 +84,13 @@ Page {
                     if (changed()) {
                         switch (currentIndex) {
                         case 0:
-                            root.transmission.changeServerSettings("encryption", "tolerated")
+                            transmission.changeServerSettings("encryption", "tolerated")
                             break
                         case 1:
-                            root.transmission.changeServerSettings("encryption", "preferred")
+                            transmission.changeServerSettings("encryption", "preferred")
                             break
                         case 2:
-                            root.transmission.changeServerSettings("encryption", "required")
+                            transmission.changeServerSettings("encryption", "required")
                         }
                     }
                 }

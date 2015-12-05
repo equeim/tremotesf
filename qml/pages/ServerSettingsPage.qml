@@ -16,14 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 import "../components"
 
 Page {
-    allowedOrientations: Orientation.All
-
     SilicaFlickable {
         anchors.fill: parent
         contentHeight: column.height
@@ -38,42 +36,22 @@ Page {
 
             CommonListItem {
                 text: qsTr("Downloading")
-                onClicked: pageStack.push(downloadingSettingsPage)
-
-                Component {
-                    id: downloadingSettingsPage
-                    DownloadingSettingsPage { }
-                }
+                onClicked: pageStack.push("DownloadingSettingsPage.qml")
             }
 
             CommonListItem {
                 text: qsTr("Speed")
-                onClicked: pageStack.push(speedSettingsPage)
-
-                Component {
-                    id: speedSettingsPage
-                    SpeedSettingsPage { }
-                }
+                onClicked: pageStack.push("SpeedSettingsPage.qml")
             }
 
             CommonListItem {
                 text: qsTr("Queue")
-                onClicked: pageStack.push(queueSettingsPage)
-
-                Component {
-                    id: queueSettingsPage
-                    QueueSettingsPage { }
-                }
+                onClicked: pageStack.push("QueueSettingsPage.qml")
             }
 
             CommonListItem {
                 text: qsTr("Network")
-                onClicked: pageStack.push(networkSettingsPage)
-
-                Component {
-                    id: networkSettingsPage
-                    NetworkSettingsPage { }
-                }
+                onClicked: pageStack.push("NetworkSettingsPage.qml")
             }
         }
 

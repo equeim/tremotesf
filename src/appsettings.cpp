@@ -34,32 +34,34 @@
 namespace Tremotesf
 {
 
-void AppSettingsWorker::parseServerSettings(const QByteArray &replyData)
+void AppSettingsWorker::parseServerSettings(QByteArray replyData)
 {
     emit serverSettingsParsed(QJsonDocument::fromJson(replyData).toVariant().toMap().value("arguments").toMap());
 }
 
-void AppSettingsWorker::parseServerStats(const QByteArray &replyData)
+void AppSettingsWorker::parseServerStats(QByteArray replyData)
 {
     QVariantMap serverStats = QJsonDocument::fromJson(replyData).toVariant().toMap().value("arguments").toMap();
     emit serverStatsParsed(serverStats.value("downloadSpeed").toInt(),
                            serverStats.value("uploadSpeed").toInt());
 }
 
-AppSettings::AppSettings()
-{
-    m_worker = new AppSettingsWorker;
-    connect(this, &AppSettings::requestUpdateServerSettings, m_worker, &AppSettingsWorker::parseServerSettings);
-    connect(this, &AppSettings::requestUpdateServerStats, m_worker, &AppSettingsWorker::parseServerStats);
-    connect(m_worker, &AppSettingsWorker::serverSettingsParsed, this, &AppSettings::endUpdateServerSettings);
-    connect(m_worker, &AppSettingsWorker::serverStatsParsed, this, &AppSettings::endUpdateServerStats);
+const QString AppSettings::CertificatesDirectory = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 
-    m_workerThread = new QThread(this);
-    connect(m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
-    m_worker->moveToThread(m_workerThread);
+AppSettings::AppSettings()
+    : m_clientSettings(new QSettings(this)),
+      m_workerThread(new QThread(this))
+{
+    AppSettingsWorker *worker = new AppSettingsWorker;
+    connect(this, &AppSettings::requestUpdateServerSettings, worker, &AppSettingsWorker::parseServerSettings);
+    connect(this, &AppSettings::requestUpdateServerStats, worker, &AppSettingsWorker::parseServerStats);
+    connect(worker, &AppSettingsWorker::serverSettingsParsed, this, &AppSettings::endUpdateServerSettings);
+    connect(worker, &AppSettingsWorker::serverStatsParsed, this, &AppSettings::endUpdateServerStats);
+
+    connect(m_workerThread, &QThread::finished, worker, &QObject::deleteLater);
+    worker->moveToThread(m_workerThread);
     m_workerThread->start(QThread::LowPriority);
 
-    m_clientSettings = new QSettings(this);
     m_clientSettings->setIniCodec("UTF-8");
     checkClientSettings();
 
@@ -86,24 +88,20 @@ void AppSettings::checkClientSettings()
 
 void AppSettings::checkLocalCertificates()
 {
-    QDir dir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    QFileInfoList certificates = QDir(CertificatesDirectory).entryInfoList(QStringList() << "*.pem");
 
-    foreach (const QString &fileName, dir.entryList()) {
-        QString filePath = dir.absoluteFilePath(fileName);
+    QStringList existingAccounts = accounts();
 
-        if (fileName.endsWith(".pem")) {
-            if (accounts().contains(fileName.left(fileName.length() - 4))) {
-                if (Utils::checkLocalCertificate(filePath))
-                    continue;
-            }
-            QFile(filePath).remove();
-        }
+    for (QFileInfoList::const_iterator iterator = certificates.cbegin(), cend = certificates.cend(); iterator != cend; iterator++) {
+        if (existingAccounts.contains(iterator->completeBaseName()))
+            if (!Utils::checkLocalCertificate(iterator->filePath()))
+                QFile::remove(iterator->filePath());
     }
 }
 
-int AppSettings::accountCount() const
+int AppSettings::accountsCount() const
 {
-    return m_clientSettings->childGroups().length();
+    return m_clientSettings->childGroups().size();
 }
 
 QStringList AppSettings::accounts() const
@@ -124,16 +122,12 @@ void AppSettings::setCurrentAccount(const QString &name)
 
 bool AppSettings::isAccountLocalCertificateExists(const QString &account) const
 {
-    return QFile(QString("%1/%2.pem")
-                 .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
-                 .arg(account)).exists();
+    return QFile::exists(CertificatesDirectory + QDir::separator() + account + ".pem");
 }
 
 void AppSettings::setAccountLocalCertificate(const QString &account, const QString &filePath)
 {
-    QFile pemFile(QString("%1/%2.pem")
-                  .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
-                  .arg(account));
+    QFile pemFile(CertificatesDirectory + QDir::separator() + account + ".pem");
     if (pemFile.exists())
         pemFile.remove();
 
@@ -144,9 +138,7 @@ void AppSettings::setAccountLocalCertificate(const QString &account, const QStri
 
 void AppSettings::removeAccountLocalCertificate(const QString &account)
 {
-    QFile pemFile(QString("%1/%2.pem")
-                  .arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
-                  .arg(account));
+    QFile pemFile(CertificatesDirectory + QDir::separator() + account + ".pem");
 
     if (!pemFile.remove())
         qWarning() << "error removing local certificate: " << pemFile.errorString();
@@ -227,7 +219,7 @@ void AppSettings::addAccount(const QString &name,
 
     emit accountAdded(name, accounts().indexOf(name));
 
-    if (accountCount() == 1)
+    if (accountsCount() == 1)
         setCurrentAccount(name);
 }
 
@@ -360,7 +352,7 @@ int AppSettings::rpcVersion() const
     return m_serverSettings.value("rpc-version").toInt();
 }
 
-QVariant AppSettings::serverValue(QString key) const
+QVariant AppSettings::serverValue(const QString &key) const
 {
     return m_serverSettings.value(key);
 }
@@ -385,7 +377,7 @@ void AppSettings::beginUpdateServerStats(const QByteArray &replyData)
     emit requestUpdateServerStats(replyData);
 }
 
-void AppSettings::endUpdateServerSettings(const QVariantMap &serverSettings)
+void AppSettings::endUpdateServerSettings(QVariantMap serverSettings)
 {
     m_serverSettings = serverSettings;
     emit serverSettingsUpdated();

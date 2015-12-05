@@ -19,16 +19,12 @@
 import QtQuick 2.1
 import Sailfish.Silica 1.0
 
-import harbour.tremotesf 0.1
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../dialogs"
 import "../components"
 
 Page {
-    id: torrentsPage
-
-    allowedOrientations: Orientation.All
-
     SilicaListView {
         id: listView
 
@@ -36,25 +32,22 @@ Page {
         header: PageHeader {
             title: "Tremotesf"
             description: {
-                if (!root.transmission.accountConfigured)
-                    return qsTr("No account connected")
+                if (!transmission.accountConfigured)
+                    qsTr("No account connected")
 
-                if (root.transmission.error === Transmission.NoError)
-                    return "↓ %1  ↑ %2".arg(root.utils.formatByteSpeed(root.appSettings.downloadSpeed))
-                    .arg(root.utils.formatByteSpeed(root.appSettings.uploadSpeed))
+                if (transmission.error === Tremotesf.Transmission.NoError)
+                    return "↓ %1  ↑ %2".arg(Tremotesf.Utils.formatByteSpeed(Tremotesf.AppSettings.downloadSpeed))
+                .arg(Tremotesf.Utils.formatByteSpeed(Tremotesf.AppSettings.uploadSpeed))
 
-                return root.transmission.errorString
+                return transmission.errorString
             }
         }
         delegate: ListItem {
-            id: torrentDelegate
-
-            property int torrentId: model.id
             property int torrentStatus: model.status
 
             function removeTorrent(deleteLocalData) {
-                root.transmission.removeTorrent(torrentId, deleteLocalData)
-                root.torrentModel.removeAtIndex(root.proxyTorrentModel.getSourceIndex(model.index))
+                transmission.removeTorrent(torrentId, deleteLocalData)
+                torrentModel.removeAtIndex(proxyTorrentModel.sourceIndex(model.index))
             }
 
             function remorseItemRemove(deleteLocalData) {
@@ -64,36 +57,22 @@ Page {
             }
 
             function startStop() {
-                if (torrentStatus === TorrentModel.StoppedStatus) {
+                if (torrentStatus === Tremotesf.TorrentModel.StoppedStatus) {
                     if (model.percentDone === 100)
-                        model.status = TorrentModel.QueuedForSeedingStatus
+                        model.status = Tremotesf.TorrentModel.QueuedForSeedingStatus
                     else
-                        model.status = TorrentModel.DownloadingStatus
+                        model.status = Tremotesf.TorrentModel.DownloadingStatus
                 } else {
-                    model.status = TorrentModel.StoppedStatus
+                    model.status = Tremotesf.TorrentModel.StoppedStatus
                 }
             }
 
             contentHeight: delegateItem.height
-            menu: contextMenu
-            onClicked: pageStack.push(torrentDetailsPage)
-            ListView.onRemove: animateRemoval()
-
-            Separator {
-                width: parent.width
-                color: Theme.secondaryColor
-            }
-
-            TorrentDelegateItem {
-                id: delegateItem
-            }
-
-            Component {
-                id: contextMenu
+            menu: Component {
                 ContextMenu {
                     MenuItem {
                         text: {
-                            if (torrentStatus === TorrentModel.StoppedStatus)
+                            if (torrentStatus === Tremotesf.TorrentModel.StoppedStatus)
                                 return qsTr("Start")
                             return qsTr("Stop")
                         }
@@ -101,7 +80,7 @@ Page {
                     }
                     MenuItem {
                         text: qsTr("Verify")
-                        onClicked: model.status = TorrentModel.QueuedForCheckingStatus
+                        onClicked: model.status = Tremotesf.TorrentModel.QueuedForCheckingStatus
                     }
                     MenuItem {
                         text: qsTr("Remove")
@@ -114,65 +93,55 @@ Page {
                 }
             }
 
+            onClicked: pageStack.push(torrentDetailsPage)
+            ListView.onRemove: animateRemoval()
+
             Component {
                 id: torrentDetailsPage
                 TorrentDetailsPage { }
             }
+
+            Separator {
+                width: parent.width
+                color: Theme.secondaryColor
+            }
+
+            TorrentDelegateItem {
+                id: delegateItem
+            }
         }
-        model: root.proxyTorrentModel
+        model: Tremotesf.ProxyTorrentModel {
+            id: proxyTorrentModel
+            appSettings: Tremotesf.AppSettings
+            sourceModel: torrentModel
+        }
 
         PullDownMenu {
-            id: pullDownMenu
             MenuItem {
                 text: qsTr("Accounts")
-                onClicked: pageStack.push(accountsPage)
-
-                Component {
-                    id: accountsPage
-                    AccountsPage { }
-                }
+                onClicked: pageStack.push("AccountsPage.qml")
             }
 
             MenuItem {
-                enabled: root.transmission.accountConnected
+                enabled: transmission.accountConnected
                 text: qsTr("Server settings")
-                onClicked: pageStack.push(serverSettingsPage)
-
-                Component {
-                    id: serverSettingsPage
-                    ServerSettingsPage { }
-                }
+                onClicked: pageStack.push("ServerSettingsPage.qml")
             }
 
             MenuItem {
                 text: qsTr("Filter")
-                onClicked: pageStack.push(filterTorrentsPage)
-
-                Component {
-                    id: filterTorrentsPage
-                    FilterTorrentsPage { }
-                }
+                onClicked: pageStack.push("FilterTorrentsPage.qml", { proxyTorrentModel: listView.model })
             }
 
             MenuItem {
                 text: qsTr("Sort by")
-                onClicked: pageStack.push(sortTorrentsPage)
-
-                Component {
-                    id: sortTorrentsPage
-                    SortTorrentsPage { }
-                }
+                onClicked: pageStack.push("SortTorrentsPage.qml", { proxyTorrentModel: listView.model })
             }
 
             MenuItem {
-                enabled: root.transmission.accountConnected
+                enabled: transmission.accountConnected
                 text: qsTr("Add torrent...")
-                onClicked: pageStack.push(addTorrentDialog)
-
-                Component {
-                    id: addTorrentDialog
-                    AddTorrentDialog { }
-                }
+                onClicked: pageStack.push("../dialogs/AddTorrentDialog.qml")
             }
         }
 
@@ -180,14 +149,13 @@ Page {
             id: reconnectButton
             anchors.horizontalCenter: parent.horizontalCenter
             text: qsTr("Reconnect")
-            visible: root.transmission.accountConfigured &&
-                     !root.transmission.accountConnected
+            visible: transmission.accountConfigured &&
+                     !transmission.accountConnected
             y: parent.height / 2 - parent.headerItem.height - parent.contentY - height / 2
-            onClicked: root.transmission.checkRpcVersion()
+            onClicked: transmission.checkRpcVersion()
         }
 
         ViewPlaceholder {
-            id: placeholder
             enabled: listView.count === 0 && !reconnectButton.visible
             text: qsTr("No items")
         }

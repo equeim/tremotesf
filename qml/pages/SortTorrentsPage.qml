@@ -16,18 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
-import harbour.tremotesf 0.1
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
 Page {
-    allowedOrientations: Orientation.All
+    property var proxyTorrentModel
 
     Connections {
-        target: root.proxyTorrentModel
+        target: proxyTorrentModel
         onSortRoleChanged: pageStack.pop()
     }
 
@@ -48,17 +48,17 @@ Page {
                 menu: ContextMenu {
                     MenuItem {
                         text: qsTr("Ascending")
-                        onClicked: root.proxyTorrentModel.sortOrder = Qt.AscendingOrder
+                        onClicked: proxyTorrentModel.sortOrder = Qt.AscendingOrder
                     }
 
                     MenuItem {
                         text: qsTr("Descending")
-                        onClicked: root.proxyTorrentModel.sortOrder = Qt.DescendingOrder
+                        onClicked: proxyTorrentModel.sortOrder = Qt.DescendingOrder
                     }
                 }
 
                 Component.onCompleted: {
-                    if (root.proxyTorrentModel.sortOrder === Qt.AscendingOrder)
+                    if (proxyTorrentModel.sortOrder === Qt.AscendingOrder)
                         currentIndex = 0
                     else
                         currentIndex = 1
@@ -71,37 +71,37 @@ Page {
             }
 
             SortTorrentsListItem {
-                sortRole: TorrentModel.ActivityDateRole
+                sortRole: Tremotesf.TorrentModel.ActivityDateRole
                 text: qsTr("Activity")
             }
 
             SortTorrentsListItem {
-                sortRole: TorrentModel.AddedDateRole
+                sortRole: Tremotesf.TorrentModel.AddedDateRole
                 text: qsTr("Added date")
             }
 
             SortTorrentsListItem {
-                sortRole: TorrentModel.EtaRole
+                sortRole: Tremotesf.TorrentModel.EtaRole
                 text: qsTr("Eta")
             }
 
             SortTorrentsListItem {
-                sortRole: TorrentModel.NameRole
+                sortRole: Tremotesf.TorrentModel.NameRole
                 text: qsTr("Name")
             }
 
             SortTorrentsListItem {
-                sortRole: TorrentModel.PercentDoneRole
+                sortRole: Tremotesf.TorrentModel.PercentDoneRole
                 text: qsTr("Progress")
             }
 
             SortTorrentsListItem {
-                sortRole: TorrentModel.UploadRatioRole
+                sortRole: Tremotesf.TorrentModel.UploadRatioRole
                 text: qsTr("Ratio")
             }
 
             SortTorrentsListItem {
-                sortRole: TorrentModel.TotalSizeRole
+                sortRole: Tremotesf.TorrentModel.TotalSizeRole
                 text: qsTr("Size")
             }
         }

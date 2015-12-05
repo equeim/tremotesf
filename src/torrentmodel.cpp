@@ -35,12 +35,12 @@ namespace Tremotesf
 {
 
 Torrent::Torrent(const QString &hashString, int id, const QString &name)
+    : hashString(hashString),
+      id(id),
+      name(name),
+      finished(false)
 {
-    this->hashString = hashString;
-    this->id = id;
-    this->name = name;
 
-    finished = false;
 }
 
 void Torrent::update(const QVariantMap &torrentMap)
@@ -213,32 +213,37 @@ void Torrent::update(const QVariantMap &torrentMap)
         changed = true;
     }
 
-    fileList = torrentMap.value("files").toList();
-    fileStatsList = torrentMap.value("fileStats").toList();
-    peerList = torrentMap.value("peers").toList();
-    trackerList = torrentMap.value("trackerStats").toList();
+    files = torrentMap.value("files").toList();
+    fileStats = torrentMap.value("fileStats").toList();
+    peers = torrentMap.value("peers").toList();
+    trackers = torrentMap.value("trackerStats").toList();
 }
 
 TorrentModelWorker::TorrentModelWorker(const QList<Torrent*> *torrents, const QList<int> *torrentIds)
+    : m_torrents(torrents),
+      m_torrentIds(torrentIds)
 {
-    m_torrents = torrents;
-    m_torrentIds = torrentIds;
+
 }
 
-void TorrentModelWorker::doWork(const QByteArray &replyData)
+void TorrentModelWorker::doWork(QByteArray replyData)
 {
     QList<Torrent*> newTorrents;
     QList<int> newTorrentIds;
 
-    QVariantList torrentList = QJsonDocument::fromJson(replyData).toVariant()
+    QVariantList torrentVariants = QJsonDocument::fromJson(replyData)
+            .toVariant()
             .toMap()
             .value("arguments")
             .toMap()
             .value("torrents")
             .toList();
 
-    for (int i = 0; i < torrentList.length(); i++) {
-        QVariantMap torrentMap = torrentList.at(i).toMap();
+    for (QVariantList::const_iterator iterator = torrentVariants.cbegin(), cend = torrentVariants.cend();
+         iterator != cend;
+         iterator++) {
+
+        QVariantMap torrentMap = iterator->toMap();
 
         Torrent *torrent;
         int id = torrentMap.value("id").toInt();
@@ -258,16 +263,16 @@ void TorrentModelWorker::doWork(const QByteArray &replyData)
 }
 
 TorrentModel::TorrentModel()
+    : m_workerThread(new QThread(this))
 {
     qRegisterMetaType< QList<Torrent*> >();
 
-    m_worker = new TorrentModelWorker(&m_torrents, &m_torrentIds);
-    connect(this, &TorrentModel::requestModelUpdate, m_worker, &TorrentModelWorker::doWork);
-    connect(m_worker, &TorrentModelWorker::done, this, &TorrentModel::endUpdateModel);
+    TorrentModelWorker *worker = new TorrentModelWorker(&m_torrents, &m_torrentIds);
+    connect(this, &TorrentModel::requestModelUpdate, worker, &TorrentModelWorker::doWork);
+    connect(worker, &TorrentModelWorker::done, this, &TorrentModel::endUpdateModel);
 
-    m_workerThread = new QThread(this);
-    connect(m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
-    m_worker->moveToThread(m_workerThread);
+    connect(m_workerThread, &QThread::finished, worker, &QObject::deleteLater);
+    worker->moveToThread(m_workerThread);
     m_workerThread->start(QThread::LowPriority);
 }
 
@@ -281,12 +286,12 @@ TorrentModel::~TorrentModel()
     m_mutex.unlock();
 }
 
-QVariant TorrentModel::data(const QModelIndex &index, int role) const
+QVariant TorrentModel::data(const QModelIndex &modelIndex, int role) const
 {
-    if (!index.isValid())
+    if (!modelIndex.isValid())
         return QVariant();
 
-    const Torrent *torrent = m_torrents.at(index.row());
+    const Torrent *torrent = m_torrents.at(modelIndex.row());
 
     switch (role) {
     case ActivityDateRole:
@@ -357,48 +362,48 @@ QVariant TorrentModel::data(const QModelIndex &index, int role) const
 int TorrentModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return m_torrents.length();
+    return m_torrents.size();
 }
 
-bool TorrentModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool TorrentModel::setData(const QModelIndex &modelIndex, const QVariant &value, int role)
 {
-    if (!index.isValid())
+    if (!modelIndex.isValid())
         return false;
 
     QMutexLocker locker(&m_mutex);
 
-    Torrent *torrent = m_torrents.at(index.row());
+    Torrent *torrent = m_torrents.at(modelIndex.row());
 
     switch (role) {
     case BandwidthPriorityRole:
-        setTorrentBandwidthPriority(torrent, index, value.toInt());
+        setTorrentBandwidthPriority(torrent, modelIndex, value.toInt());
         return true;
     case DownloadLimitRole:
-        setTorrentDownloadLimit(torrent, index, value.toInt());
+        setTorrentDownloadLimit(torrent, modelIndex, value.toInt());
         return true;
     case DownloadLimitedRole:
-        setTorrentDownloadLimited(torrent, index, value.toBool());
+        setTorrentDownloadLimited(torrent, modelIndex, value.toBool());
         return true;
     case HonorsSessionLimitsRole:
-        setTorrentHonorsSessionLimits(torrent, index, value.toBool());
+        setTorrentHonorsSessionLimits(torrent, modelIndex, value.toBool());
         return true;
     case PeerLimitRole:
-        setTorrentPeerLimit(torrent, index, value.toInt());
+        setTorrentPeerLimit(torrent, modelIndex, value.toInt());
         return true;
     case SeedRatioLimitRole:
-        setTorrentSeedRatioLimit(torrent, index, value.toFloat());
+        setTorrentSeedRatioLimit(torrent, modelIndex, value.toFloat());
         return true;
     case SeedRatioModeRole:
-        setTorrentSeedRatioMode(torrent, index, value.toInt());
+        setTorrentSeedRatioMode(torrent, modelIndex, value.toInt());
         return true;
     case StatusRole:
-        setTorrentStatus(torrent, index, value.toInt());
+        setTorrentStatus(torrent, modelIndex, value.toInt());
         return true;
     case UploadLimitRole:
-        setTorrentUploadLimit(torrent, index, value.toInt());
+        setTorrentUploadLimit(torrent, modelIndex, value.toInt());
         return true;
     case UploadLimitedRole:
-        setTorrentUploadLimited(torrent, index, value.toBool());
+        setTorrentUploadLimited(torrent, modelIndex, value.toBool());
         return true;
     default:
         return false;
@@ -432,9 +437,19 @@ TorrentFileModel* TorrentModel::fileModel() const
     return m_fileModel;
 }
 
+void TorrentModel::setFileModel(TorrentFileModel *model)
+{
+    m_fileModel = model;
+}
+
 TorrentPeerModel* TorrentModel::peerModel() const
 {
     return m_peerModel;
+}
+
+void TorrentModel::setPeerModel(TorrentPeerModel *model)
+{
+    m_peerModel = model;
 }
 
 TorrentTrackerModel* TorrentModel::trackerModel() const
@@ -442,29 +457,19 @@ TorrentTrackerModel* TorrentModel::trackerModel() const
     return m_trackerModel;
 }
 
+void TorrentModel::setTrackerModel(TorrentTrackerModel *model)
+{
+    m_trackerModel = model;
+}
+
 Transmission* TorrentModel::transmission() const
 {
     return m_transmission;
 }
 
-void TorrentModel::setFileModel(TorrentFileModel *fileModel)
+void TorrentModel::setTransmission(Transmission *newTransmission)
 {
-    m_fileModel = fileModel;
-}
-
-void TorrentModel::setPeerModel(TorrentPeerModel *peerModel)
-{
-    m_peerModel = peerModel;
-}
-
-void TorrentModel::setTrackerModel(TorrentTrackerModel *trackerModel)
-{
-    m_trackerModel = trackerModel;
-}
-
-void TorrentModel::setTransmission(Transmission *transmission)
-{
-    m_transmission = transmission;
+    m_transmission = newTransmission;
 }
 
 void TorrentModel::beginUpdateModel(const QByteArray &replyData)
@@ -472,61 +477,65 @@ void TorrentModel::beginUpdateModel(const QByteArray &replyData)
     emit requestModelUpdate(replyData);
 }
 
-void TorrentModel::removeAtIndex(int index)
+void TorrentModel::removeAtIndex(int torrentIndex)
 {
-    if (index >= rowCount())
+    if (torrentIndex >= rowCount())
         return;
 
     m_mutex.lock();
 
+    int torrentId = m_torrentIds.at(torrentIndex);
+
     if (m_fileModel->isActive())
-        if (m_fileModel->torrentId() == m_torrentIds.at(index))
+        if (m_fileModel->torrentId() == torrentId)
             m_fileModel->resetModel();
 
     if (m_peerModel->isActive())
-        if (m_peerModel->torrentId() == m_torrentIds.at(index))
+        if (m_peerModel->torrentId() == torrentId)
             m_peerModel->resetModel();
 
     if (m_trackerModel->isActive())
-        if (m_trackerModel->torrentId() == m_torrentIds.at(index))
+        if (m_trackerModel->torrentId() == torrentId)
             m_trackerModel->resetModel();
 
-    beginRemoveRows(QModelIndex(), index, index);
-    delete m_torrents.takeAt(index);
-    m_torrentIds.removeAt(index);
+    beginRemoveRows(QModelIndex(), torrentIndex, torrentIndex);
+    delete m_torrents.takeAt(torrentIndex);
+    m_torrentIds.removeAt(torrentIndex);
     endRemoveRows();
 
     m_mutex.unlock();
 }
 
-void TorrentModel::loadFileModel(int index)
+void TorrentModel::loadFileModel(int torrentIndex)
 {
-    m_fileModel->setIsActive(true);
-    m_fileModel->setTorrentId(m_torrentIds.at(index));
-    m_fileModel->beginUpdateModel(m_torrents.at(index)->fileList, m_torrents.at(index)->fileStatsList);
+    m_fileModel->setActive(true);
+    m_fileModel->setTorrentId(m_torrentIds.at(torrentIndex));
+
+    Torrent *torrent = m_torrents.at(torrentIndex);
+    m_fileModel->beginUpdateModel(torrent->files, torrent->fileStats);
 }
 
-void TorrentModel::loadPeerModel(int index)
+void TorrentModel::loadPeerModel(int torrentIndex)
 {
-    m_peerModel->setIsActive(true);
-    m_peerModel->setTorrentId(m_torrentIds.at(index));
-    m_peerModel->beginUpdateModel(m_torrents.at(index)->peerList);
+    m_peerModel->setActive(true);
+    m_peerModel->setTorrentId(m_torrentIds.at(torrentIndex));
+    m_peerModel->beginUpdateModel(m_torrents.at(torrentIndex)->peers);
 }
 
-void TorrentModel::loadTrackerModel(int index)
+void TorrentModel::loadTrackerModel(int torrentIndex)
 {
-    m_trackerModel->setIsActive(true);
-    m_trackerModel->setTorrentId(m_torrentIds.at(index));
-    m_trackerModel->beginUpdateModel(m_torrents.at(index)->trackerList);
+    m_trackerModel->setActive(true);
+    m_trackerModel->setTorrentId(m_torrentIds.at(torrentIndex));
+    m_trackerModel->beginUpdateModel(m_torrents.at(torrentIndex)->trackers);
 }
 
-void TorrentModel::endUpdateModel(const QList<Torrent*> &newTorrents, const QList<int> newTorrentIds)
+void TorrentModel::endUpdateModel(QList<Torrent*> newTorrents, QList<int> newTorrentIds)
 {
     m_mutex.lock();
 
     qDebug() << "update";
 
-    for (int i = 0; i < m_torrentIds.length(); i++) {
+    for (int i = 0, torrentsCount = m_torrentIds.size(); i < torrentsCount; i++) {
         int id = m_torrentIds.at(i);
 
         if (!newTorrentIds.contains(id)) {
@@ -553,7 +562,7 @@ void TorrentModel::endUpdateModel(const QList<Torrent*> &newTorrents, const QLis
         }
     }
 
-    for (int i = 0; i < newTorrentIds.length(); i++) {
+    for (int i = 0, newTorrentsCount = newTorrentIds.size(); i < newTorrentsCount; i++) {
         int id = newTorrentIds.at(i);
         if (m_torrentIds.contains(id)) {
             int row = m_torrentIds.indexOf(id);
@@ -574,69 +583,69 @@ void TorrentModel::endUpdateModel(const QList<Torrent*> &newTorrents, const QLis
     }
 
     if (m_fileModel->isActive()) {
-        int index = m_torrentIds.indexOf(m_fileModel->torrentId());
-        m_fileModel->beginUpdateModel(m_torrents.at(index)->fileList, m_torrents.at(index)->fileStatsList);
+        Torrent *torrent = m_torrents.at(m_torrentIds.indexOf(m_fileModel->torrentId()));
+        m_fileModel->beginUpdateModel(torrent->files, torrent->fileStats);
     }
 
     if (m_peerModel->isActive()) {
-        int index = m_torrentIds.indexOf(m_peerModel->torrentId());
-        m_peerModel->beginUpdateModel(m_torrents.at(index)->peerList);
+        int torrentIndex = m_torrentIds.indexOf(m_peerModel->torrentId());
+        m_peerModel->beginUpdateModel(m_torrents.at(torrentIndex)->peers);
     }
 
     if (m_trackerModel->isActive()) {
-        int index = m_torrentIds.indexOf(m_trackerModel->torrentId());
-        m_trackerModel->beginUpdateModel(m_torrents.at(index)->trackerList);
+        int torrentIndex = m_torrentIds.indexOf(m_trackerModel->torrentId());
+        m_trackerModel->beginUpdateModel(m_torrents.at(torrentIndex)->trackers);
     }
 
     m_mutex.unlock();
 }
 
-void TorrentModel::setTorrentBandwidthPriority(Torrent *torrent, const QModelIndex &index, int bandwidthPriority)
+void TorrentModel::setTorrentBandwidthPriority(Torrent *torrent, const QModelIndex &modelIndex, int bandwidthPriority)
 {
     torrent->bandwidthPriority = bandwidthPriority;
-    emit dataChanged(index, index, QVector<int>() << BandwidthPriorityRole);
+    emit dataChanged(modelIndex, modelIndex, QVector<int>() << BandwidthPriorityRole);
     m_transmission->changeTorrent(torrent->id, "bandwidthPriority", bandwidthPriority);
 }
 
-void TorrentModel::setTorrentDownloadLimit(Torrent *torrent, const QModelIndex &index, int downloadLimit)
+void TorrentModel::setTorrentDownloadLimit(Torrent *torrent, const QModelIndex &modelIndex, int downloadLimit)
 {
     torrent->downloadLimit = downloadLimit;
-    emit dataChanged(index, index, QVector<int>() << DownloadLimitRole);
+    emit dataChanged(modelIndex, modelIndex, QVector<int>() << DownloadLimitRole);
     m_transmission->changeTorrent(torrent->id, "downloadLimit", downloadLimit);
 }
 
-void TorrentModel::setTorrentDownloadLimited(Torrent *torrent, const QModelIndex &index, bool downloadLimited)
+void TorrentModel::setTorrentDownloadLimited(Torrent *torrent, const QModelIndex &modelIndex, bool downloadLimited)
 {
     torrent->downloadLimited = downloadLimited;
-    emit dataChanged(index, index, QVector<int>() << DownloadLimitedRole);
+    emit dataChanged(modelIndex, modelIndex, QVector<int>() << DownloadLimitedRole);
     m_transmission->changeTorrent(torrent->id, "downloadLimited", downloadLimited);
 }
 
-void TorrentModel::setTorrentHonorsSessionLimits(Torrent *torrent, const QModelIndex &index, bool honorsSessionLimits)
+void TorrentModel::setTorrentHonorsSessionLimits(Torrent *torrent, const QModelIndex &modelIndex, bool honorsSessionLimits)
 {
     torrent->honorsSessionLimits = honorsSessionLimits;
-    emit dataChanged(index, index, QVector<int>() << HonorsSessionLimitsRole);
+    emit dataChanged(modelIndex, modelIndex, QVector<int>() << HonorsSessionLimitsRole);
     m_transmission->changeTorrent(torrent->id, "honorsSessionLimits", honorsSessionLimits);
 }
 
-void TorrentModel::setTorrentPeerLimit(Torrent *torrent, const QModelIndex &index, int peerLimit)
+void TorrentModel::setTorrentPeerLimit(Torrent *torrent, const QModelIndex &modelIndex, int peerLimit)
 {
     torrent->peerLimit = peerLimit;
-    emit dataChanged(index, index, QVector<int>() << PeerLimitRole);
+    emit dataChanged(modelIndex, modelIndex, QVector<int>() << PeerLimitRole);
     m_transmission->changeTorrent(torrent->id, "peer-limit", peerLimit);
 }
 
-void TorrentModel::setTorrentSeedRatioLimit(Torrent *torrent, const QModelIndex &index, float seedRatioLimit)
+void TorrentModel::setTorrentSeedRatioLimit(Torrent *torrent, const QModelIndex &modelIndex, float seedRatioLimit)
 {
     torrent->seedRatioLimit = seedRatioLimit;
-    emit dataChanged(index, index, QVector<int>() << SeedRatioLimitRole);
+    emit dataChanged(modelIndex, modelIndex, QVector<int>() << SeedRatioLimitRole);
     m_transmission->changeTorrent(torrent->id, "seedRatioLimit", seedRatioLimit);
 }
 
-void TorrentModel::setTorrentSeedRatioMode(Torrent *torrent, const QModelIndex &index, int seedRatioMode)
+void TorrentModel::setTorrentSeedRatioMode(Torrent *torrent, const QModelIndex &modelIndex, int seedRatioMode)
 {
     torrent->seedRatioMode = seedRatioMode;
-    emit dataChanged(index, index, QVector<int>() << SeedRatioModeRole);
+    emit dataChanged(modelIndex, modelIndex, QVector<int>() << SeedRatioModeRole);
     m_transmission->changeTorrent(torrent->id, "seedRatioMode", seedRatioMode);
 }
 

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 import "../dialogs"
@@ -25,8 +25,9 @@ Item {
     property alias label: textField.label
     property alias text: textField.text
 
-    property var dialogNameFilters
-    property bool dialogShowFiles
+    property var nameFilters: []
+    property bool showFiles
+
     property bool isLocal: false
 
     function changed() {
@@ -53,10 +54,8 @@ Item {
             right: parent.right
             rightMargin: Theme.horizontalPageMargin
         }
-        enabled: isLocal || root.transmission.isLocal()
+        enabled: isLocal || transmission.isLocal()
         icon.source: "image://theme/icon-m-folder"
-        icon.sourceSize.width: Theme.iconSizeMedium
-        icon.sourceSize.height: Theme.iconSizeMedium
 
         onClicked: pageStack.push(filePickerDialog)
 
@@ -64,8 +63,8 @@ Item {
             id: filePickerDialog
 
             FilePickerDialog {
-                nameFilters: dialogNameFilters
-                showFiles: dialogShowFiles
+                nameFilters: nameFilters
+                showFiles: showFiles
                 onAccepted: textField.text = path
             }
         }

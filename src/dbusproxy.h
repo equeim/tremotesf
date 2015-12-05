@@ -31,7 +31,7 @@ class DBusProxy : public QObject
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "harbour.tremotesf.DBusProxy")
 public:
-    DBusProxy(QWindow *view, QObject *parent = 0);
+    DBusProxy(QWindow *window);
 public slots:
     void activate();
 private:

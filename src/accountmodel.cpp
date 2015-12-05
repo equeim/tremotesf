@@ -19,17 +19,30 @@
 #include "accountmodel.h"
 #include "accountmodel.moc"
 
-#include <QDebug>
-
 #include "appsettings.h"
 
 namespace Tremotesf
 {
 
-Account::Account(const QString &name, AppSettings *appSettings)
+enum AccountRole
 {
-    this->name = name;
-    m_appSettings = appSettings;
+    NameRole = Qt::UserRole,
+    AddressRole,
+    PortRole,
+    ApiPathRole,
+    HttpsRole,
+    LocalCertificateRole,
+    AuthenticationRole,
+    UsernameRole,
+    PasswordRole,
+    UpdateIntervalRole,
+    TimeoutRole
+};
+
+Account::Account(const QString &name, AppSettings *appSettings)
+    : name(name),
+      m_appSettings(appSettings)
+{
     update();
 }
 
@@ -65,15 +78,15 @@ AppSettings* AccountModel::appSettings() const
     return m_appSettings;
 }
 
-void AccountModel::setAppSettings(AppSettings *appSettings)
+void AccountModel::setAppSettings(AppSettings *settings)
 {
-    m_appSettings = appSettings;
+    m_appSettings = settings;
 }
 
 int AccountModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return m_accounts.length();
+    return m_accounts.size();
 }
 
 QVariant AccountModel::data(const QModelIndex &index, int role) const
@@ -113,31 +126,31 @@ QVariant AccountModel::data(const QModelIndex &index, int role) const
 
 void AccountModel::setupModel()
 {
-    foreach (const QString &name, m_appSettings->accounts()) {
-        beginInsertRows(QModelIndex(), rowCount(), rowCount());
-        m_accounts.append(Account(name, m_appSettings));
-        endInsertRows();
+    QStringList accounts = m_appSettings->accounts();
+    int accountsCount = accounts.size();
+    for (int i = 0; i < accountsCount; i++) {
+        addAccount(accounts.at(i), i);
     }
 }
 
-void AccountModel::addAccount(const QString &name, int index)
+void AccountModel::addAccount(const QString &name, int accountIndex)
 {
-    beginInsertRows(QModelIndex(), index, index);
-    m_accounts.insert(index, Account(name, m_appSettings));
+    beginInsertRows(QModelIndex(), accountIndex, accountIndex);
+    m_accounts.insert(accountIndex, Account(name, m_appSettings));
     endInsertRows();
 }
 
-void AccountModel::removeAccount(int index)
+void AccountModel::removeAccount(int accountIndex)
 {
-    beginRemoveRows(QModelIndex(), index, index);
-    m_accounts.removeAt(index);
+    beginRemoveRows(QModelIndex(), accountIndex, accountIndex);
+    m_accounts.removeAt(accountIndex);
     endRemoveRows();
 }
 
-void AccountModel::updateAccount(int index)
+void AccountModel::updateAccount(int accountIndex)
 {
-    m_accounts[index].update();
-    QModelIndex modelIndex = this->index(index);
+    m_accounts[accountIndex].update();
+    QModelIndex modelIndex = index(accountIndex);
     emit dataChanged(modelIndex, modelIndex);
 }
 

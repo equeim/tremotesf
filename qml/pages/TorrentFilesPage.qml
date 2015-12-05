@@ -16,142 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
-import harbour.tremotesf 0.1
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
 Page {
-    allowedOrientations: Orientation.All
+    property int torrentIndex
 
     Component.onCompleted: {
-        if (!root.fileModel.isActive)
-            root.torrentModel.loadFileModel(root.proxyTorrentModel.getSourceIndex(model.index))
+        if (!fileModel.active)
+            torrentModel.loadFileModel(torrentIndex)
     }
 
     Connections {
-        target: root.torrentModel
+        target: torrentModel
         onTorrentRemoved: {
             if (model.index === -1)
-                pageStack.pop(torrentsPage, PageStackAction.Immediate)
+                pageStack.pop(pageStack.previousPage(pageStack.previousPage()), PageStackAction.Immediate)
         }
-    }
-
-    VisualDataModel {
-        id: delegateModel
-        delegate: ListItem {
-            contentHeight: labelColumn.height + 2 * Theme.paddingMedium
-            menu: contextMenu
-
-            onClicked: {
-                if (model.isDirectory)
-                    delegateModel.rootIndex = delegateModel.modelIndex(model.index)
-                else
-                    wantedSwitch.toggle()
-            }
-
-            Image {
-                id: icon
-
-                anchors {
-                    left: parent.left
-                    leftMargin: Theme.horizontalPageMargin
-                    verticalCenter: parent.verticalCenter
-                }
-
-                asynchronous: true
-                source: model.isDirectory ? "image://theme/icon-m-folder"
-                                          : "image://theme/icon-m-other"
-            }
-
-            Column {
-                id: labelColumn
-
-                anchors {
-                    left: icon.right
-                    leftMargin: Theme.paddingMedium
-                    right: wantedSwitch.left
-                    verticalCenter: parent.verticalCenter
-                }
-
-                Label {
-                    id: label
-                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
-                    maximumLineCount: 3
-                    text: model.name
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                }
-
-                Label {
-                    color: Theme.secondaryColor
-                    font.pixelSize: Theme.fontSizeSmall
-                    text: qsTr("%1 of %2 (%3%)").arg(root.utils.formatByteSize(model.bytesCompleted))
-                    .arg(root.utils.formatByteSize(model.length))
-                    .arg(model.progress)
-                    truncationMode: TruncationMode.Fade
-                    width: parent.width
-                }
-            }
-
-            Switch {
-                id: wantedSwitch
-
-                function toggle() {
-                    if (model.wantedStatus === TorrentFileModel.AllWanted)
-                        model.wantedStatus = TorrentFileModel.NoWanted
-                    else
-                        model.wantedStatus = TorrentFileModel.AllWanted
-                }
-
-                anchors {
-                    right: parent.right
-                    rightMargin: Theme.horizontalPageMargin - Theme.paddingLarge
-                    verticalCenter: parent.verticalCenter
-                }
-                automaticCheck: false
-                checked: model.wantedStatus !== TorrentFileModel.NoWanted
-                opacity: model.wantedStatus === TorrentFileModel.SomeWanted ? 0.6 : 1
-
-                onClicked: toggle()
-            }
-
-            Component {
-                id: contextMenu
-
-                ContextMenu {
-                    MenuItem {
-                        text: qsTr("High priority")
-                        font.weight: model.priority === TorrentFileModel.HighPriority ? Font.Bold : Font.Normal
-
-                        onClicked: model.priority = TorrentFileModel.HighPriority
-                    }
-
-                    MenuItem {
-                        text: qsTr("Normal")
-                        font.weight: model.priority === TorrentFileModel.NormalPriority ? Font.Bold : Font.Normal
-
-                        onClicked: model.priority = TorrentFileModel.NormalPriority
-                    }
-
-                    MenuItem {
-                        text: qsTr("Low")
-                        font.weight: model.priority === TorrentFileModel.LowPriority ? Font.Bold : Font.Normal
-
-                        onClicked: model.priority = TorrentFileModel.LowPriority
-                    }
-
-                    MenuItem {
-                        text: qsTr("Mixed")
-                        font.weight: Font.Bold
-                        visible: model.priority === TorrentFileModel.MixedPriority
-                    }
-                }
-            }
-        }
-        model: root.proxyFileModel
     }
 
     SilicaListView {
@@ -171,16 +56,137 @@ Page {
                 onClicked: delegateModel.rootIndex = delegateModel.parentModelIndex()
             }
         }
-        model: delegateModel
+        model: VisualDataModel {
+            id: delegateModel
+
+            delegate: ListItem {
+                id: fileDelegate
+
+                contentHeight: labelColumn.height + 2 * Theme.paddingMedium
+                menu: Component {
+                    ContextMenu {
+                        MenuItem {
+                            text: qsTr("High priority")
+                            font.weight: model.priority === Tremotesf.TorrentFileModel.HighPriority ? Font.Bold : Font.Normal
+
+                            onClicked: model.priority = Tremotesf.TorrentFileModel.HighPriority
+                        }
+
+                        MenuItem {
+                            text: qsTr("Normal")
+                            font.weight: model.priority === Tremotesf.TorrentFileModel.NormalPriority ? Font.Bold : Font.Normal
+
+                            onClicked: model.priority = Tremotesf.TorrentFileModel.NormalPriority
+                        }
+
+                        MenuItem {
+                            text: qsTr("Low")
+                            font.weight: model.priority === Tremotesf.TorrentFileModel.LowPriority ? Font.Bold : Font.Normal
+
+                            onClicked: model.priority = Tremotesf.TorrentFileModel.LowPriority
+                        }
+
+                        MenuItem {
+                            text: qsTr("Mixed")
+                            font.weight: Font.Bold
+                            visible: model.priority === Tremotesf.TorrentFileModel.MixedPriority
+                        }
+                    }
+                }
+
+                onClicked: {
+                    if (model.isDirectory)
+                        delegateModel.rootIndex = delegateModel.modelIndex(model.index)
+                    else
+                        wantedSwitch.toggle()
+                }
+
+                Image {
+                    id: icon
+
+                    anchors {
+                        left: parent.left
+                        leftMargin: Theme.horizontalPageMargin
+                        verticalCenter: parent.verticalCenter
+                    }
+                    asynchronous: true
+                    source: {
+                        var iconSource = model.isDirectory ? "image://theme/icon-m-folder"
+                                                           : "image://theme/icon-m-other"
+
+                        if (highlighted)
+                            iconSource += "?" + Theme.highlightColor
+
+                        return iconSource
+                    }
+                }
+
+                Column {
+                    id: labelColumn
+
+                    anchors {
+                        left: icon.right
+                        leftMargin: Theme.paddingMedium
+                        right: wantedSwitch.left
+                        verticalCenter: parent.verticalCenter
+                    }
+
+                    Label {
+                        id: label
+                        color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                        maximumLineCount: 3
+                        text: model.name
+                        width: parent.width
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Label {
+                        color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        text: qsTr("%1 of %2 (%3%)").arg(Tremotesf.Utils.formatByteSize(model.bytesCompleted))
+                        .arg(Tremotesf.Utils.formatByteSize(model.length))
+                        .arg(model.progress)
+                        truncationMode: TruncationMode.Fade
+                        width: parent.width
+                    }
+                }
+
+                Switch {
+                    id: wantedSwitch
+
+                    function toggle() {
+                        if (model.wantedStatus === Tremotesf.TorrentFileModel.AllWanted)
+                            model.wantedStatus = Tremotesf.TorrentFileModel.NoWanted
+                        else
+                            model.wantedStatus = Tremotesf.TorrentFileModel.AllWanted
+                    }
+
+                    anchors {
+                        right: parent.right
+                        rightMargin: Theme.horizontalPageMargin - Theme.paddingLarge
+                        verticalCenter: parent.verticalCenter
+                    }
+                    automaticCheck: false
+                    checked: model.wantedStatus !== Tremotesf.TorrentFileModel.NoWanted
+                    highlighted: fileDelegate.highlighted
+                    opacity: model.wantedStatus === Tremotesf.TorrentFileModel.SomeWanted ? 0.6 : 1
+
+                    onClicked: toggle()
+                }
+            }
+            model: Tremotesf.ProxyFileModel {
+                sourceModel: fileModel
+            }
+        }
 
         PullDownMenu {
             MenuItem {
                 text: qsTr("Download all files")
-                onClicked: root.fileModel.setAllWanted(true)
+                onClicked: fileModel.setAllWanted(true)
             }
             MenuItem {
                 text: qsTr("Ignore all files")
-                onClicked: root.fileModel.setAllWanted(false)
+                onClicked: fileModel.setAllWanted(false)
             }
         }
 

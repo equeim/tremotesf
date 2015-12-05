@@ -16,15 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
-ValueButton {
-    id: button
+import harbour.tremotesf 0.1 as Tremotesf
 
+ValueButton {
     property string key
     property int oldTime
-    property int timeInMinutes: root.appSettings.serverValue(key)
+    property int timeInMinutes: Tremotesf.AppSettings.serverValue(key)
 
     function changed() {
         return oldTime !== timeInMinutes
@@ -36,14 +36,13 @@ ValueButton {
     Component.onCompleted: oldTime = timeInMinutes
     Component.onDestruction: {
         if (changed())
-            root.transmission.changeServerSettings(key, timeInMinutes)
+            transmission.changeServerSettings(key, timeInMinutes)
     }
 
     Component {
         id: timePickerDialog
 
         TimePickerDialog {
-            allowedOrientations: Orientation.All
             hourMode: DateTime.TwentyFourHours
             hour: (timeInMinutes - minute) / 60
             minute: timeInMinutes % 60

@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
+
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
 Page {
-    allowedOrientations: Orientation.All
-
     SilicaFlickable {
         anchors.fill: parent
         contentHeight: column.height
@@ -94,7 +94,7 @@ Page {
             }
 
             Row {
-                height: Theme.itemSizeSmall
+                //height: Theme.itemSizeSmall
                 visible: scheduleSwitch.visible && scheduleSwitch.checked
 
                 AlternativeLimitsTimeButton {
@@ -112,7 +112,7 @@ Page {
 
             CommonComboBox {
                 currentIndex: {
-                    switch (root.appSettings.serverValue("alt-speed-time-day")) {
+                    switch (Tremotesf.AppSettings.serverValue("alt-speed-time-day")) {
                     case 127: // every day
                         return 0
                     case 62: // weekdays
@@ -174,34 +174,34 @@ Page {
                     if (changed()) {
                         switch (currentIndex) {
                         case 0:
-                            root.transmission.changeServerSettings("alt-speed-time-day", 127)
+                            transmission.changeServerSettings("alt-speed-time-day", 127)
                             break
                         case 1:
-                            root.transmission.changeServerSettings("alt-speed-time-day", 62)
+                            transmission.changeServerSettings("alt-speed-time-day", 62)
                             break
                         case 2:
-                            root.transmission.changeServerSettings("alt-speed-time-day", 65)
+                            transmission.changeServerSettings("alt-speed-time-day", 65)
                             break
                         case 3:
-                            root.transmission.changeServerSettings("alt-speed-time-day", 1)
+                            transmission.changeServerSettings("alt-speed-time-day", 1)
                             break
                         case 4:
-                            root.transmission.changeServerSettings("alt-speed-time-day", 2)
+                            transmission.changeServerSettings("alt-speed-time-day", 2)
                             break
                         case 5:
-                            root.transmission.changeServerSettings("alt-speed-time-day", 4)
+                            transmission.changeServerSettings("alt-speed-time-day", 4)
                             break
                         case 6:
-                            root.transmission.changeServerSettings("alt-speed-time-day", 8)
+                            transmission.changeServerSettings("alt-speed-time-day", 8)
                             break
                         case 7:
-                            root.transmission.changeServerSettings("alt-speed-time-day", 16)
+                            transmission.changeServerSettings("alt-speed-time-day", 16)
                             break
                         case 8:
-                            root.transmission.changeServerSettings("alt-speed-time-day", 32)
+                            transmission.changeServerSettings("alt-speed-time-day", 32)
                             break
                         case 9:
-                            root.transmission.changeServerSettings("alt-speed-time-day", 64)
+                            transmission.changeServerSettings("alt-speed-time-day", 64)
                         }
                     }
                 }

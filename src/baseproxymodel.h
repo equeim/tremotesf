@@ -30,7 +30,7 @@ class BaseProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 public:
     BaseProxyModel();
-    Q_INVOKABLE int getSourceIndex(int proxyIndex) const;
+    Q_INVOKABLE int sourceIndex(int proxyIndex) const;
 protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 private:

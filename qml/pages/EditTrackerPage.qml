@@ -16,19 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 import "../components"
 
 Page {    
-    allowedOrientations: Orientation.All
-
     Connections {
-        target: root.torrentModel
+        target: torrentModel
         onTorrentRemoved: {
             if (model.index === -1)
-                pageStack.pop(torrentsPage, PageStackAction.Immediate)
+                pageStack.pop(pageStack.previousPage(pageStack.previousPage(pageStack.previousPage())), PageStackAction.Immediate)
         }
     }
 
@@ -68,7 +66,7 @@ Page {
                 }
                 Component.onDestruction: {
                     if (changed())
-                        root.transmission.changeTorrent(torrentId, "trackerReplace", [model.id, text])
+                        transmission.changeTorrent(torrentId, "trackerReplace", [model.id, text])
                 }
             }
         }

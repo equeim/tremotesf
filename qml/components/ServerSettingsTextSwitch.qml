@@ -16,16 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
-import Sailfish.Silica 1.0
+import QtQuick 2.2
+import harbour.tremotesf 0.1 as Tremotesf
 
 CommonTextSwitch {
     property string key
 
-    checked: root.appSettings.serverValue(key)
+    checked: Tremotesf.AppSettings.serverValue(key)
 
     Component.onDestruction: {
         if (changed())
-            root.transmission.changeServerSettings(key, checked)
+            transmission.changeServerSettings(key, checked)
     }
 }

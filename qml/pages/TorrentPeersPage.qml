@@ -16,24 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
+
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
 Page {
-    allowedOrientations: Orientation.All
+    property int torrentIndex
 
     Component.onCompleted: {
-        if (!peerModel.isActive)
-            root.torrentModel.loadPeerModel(root.proxyTorrentModel.getSourceIndex(model.index))
+        if (!peerModel.active)
+            torrentModel.loadPeerModel(torrentIndex)
     }
 
     Connections {
         target: torrentModel
         onTorrentRemoved: {
             if (model.index === -1)
-                pageStack.pop(torrentsPage, PageStackAction.Immediate)
+                pageStack.pop(pageStack.previousPage(pageStack.previousPage()), PageStackAction.Immediate)
         }
     }
 
@@ -65,15 +67,15 @@ Page {
                 }
 
                 Label {
-                    color: Theme.secondaryColor
+                    color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
-                    text: "↓ %1".arg(root.utils.formatByteSpeed(model.rateToClient))
+                    text: "↓ %1".arg(Tremotesf.Utils.formatByteSpeed(model.rateToClient))
                 }
 
                 Label {
-                    color: Theme.secondaryColor
+                    color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
-                    text: "↑ %1".arg(root.utils.formatByteSpeed(model.rateToPeer))
+                    text: "↑ %1".arg(Tremotesf.Utils.formatByteSpeed(model.rateToPeer))
                 }
             }
 
@@ -84,16 +86,19 @@ Page {
                     top: parent.top
                     topMargin: Theme.paddingMedium
                 }
-                color: Theme.secondaryColor
+                color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 font.pixelSize: Theme.fontSizeSmall
                 text: model.progress + "%"
             }
         }
-        model: root.proxyPeerModel
+        model: Tremotesf.BaseProxyModel {
+            sortRole: Tremotesf.TorrentPeerModel.AddressRole
+            sourceModel: peerModel
+        }
 
         ViewPlaceholder {
             enabled: listView.count === 0
-            text: qsTr("No items")
+            text: qsTr("No peers")
         }
 
         VerticalScrollDecorator { }

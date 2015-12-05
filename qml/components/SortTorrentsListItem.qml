@@ -16,18 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
 import Sailfish.Silica 1.0
 
 CommonListItem {
     property int sortRole
 
     textColor: {
-        if (highlighted || root.proxyTorrentModel.sortRole === sortRole)
+        if (highlighted || proxyTorrentModel.sortRole === sortRole)
             return Theme.highlightColor
         else
             return Theme.primaryColor
     }
 
-    onClicked: root.proxyTorrentModel.sortRole = sortRole
+    onClicked: proxyTorrentModel.sortRole = sortRole
 }

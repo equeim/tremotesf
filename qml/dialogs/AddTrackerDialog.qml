@@ -16,15 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 import "../components"
 
 Dialog {
-    allowedOrientations: Orientation.All
-    canAccept: announceUrlField.text
-    onAccepted: root.transmission.changeTorrent(torrentId, "trackerAdd", [announceUrlField.text])
+    property int torrentId
+
+    canAccept: announceUrlField.text.length !== 0
+    onAccepted: transmission.changeTorrent(torrentId, "trackerAdd", [announceUrlField.text])
 
     SilicaFlickable {
         anchors.fill: parent

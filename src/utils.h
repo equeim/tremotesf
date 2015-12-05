@@ -37,6 +37,8 @@ public:
 
     Q_INVOKABLE float parseFloat(const QString &string);
 
+    Q_INVOKABLE static QString urlToPath(const QUrl &url);
+
     static void publishFinishedNotification(const QString &torrentName);
 };
 

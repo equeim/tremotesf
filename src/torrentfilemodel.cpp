@@ -28,9 +28,10 @@ namespace Tremotesf
 {
 
 TorrentFile::TorrentFile(TorrentFile *parentDirectory, int row)
+    : parentDirectory(parentDirectory),
+      row(row)
 {
-    this->parentDirectory = parentDirectory;
-    this->row = row;
+
 }
 
 TorrentFile::~TorrentFile()
@@ -39,9 +40,10 @@ TorrentFile::~TorrentFile()
 }
 
 TorrentFileModelWorker::TorrentFileModelWorker(TorrentFile *rootDirectory, QMutex *mutex)
+    : m_rootDirectory(rootDirectory),
+      m_mutex(mutex)
 {
-    m_rootDirectory = rootDirectory;
-    m_mutex = mutex;
+
 }
 
 void TorrentFileModelWorker::reset()
@@ -50,41 +52,39 @@ void TorrentFileModelWorker::reset()
     m_filePaths.clear();
 }
 
-void TorrentFileModelWorker::beginWork(const QVariantList &fileList, const QVariantList &fileStatsList)
+void TorrentFileModelWorker::beginWork(QVariantList fileVariants, QVariantList fileStatsVariants)
 {
     m_changedFiles.clear();
 
     QStringList filePaths;
-    for (int i = 0; i < fileList.length(); i++) {
-        QVariantMap fileMap = fileList.at(i).toMap();
-        filePaths.append(fileMap.value("name").toString());
-    }
+    for (int i = 0, filesCount = fileVariants.size(); i < filesCount; i++)
+        filePaths.append(fileVariants.at(i).toMap().value("name").toString());
 
     QMutexLocker locker(m_mutex);
 
     if (m_filePaths == filePaths) {
-        updateTree(fileStatsList);
+        updateTree(fileStatsVariants);
     } else {
         m_filePaths = filePaths;
-        createTree(fileList, fileStatsList);
+        createTree(fileVariants, fileStatsVariants);
     }
 
 }
 
-void TorrentFileModelWorker::createTree(const QVariantList &fileList, const QVariantList &fileStatsList)
+void TorrentFileModelWorker::createTree(const QVariantList &fileVariants, const QVariantList &fileStatsVariants)
 {
     m_files.clear();
     qDeleteAll(m_rootDirectory->childFiles);
     m_rootDirectory->childFiles.clear();
 
-    for (int i = 0; i < fileList.length(); i++) {
+    for (int i = 0, filesCount = fileVariants.size(); i < filesCount; i++) {
         TorrentFile *currentFile = m_rootDirectory;
-        QVariantMap fileMap = fileList.at(i).toMap();
-        QVariantMap fileStatsMap = fileStatsList.at(i).toMap();
+        QVariantMap fileMap = fileVariants.at(i).toMap();
+        QVariantMap fileStatsMap = fileStatsVariants.at(i).toMap();
 
         QString filePath = m_filePaths.at(i);
-        QStringList parts = filePath.split("/", QString::SkipEmptyParts);
-        for (int j = 0; j < parts.length(); j++) {
+        QStringList parts = filePath.split('/', QString::SkipEmptyParts);
+        for (int j = 0, partsCount = parts.size(); j < partsCount; j++) {
             bool isFile = (j == (parts.length() - 1));
 
             QString part = parts.at(j);
@@ -113,18 +113,21 @@ void TorrentFileModelWorker::createTree(const QVariantList &fileList, const QVar
         }
     }
 
-    foreach (TorrentFile *file, m_rootDirectory->childFiles) {
-        if (file->isDirectory)
-            setDirectory(file);
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = m_rootDirectory->childFiles.cbegin(), cend = m_rootDirectory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->isDirectory)
+            setDirectory(iterator.value());
     }
 
     emit treeCreated();
 }
 
-void TorrentFileModelWorker::updateTree(const QVariantList &fileStatsList)
+void TorrentFileModelWorker::updateTree(const QVariantList &fileStatsVariants)
 {
-    for (int i = 0; i < fileStatsList.length(); i++) {
-        QVariantMap fileStatsMap = fileStatsList.at(i).toMap();
+    for (int i = 0, filesCount = fileStatsVariants.size(); i < filesCount; i++) {
+        QVariantMap fileStatsMap = fileStatsVariants.at(i).toMap();
         TorrentFile *file = m_files.at(i);
         bool changed = false;
 
@@ -153,9 +156,12 @@ void TorrentFileModelWorker::updateTree(const QVariantList &fileStatsList)
             m_changedFiles.append(file);
     }
 
-    foreach (TorrentFile *file, m_rootDirectory->childFiles) {
-        if (file->isDirectory)
-            updateDirectory(file);
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = m_rootDirectory->childFiles.cbegin(), cend = m_rootDirectory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->isDirectory)
+            updateDirectory(iterator.value());
     }
 
     emit treeUpdated(m_changedFiles);
@@ -163,9 +169,12 @@ void TorrentFileModelWorker::updateTree(const QVariantList &fileStatsList)
 
 void TorrentFileModelWorker::setDirectory(TorrentFile *directory)
 {
-    foreach (TorrentFile *file, directory->childFiles) {
-        if (file->isDirectory)
-            setDirectory(file);
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = directory->childFiles.cbegin(), cend = directory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->isDirectory)
+            setDirectory(iterator.value());
     }
 
     qint64 bytesCompleted = 0;
@@ -173,7 +182,12 @@ void TorrentFileModelWorker::setDirectory(TorrentFile *directory)
     int priority = directory->childFiles.first()->priority;
     int wantedStatus = directory->childFiles.first()->wantedStatus;
 
-    foreach (TorrentFile *file, directory->childFiles) {
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = directory->childFiles.cbegin(), cend = directory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        TorrentFile *file = iterator.value();
+
         bytesCompleted += file->bytesCompleted;
         length += file->length;
         if (file->priority != priority)
@@ -191,9 +205,12 @@ void TorrentFileModelWorker::setDirectory(TorrentFile *directory)
 
 void TorrentFileModelWorker::updateDirectory(TorrentFile *directory)
 {
-    foreach (TorrentFile *file, directory->childFiles) {
-        if (file->isDirectory)
-            updateDirectory(file);
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = directory->childFiles.cbegin(), cend = directory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->isDirectory)
+            updateDirectory(iterator.value());
     }
 
     bool changed = false;
@@ -201,7 +218,12 @@ void TorrentFileModelWorker::updateDirectory(TorrentFile *directory)
     int priority = directory->childFiles.first()->priority;
     int wantedStatus = directory->childFiles.first()->wantedStatus;
 
-    foreach (TorrentFile *file, directory->childFiles) {
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = directory->childFiles.cbegin(), cend = directory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        TorrentFile *file = iterator.value();
+
         bytesCompleted += file->bytesCompleted;
         if (file->priority != priority)
             priority = TorrentFileModel::MixedPriority;
@@ -230,22 +252,20 @@ void TorrentFileModelWorker::updateDirectory(TorrentFile *directory)
 }
 
 TorrentFileModel::TorrentFileModel()
+    : m_rootDirectory(new TorrentFile),
+      m_worker(new TorrentFileModelWorker(m_rootDirectory, &m_mutex)),
+      m_workerThread(new QThread(this)),
+      m_active(false)
 {
     qRegisterMetaType< QList<TorrentFile*> >();
 
-    m_rootDirectory = new TorrentFile;
-
-    m_worker = new TorrentFileModelWorker(m_rootDirectory, &m_mutex);
     connect(this, &TorrentFileModel::requestModelUpdate, m_worker, &TorrentFileModelWorker::beginWork);
     connect(m_worker, &TorrentFileModelWorker::treeCreated, this, &TorrentFileModel::endCreateTree);
     connect(m_worker, &TorrentFileModelWorker::treeUpdated, this, &TorrentFileModel::endUpdateTree);
 
-    m_workerThread = new QThread(this);
     connect(m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
     m_worker->moveToThread(m_workerThread);
     m_workerThread->start(QThread::LowPriority);
-
-    m_isActive = false;
 }
 
 TorrentFileModel::~TorrentFileModel()
@@ -264,12 +284,12 @@ int TorrentFileModel::columnCount(const QModelIndex &parent) const
     return 1;
 }
 
-QVariant TorrentFileModel::data(const QModelIndex &index, int role) const
+QVariant TorrentFileModel::data(const QModelIndex &modelIndex, int role) const
 {
-    if (!index.isValid())
+    if (!modelIndex.isValid())
         return QVariant();
 
-    TorrentFile *file = static_cast<TorrentFile*>(index.internalPointer());
+    TorrentFile *file = static_cast<TorrentFile*>(modelIndex.internalPointer());
 
     switch (role) {
     case BytesCompletedRole:
@@ -309,12 +329,12 @@ QModelIndex TorrentFileModel::index(int row, int column, const QModelIndex &pare
     return createIndex(row, column, parentDirectory->childFiles.values().at(row));
 }
 
-QModelIndex TorrentFileModel::parent(const QModelIndex &index) const
+QModelIndex TorrentFileModel::parent(const QModelIndex &modelIndex) const
 {
-    if (!index.isValid())
+    if (!modelIndex.isValid())
         return QModelIndex();
 
-    TorrentFile *parentDirectory = static_cast<TorrentFile*>(index.internalPointer())->parentDirectory;
+    TorrentFile *parentDirectory = static_cast<TorrentFile*>(modelIndex.internalPointer())->parentDirectory;
     if (parentDirectory == m_rootDirectory)
         return QModelIndex();
 
@@ -333,14 +353,14 @@ int TorrentFileModel::rowCount(const QModelIndex &parent) const
     return directory->childFiles.count();
 }
 
-bool TorrentFileModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool TorrentFileModel::setData(const QModelIndex &modelIndex, const QVariant &value, int role)
 {
-    if (!index.isValid())
+    if (!modelIndex.isValid())
         return false;
 
     QMutexLocker locker(&m_mutex);
 
-    TorrentFile *file = static_cast<TorrentFile*>(index.internalPointer());
+    TorrentFile *file = static_cast<TorrentFile*>(modelIndex.internalPointer());
 
     if (role == PriorityRole) {
         setFilePriority(file, value.toInt());
@@ -355,7 +375,12 @@ bool TorrentFileModel::setData(const QModelIndex &index, const QVariant &value, 
 
 bool TorrentFileModel::isActive() const
 {
-    return m_isActive;
+    return m_active;
+}
+
+void TorrentFileModel::setActive(bool active)
+{
+    m_active = active;
 }
 
 int TorrentFileModel::torrentId() const
@@ -363,24 +388,19 @@ int TorrentFileModel::torrentId() const
     return m_torrentId;
 }
 
+void TorrentFileModel::setTorrentId(int id)
+{
+    m_torrentId = id;
+}
+
 Transmission* TorrentFileModel::transmission() const
 {
     return m_transmission;
 }
 
-void TorrentFileModel::setIsActive(bool isActive)
+void TorrentFileModel::setTransmission(Transmission *newTransmission)
 {
-    m_isActive = isActive;
-}
-
-void TorrentFileModel::setTorrentId(int torrentId)
-{
-    m_torrentId = torrentId;
-}
-
-void TorrentFileModel::setTransmission(Transmission *transmission)
-{
-    m_transmission = transmission;
+    m_transmission = newTransmission;
 }
 
 void TorrentFileModel::setAllWanted(bool wanted)
@@ -388,16 +408,27 @@ void TorrentFileModel::setAllWanted(bool wanted)
     m_mutex.lock();
 
     if (wanted) {
-        foreach (TorrentFile *file, m_rootDirectory->childFiles)
-            setFileWantedStatusRecursively(file, AllWanted);
+        for (QMap<QString, TorrentFile*>::const_iterator iterator = m_rootDirectory->childFiles.cbegin(), cend = m_rootDirectory->childFiles.cend();
+             iterator != cend;
+             iterator++) {
+
+            setFileWantedStatusRecursively(iterator.value(), AllWanted);
+        }
     } else {
-        foreach (TorrentFile *file, m_rootDirectory->childFiles)
-            setFileWantedStatusRecursively(file, NoWanted);
+        for (QMap<QString, TorrentFile*>::const_iterator iterator = m_rootDirectory->childFiles.cbegin(), cend = m_rootDirectory->childFiles.cend();
+             iterator != cend;
+             iterator++) {
+
+            setFileWantedStatusRecursively(iterator.value(), NoWanted);
+        }
     }
 
-    foreach (TorrentFile *file, m_rootDirectory->childFiles) {
-        if (file->isDirectory)
-            updateDirectoryWantedStatus(file);
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = m_rootDirectory->childFiles.cbegin(), cend = m_rootDirectory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->isDirectory)
+            updateDirectoryWantedStatus(iterator.value());
     }
 
     if (wanted)
@@ -408,9 +439,9 @@ void TorrentFileModel::setAllWanted(bool wanted)
     m_mutex.unlock();
 }
 
-void TorrentFileModel::beginUpdateModel(const QVariantList &fileList, const QVariantList &fileStatsList)
+void TorrentFileModel::beginUpdateModel(const QVariantList &fileVariants, const QVariantList &fileStatsVariants)
 {
-    emit requestModelUpdate(fileList, fileStatsList);
+    emit requestModelUpdate(fileVariants, fileStatsVariants);
 }
 
 void TorrentFileModel::resetModel()
@@ -424,7 +455,7 @@ void TorrentFileModel::resetModel()
 
     m_worker->reset();
 
-    m_isActive = false;
+    m_active = false;
 
     m_mutex.unlock();
 }
@@ -435,10 +466,13 @@ void TorrentFileModel::endCreateTree()
     endResetModel();
 }
 
-void TorrentFileModel::endUpdateTree(const QList<TorrentFile*> &changedFiles)
+void TorrentFileModel::endUpdateTree(QList<TorrentFile*> changedFiles)
 {
-    foreach (TorrentFile *file, changedFiles) {
-        QModelIndex modelIndex = createIndex(file->row, 0, file);
+    for (QList<TorrentFile*>::const_iterator iterator = changedFiles.cbegin(), cend = changedFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        QModelIndex modelIndex = createIndex((*iterator)->row, 0, *iterator);
         emit dataChanged(modelIndex, modelIndex);
     }
 }
@@ -447,9 +481,12 @@ void TorrentFileModel::setFilePriority(TorrentFile *file, int priority)
 {
     setFilePriorityRecursively(file, priority);
 
-    foreach (TorrentFile *file, m_rootDirectory->childFiles) {
-        if (file->isDirectory)
-            updateDirectoryPriority(file);
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = m_rootDirectory->childFiles.cbegin(), cend = m_rootDirectory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->isDirectory)
+            updateDirectoryPriority(iterator.value());
     }
 
     QString key;
@@ -466,8 +503,12 @@ void TorrentFileModel::setFilePriority(TorrentFile *file, int priority)
 void TorrentFileModel::setFilePriorityRecursively(TorrentFile *file, int priority)
 {
     if (file->isDirectory) {
-        foreach (TorrentFile *childFile, file->childFiles)
-            setFilePriorityRecursively(childFile, priority);
+        for (QMap<QString, TorrentFile*>::const_iterator iterator = file->childFiles.cbegin(), cend = file->childFiles.cend();
+             iterator != cend;
+             iterator++) {
+
+            setFilePriorityRecursively(iterator.value(), priority);
+        }
     } else {
         file->priority = priority;
 
@@ -478,14 +519,21 @@ void TorrentFileModel::setFilePriorityRecursively(TorrentFile *file, int priorit
 
 void TorrentFileModel::updateDirectoryPriority(TorrentFile *directory)
 {
-    foreach (TorrentFile *file, directory->childFiles) {
-        if (file->isDirectory)
-            updateDirectoryPriority(file);
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = directory->childFiles.cbegin(), cend = directory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->isDirectory)
+            updateDirectoryPriority(iterator.value());
     }
 
     int priority = directory->childFiles.first()->priority;
-    foreach (TorrentFile *file, directory->childFiles) {
-        if (file->priority != priority) {
+
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = directory->childFiles.cbegin(), cend = directory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->priority != priority) {
             priority = TorrentFileModel::MixedPriority;
             break;
         }
@@ -502,9 +550,12 @@ void TorrentFileModel::setFileWantedStatus(TorrentFile *file, int wantedStatus)
 {
     setFileWantedStatusRecursively(file, wantedStatus);
 
-    foreach (TorrentFile *file, m_rootDirectory->childFiles) {
-        if (file->isDirectory)
-            updateDirectoryWantedStatus(file);
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = m_rootDirectory->childFiles.cbegin(), cend = m_rootDirectory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->isDirectory)
+            updateDirectoryWantedStatus(iterator.value());
     }
 
     QString key;
@@ -519,8 +570,12 @@ void TorrentFileModel::setFileWantedStatus(TorrentFile *file, int wantedStatus)
 void TorrentFileModel::setFileWantedStatusRecursively(TorrentFile *file, int wantedStatus)
 {
     if (file->isDirectory) {
-        foreach (TorrentFile *childFile, file->childFiles)
-            setFileWantedStatusRecursively(childFile, wantedStatus);
+        for (QMap<QString, TorrentFile*>::const_iterator iterator = file->childFiles.cbegin(), cend = file->childFiles.cend();
+             iterator != cend;
+             iterator++) {
+
+            setFileWantedStatusRecursively(iterator.value(), wantedStatus);
+        }
     } else {
         file->wantedStatus = wantedStatus;
 
@@ -531,14 +586,21 @@ void TorrentFileModel::setFileWantedStatusRecursively(TorrentFile *file, int wan
 
 void TorrentFileModel::updateDirectoryWantedStatus(TorrentFile *directory)
 {
-    foreach (TorrentFile *file, directory->childFiles) {
-        if (file->isDirectory)
-            updateDirectoryWantedStatus(file);
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = directory->childFiles.cbegin(), cend = directory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->isDirectory)
+            updateDirectoryWantedStatus(iterator.value());
     }
 
     int wantedStatus = directory->childFiles.first()->wantedStatus;
-    foreach (TorrentFile *file, directory->childFiles) {
-        if (file->wantedStatus != wantedStatus) {
+
+    for (QMap<QString, TorrentFile*>::const_iterator iterator = directory->childFiles.cbegin(), cend = directory->childFiles.cend();
+         iterator != cend;
+         iterator++) {
+
+        if (iterator.value()->wantedStatus != wantedStatus) {
             wantedStatus = TorrentFileModel::SomeWanted;
             break;
         }
@@ -555,8 +617,12 @@ QVariantList TorrentFileModel::getSubtreeFileIndexes(const TorrentFile *file) {
     QVariantList fileIndexes;
 
     if (file->isDirectory) {
-        foreach (const TorrentFile *childFile, file->childFiles)
-            fileIndexes.append(getSubtreeFileIndexes(childFile));
+        for (QMap<QString, TorrentFile*>::const_iterator iterator = file->childFiles.cbegin(), cend = file->childFiles.cend();
+             iterator != cend;
+             iterator++) {
+
+            fileIndexes.append(getSubtreeFileIndexes(iterator.value()));
+        }
     } else {
         fileIndexes.append(file->fileIndex);
     }

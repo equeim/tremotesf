@@ -16,10 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
 import Sailfish.Silica 1.0
 
-ListItem {
+BackgroundItem {
     property alias text: label.text
     property alias textColor: label.color
 

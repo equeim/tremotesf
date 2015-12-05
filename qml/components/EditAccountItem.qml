@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
 
-import harbour.tremotesf 0.1
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../dialogs"
 
@@ -99,8 +99,8 @@ Column {
                     nameFilters: ["*.pem"]
                     showFiles: true
                     onAccepted: {
-                        if (root.utils.checkLocalCertificate(path)) {
-                            root.appSettings.setAccountLocalCertificate(name, path)
+                        if (Tremotesf.Utils.checkLocalCertificate(path)) {
+                            Tremotesf.AppSettings.setAccountLocalCertificate(name, path)
                             localCertificateChanged = true
                             removeButton.enabled = appSettings.isAccountLocalCertificateExists(name)
                         } else {
@@ -114,8 +114,6 @@ Column {
                 id: warningDialog
 
                 Dialog {
-                    allowedOrientations: Orientation.All
-
                     SilicaFlickable {
                         anchors.fill: parent
                         contentHeight: column.height
@@ -150,13 +148,13 @@ Column {
             enabled: {
                 if (name.length === 0)
                     return false
-                return appSettings.isAccountLocalCertificateExists(name)
+                return Tremotesf.AppSettings.isAccountLocalCertificateExists(name)
             }
             text: qsTr("Remove certificate")
             onClicked: {
-                root.appSettings.removeAccountLocalCertificate(name)
+                Tremotesf.AppSettings.removeAccountLocalCertificate(name)
                 localCertificateChanged = true
-                enabled = appSettings.isAccountLocalCertificateExists(name)
+                enabled = Tremotesf.AppSettings.isAccountLocalCertificateExists(name)
             }
         }
     }

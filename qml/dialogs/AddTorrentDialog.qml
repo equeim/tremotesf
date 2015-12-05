@@ -16,17 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
+
+import harbour.tremotesf 0.1 as Tremotesf
 
 import "../components"
 
 Dialog {
-    allowedOrientations: Orientation.All
-    canAccept: torrentTextField.text
-    onAccepted: root.transmission.addTorrent(torrentTextField.text,
-                                             downloadDirectoryTextField.text,
-                                             !pauseSwitch.checked)
+    canAccept: torrentTextField.text.length !== 0
+    onAccepted: transmission.addTorrent(torrentTextField.text,
+                                        downloadDirectoryTextField.text,
+                                        !pauseSwitch.checked)
 
     SilicaFlickable {
         anchors.fill: parent
@@ -43,16 +44,16 @@ Dialog {
             FilePickerTextField {
                 id: torrentTextField
                 label: qsTr("HTTP, Magnet or local file path")
-                dialogNameFilters: ["*.torrent"]
-                dialogShowFiles: true
+                nameFilters: ["*.torrent"]
+                showFiles: true
                 isLocal: true
             }
 
             FilePickerTextField {
                 id: downloadDirectoryTextField
                 label: qsTr("Download directory")
-                text: root.appSettings.serverValue("download-dir")
-                dialogShowFiles: false
+                text: Tremotesf.AppSettings.serverValue("download-dir")
+                showFiles: false
             }
 
             TextSwitch {

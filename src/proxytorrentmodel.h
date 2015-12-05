@@ -33,7 +33,7 @@ class ProxyTorrentModel : public BaseProxyModel, public QQmlParserStatus
     Q_OBJECT
     Q_ENUMS(FilterMode)
     Q_INTERFACES(QQmlParserStatus)
-    Q_PROPERTY(AppSettings* appSettings READ appSettings WRITE setAppSettings)
+    Q_PROPERTY(Tremotesf::AppSettings* appSettings READ appSettings WRITE setAppSettings)
     Q_PROPERTY(int filterMode READ filterMode WRITE setFilterMode NOTIFY filterModeChanged)
     Q_PROPERTY(Qt::SortOrder sortOrder READ sortOrder WRITE setSortOrder)
     Q_PROPERTY(int sortRole READ sortRole WRITE setSortRole NOTIFY sortRoleChanged)

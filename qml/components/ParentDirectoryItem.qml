@@ -16,10 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
-
-import "../components"
 
 BackgroundItem {
     Image {
@@ -30,10 +28,8 @@ BackgroundItem {
             leftMargin: Theme.horizontalPageMargin
             verticalCenter: parent.verticalCenter
         }
-        rotation: -90
-        source: "image://theme/icon-m-shortcut"
-        sourceSize.width: Theme.itemSizeMedium / 2
-        sourceSize.height: Theme.itemSizeMedium / 2
+        source: highlighted ? "image://theme/icon-m-folder?" + Theme.highlightColor :
+                              "image://theme/icon-m-folder"
     }
 
     Label {

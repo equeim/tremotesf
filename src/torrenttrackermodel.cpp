@@ -25,18 +25,19 @@ namespace Tremotesf
 {
 
 TorrentTrackerModelWorker::TorrentTrackerModelWorker(const QList<TorrentTracker*> *trackers, const QList<int> *trackerIds)
+    : m_trackers(trackers),
+      m_trackerIds(trackerIds)
 {
-    m_trackers = trackers;
-    m_trackerIds = trackerIds;
+
 }
 
-void TorrentTrackerModelWorker::doWork(const QVariantList &trackerList)
+void TorrentTrackerModelWorker::doWork(QVariantList trackerVariants)
 {
     QList<TorrentTracker*> newTrackers;
     QList<int> newTrackerIds;
 
-    for (int i = 0; i < trackerList.length(); i++) {
-        QVariantMap trackerMap = trackerList.at(i).toMap();
+    for (int i = 0, trackersCount = trackerVariants.size(); i < trackersCount; i++) {
+        QVariantMap trackerMap = trackerVariants.at(i).toMap();
 
         TorrentTracker *tracker;
         int trackerId = trackerMap.value("id").toInt();
@@ -65,19 +66,18 @@ void TorrentTrackerModelWorker::doWork(const QVariantList &trackerList)
 }
 
 TorrentTrackerModel::TorrentTrackerModel()
+    : m_workerThread(new QThread(this)),
+      m_active(false)
 {
     qRegisterMetaType< QList<TorrentTracker*> >();
 
-    m_worker = new TorrentTrackerModelWorker(&m_trackers, &m_trackerIds);
-    connect(this, &TorrentTrackerModel::requestModelUpdate, m_worker, &TorrentTrackerModelWorker::doWork);
-    connect(m_worker, &TorrentTrackerModelWorker::done, this, &TorrentTrackerModel::endUpdateModel);
+    TorrentTrackerModelWorker *worker = new TorrentTrackerModelWorker(&m_trackers, &m_trackerIds);
+    connect(this, &TorrentTrackerModel::requestModelUpdate, worker, &TorrentTrackerModelWorker::doWork);
+    connect(worker, &TorrentTrackerModelWorker::done, this, &TorrentTrackerModel::endUpdateModel);
 
-    m_workerThread = new QThread(this);
-    connect(m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
-    m_worker->moveToThread(m_workerThread);
+    connect(m_workerThread, &QThread::finished, worker, &QObject::deleteLater);
+    worker->moveToThread(m_workerThread);
     m_workerThread->start(QThread::LowPriority);
-
-    m_isActive = false;
 }
 
 TorrentTrackerModel::~TorrentTrackerModel()
@@ -90,12 +90,12 @@ TorrentTrackerModel::~TorrentTrackerModel()
     m_mutex.unlock();
 }
 
-QVariant TorrentTrackerModel::data(const QModelIndex &index, int role) const
+QVariant TorrentTrackerModel::data(const QModelIndex &modelIndex, int role) const
 {
-    if (!index.isValid())
+    if (!modelIndex.isValid())
         return QVariant();
 
-    const TorrentTracker *tracker = m_trackers.at(index.row());
+    const TorrentTracker *tracker = m_trackers.at(modelIndex.row());
 
     switch (role) {
     case AnnounceRole:
@@ -119,7 +119,12 @@ int TorrentTrackerModel::rowCount(const QModelIndex &parent) const
 
 bool TorrentTrackerModel::isActive() const
 {
-    return m_isActive;
+    return m_active;
+}
+
+void TorrentTrackerModel::setActive(bool active)
+{
+    m_active = active;
 }
 
 int TorrentTrackerModel::torrentId() const
@@ -127,31 +132,26 @@ int TorrentTrackerModel::torrentId() const
     return m_torrentId;
 }
 
-void TorrentTrackerModel::setIsActive(bool isActive)
-{
-    m_isActive = isActive;
-}
-
 void TorrentTrackerModel::setTorrentId(int torrentId)
 {
     m_torrentId = torrentId;
 }
 
-void TorrentTrackerModel::beginUpdateModel(const QVariantList &trackerList)
+void TorrentTrackerModel::beginUpdateModel(const QVariantList &trackerVariants)
 {
-    emit requestModelUpdate(trackerList);
+    emit requestModelUpdate(trackerVariants);
 }
 
-void TorrentTrackerModel::removeAtIndex(int index)
+void TorrentTrackerModel::removeAtIndex(int trackerIndex)
 {
-    if (index >= rowCount())
+    if (trackerIndex >= rowCount())
         return;
 
     m_mutex.lock();
 
-    beginRemoveRows(QModelIndex(), index, index);
-    delete m_trackers.takeAt(index);
-    m_trackerIds.removeAt(index);
+    beginRemoveRows(QModelIndex(), trackerIndex, trackerIndex);
+    delete m_trackers.takeAt(trackerIndex);
+    m_trackerIds.removeAt(trackerIndex);
     endRemoveRows();
 
     m_mutex.unlock();
@@ -170,11 +170,23 @@ void TorrentTrackerModel::resetModel()
     m_mutex.unlock();
 }
 
-void TorrentTrackerModel::endUpdateModel(const QList<TorrentTracker *> &newTrackers, const QList<int> &newTrackerIds)
+QHash<int, QByteArray> TorrentTrackerModel::roleNames() const
+{
+    QHash<int, QByteArray> roles;
+
+    roles.insert(AnnounceRole, "announce");
+    roles.insert(HostRole, "host");
+    roles.insert(IdRole, "id");
+    roles.insert(LastAnnounceTimeRole, "lastAnnounceTime");
+
+    return roles;
+}
+
+void TorrentTrackerModel::endUpdateModel(QList<TorrentTracker *> newTrackers, QList<int> newTrackerIds)
 {
     m_mutex.lock();
 
-    for (int i = 0; i < m_trackerIds.length(); i++) {
+    for (int i = 0, trackersCount = m_trackerIds.size(); i < trackersCount; i++) {
         int trackerId = m_trackerIds.at(i);
         if (!newTrackerIds.contains(trackerId)) {
             beginRemoveRows(QModelIndex(), i, i);
@@ -186,7 +198,7 @@ void TorrentTrackerModel::endUpdateModel(const QList<TorrentTracker *> &newTrack
         }
     }
 
-    for (int i = 0; i < newTrackerIds.length(); i++) {
+    for (int i = 0, newTrackersCount = newTrackerIds.size(); i < newTrackersCount; i++) {
         int trackerId = newTrackerIds.at(i);
         if (m_trackerIds.contains(trackerId)) {
             int row = m_trackerIds.indexOf(trackerId);
@@ -203,18 +215,6 @@ void TorrentTrackerModel::endUpdateModel(const QList<TorrentTracker *> &newTrack
     }
 
     m_mutex.unlock();
-}
-
-QHash<int, QByteArray> TorrentTrackerModel::roleNames() const
-{
-    QHash<int, QByteArray> roles;
-
-    roles.insert(AnnounceRole, "announce");
-    roles.insert(HostRole, "host");
-    roles.insert(IdRole, "id");
-    roles.insert(LastAnnounceTimeRole, "lastAnnounceTime");
-
-    return roles;
 }
 
 }

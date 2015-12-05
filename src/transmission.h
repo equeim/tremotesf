@@ -39,10 +39,10 @@ class Transmission : public QObject, public QQmlParserStatus
     Q_OBJECT
     Q_ENUMS(Error)
     Q_INTERFACES(QQmlParserStatus)
-    Q_PROPERTY(AppSettings* appSettings READ appSettings WRITE setAppSettings)
-    Q_PROPERTY(TorrentModel* torrentModel READ torrentModel WRITE setTorrentModel)
-    Q_PROPERTY(bool accountConfigured READ accountConfigured NOTIFY accountConfiguredChanged)
-    Q_PROPERTY(bool accountConnected READ accountConnected NOTIFY accountConnectedChanged)
+    Q_PROPERTY(Tremotesf::AppSettings* appSettings READ appSettings WRITE setAppSettings)
+    Q_PROPERTY(Tremotesf::TorrentModel* torrentModel READ torrentModel WRITE setTorrentModel)
+    Q_PROPERTY(bool accountConfigured READ isAccountConfigured NOTIFY accountConfiguredChanged)
+    Q_PROPERTY(bool accountConnected READ isAccountConnected NOTIFY accountConnectedChanged)
     Q_PROPERTY(int error READ error NOTIFY errorChanged)
     Q_PROPERTY(QString errorString READ errorString NOTIFY errorChanged)
 public:
@@ -60,14 +60,15 @@ public:
     void componentComplete();
 
     AppSettings* appSettings() const;
+    void setAppSettings(AppSettings *settings);
+
     TorrentModel* torrentModel() const;
-    bool accountConfigured() const;
-    bool accountConnected() const;
+    void setTorrentModel(TorrentModel *model);
+
+    bool isAccountConfigured() const;
+    bool isAccountConnected() const;
     int error() const;
     QString errorString() const;
-
-    void setAppSettings(AppSettings *appSettings);
-    void setTorrentModel(TorrentModel *torrentModel);
 
     Q_INVOKABLE bool isLocal() const;
 

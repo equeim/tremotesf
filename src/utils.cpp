@@ -27,6 +27,7 @@
 #include <QLocale>
 #include <QSslCertificate>
 #include <QSslKey>
+#include <QUrl>
 
 namespace Tremotesf
 {
@@ -133,6 +134,11 @@ float Utils::parseFloat(const QString &string)
         return result;
 
     return QLocale::c().toFloat(string);
+}
+
+QString Utils::urlToPath(const QUrl &url)
+{
+    return url.path();
 }
 
 void Utils::publishFinishedNotification(const QString &torrentName)

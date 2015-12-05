@@ -16,102 +16,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
-import harbour.tremotesf 0.1
 
-import "dialogs"
-import "pages"
+import harbour.tremotesf 0.1 as Tremotesf
 
 ApplicationWindow
 {
     id: root
 
-    property alias appSettings: appSettings
     property alias transmission: transmission
-
     property alias torrentModel: torrentModel
-    property alias proxyTorrentModel: proxyTorrentModel
-
     property alias fileModel: fileModel
-    property alias proxyFileModel: proxyFileModel
-
     property alias peerModel: peerModel
-    property alias proxyPeerModel: proxyPeerModel
-
     property alias trackerModel: trackerModel
-    property alias proxyTrackerModel: proxyTrackerModel
 
-    property alias utils: utils
+    _defaultPageOrientations: Orientation.All
+    allowedOrientations: defaultAllowedOrientations
 
-    initialPage: Component { TorrentsPage { } }
+    initialPage: Qt.resolvedUrl("pages/TorrentsPage.qml")
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
 
     Component.onCompleted: {
-        if (root.appSettings.accountCount === 0)
-            pageStack.push(addAccountDialog, {}, PageStackAction.Immediate)
+        if (Tremotesf.AppSettings.accountsCount === 0)
+            pageStack.push("dialogs/AddAccountDialog.qml", {}, PageStackAction.Immediate)
     }
 
-    Component {
-        id: addAccountDialog
-        AddAccountDialog { }
-    }
-
-    AppSettings {
-        id: appSettings
-    }
-
-    Transmission {
+    Tremotesf.Transmission {
         id: transmission
-        appSettings: root.appSettings
+        appSettings: Tremotesf.AppSettings
         torrentModel: root.torrentModel
     }
 
-    TorrentModel {
+    Tremotesf.TorrentModel {
         id: torrentModel
+
         fileModel: root.fileModel
         peerModel: root.peerModel
         trackerModel: root.trackerModel
         transmission: root.transmission
     }
 
-    ProxyTorrentModel {
-        id: proxyTorrentModel
-        appSettings: root.appSettings
-        sourceModel: root.torrentModel
-    }
-
-    TorrentFileModel {
+    Tremotesf.TorrentFileModel {
         id: fileModel
         transmission: root.transmission
     }
 
-    ProxyFileModel {
-        id: proxyFileModel
-        sourceModel: root.fileModel
-    }
-
-    TorrentPeerModel {
+    Tremotesf.TorrentPeerModel {
         id: peerModel
     }
 
-    BaseProxyModel {
-        id: proxyPeerModel
-        sortRole: TorrentPeerModel.AddressRole
-        sourceModel: root.peerModel
-    }
-
-    TorrentTrackerModel {
+    Tremotesf.TorrentTrackerModel {
         id: trackerModel
-    }
-
-    BaseProxyModel {
-        id: proxyTrackerModel
-        sortRole: TorrentTrackerModel.AnnounceRole
-        sourceModel: root.trackerModel
-    }
-
-    Utils {
-        id: utils
     }
 }

@@ -16,25 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
-import harbour.tremotesf 0.1
 
-import "../dialogs"
+import harbour.tremotesf 0.1 as Tremotesf
+
 import "../components"
 
 Page {
     id: accountsPage
 
-    property string currentAccount: root.appSettings.currentAccount
-
-    allowedOrientations: Orientation.All
+    property string currentAccount: Tremotesf.AppSettings.currentAccount
 
     Connections {
-        target: root.appSettings
+        target: Tremotesf.AppSettings
         onAccountRemoved: {
-            if (root.appSettings.accountCount === 0)
-                pageStack.push(addAccountDialog)
+            if (Tremotesf.AppSettings.accountsCount === 0)
+                pageStack.push("../dialogs/AddAccountDialog.qml")
         }
     }
 
@@ -46,14 +44,22 @@ Page {
             title: qsTr("Accounts")
         }
         delegate: ListItem {
-            function removeAccount() {
-                root.appSettings.removeAccount(model.name)
-            }
+            id: accountDelegate
 
             contentHeight: Theme.itemSizeMedium
-            menu: contextMenu
-            ListView.onRemove: animateRemoval()
+            menu: Component {
+                ContextMenu {
+                    MenuItem {
+                        text: qsTr("Remove")
+                        onClicked: remorseAction(qsTr("Removing account"), function() {
+                            Tremotesf.AppSettings.removeAccount(model.name)
+                        })
+                    }
+                }
+            }
+
             onClicked: pageStack.push(editAccountPage)
+            ListView.onRemove: animateRemoval()
 
             Component {
                 id: editAccountPage
@@ -68,11 +74,12 @@ Page {
                     verticalCenter: parent.verticalCenter
                 }
                 automaticCheck: false
+                highlighted: accountDelegate.highlighted
                 checked: model.name === currentAccount
 
                 onClicked: {
                     if (!checked)
-                        root.appSettings.currentAccount = model.name
+                        Tremotesf.AppSettings.currentAccount = model.name
                 }
             }
 
@@ -85,7 +92,6 @@ Page {
                 }
 
                 Label {
-                    id: nameLabel
                     color: highlighted ? Theme.highlightColor : Theme.primaryColor
                     text: model.name
                     truncationMode: TruncationMode.Fade
@@ -93,34 +99,22 @@ Page {
                 }
 
                 Label {
-                    id: addressLabel
-                    color: Theme.secondaryColor
+                    color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeSmall
                     text: model.address
                     truncationMode: TruncationMode.Fade
                     width: parent.width
                 }
             }
-
-            Component {
-                id: contextMenu
-
-                ContextMenu {
-                    MenuItem {
-                        text: qsTr("Remove")
-                        onClicked: remorseAction(qsTr("Removing account"), removeAccount)
-                    }
-                }
-            }
         }
-        model: AccountModel {
-            appSettings: root.appSettings
+        model: Tremotesf.AccountModel {
+            appSettings: Tremotesf.AppSettings
         }
 
         PullDownMenu {
             MenuItem {
                 text: qsTr("Add account...")
-                onClicked: pageStack.push(addAccountDialog)
+                onClicked: pageStack.push("../dialogs/AddAccountDialog.qml")
             }
         }
 
