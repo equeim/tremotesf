@@ -118,14 +118,8 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("Accounts")
-                onClicked: pageStack.push("AccountsPage.qml")
-            }
-
-            MenuItem {
-                enabled: transmission.accountConnected
-                text: qsTr("Server settings")
-                onClicked: pageStack.push("ServerSettingsPage.qml")
+                text: qsTr("Settings")
+                onClicked: pageStack.push("SettingsPage.qml")
             }
 
             MenuItem {
