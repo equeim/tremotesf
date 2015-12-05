@@ -48,17 +48,9 @@ def build(context):
     context.install_files("${DATADIR}/harbour-tremotesf/translations",
                           context.path.get_bld().ant_glob("translations/*.qm"))
 
+    context.install_files("${DATADIR}",
+                          context.path.ant_glob("icons/**/*.png"),
+                          relative_trick=True)
+
     context.install_files("${DATADIR}/applications",
                           "harbour-tremotesf.desktop")
-
-    context.install_as("${DATADIR}/icons/hicolor/86x86/apps/harbour-tremotesf.png",
-                       "harbour-tremotesf-86.png")
-
-    context.install_as("${DATADIR}/icons/hicolor/108x108/apps/harbour-tremotesf.png",
-                       "harbour-tremotesf-108.png")
-
-    context.install_as("${DATADIR}/icons/hicolor/128x128/apps/harbour-tremotesf.png",
-                       "harbour-tremotesf-128.png")
-
-    context.install_as("${DATADIR}/icons/hicolor/256x256/apps/harbour-tremotesf.png",
-                       "harbour-tremotesf-256.png")
