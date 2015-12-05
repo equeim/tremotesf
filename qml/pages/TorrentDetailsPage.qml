@@ -185,27 +185,21 @@ Page {
                 value: model.downloadDir
             }
 
-            Item {
-                height: hashItem.height + contextMenu.height
-                width: parent.width
+            ListItem {
+                contentHeight: hashItem.height
+                menu: Component {
+                    ContextMenu {
+                        MenuItem {
+                            text: qsTr("Copy")
+                            onClicked: Clipboard.text = model.hashString
+                        }
+                    }
+                }
 
                 DetailItem {
                     id: hashItem
                     label: qsTr("Hash")
                     value: model.hashString
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onPressAndHold: contextMenu.show(parent)
-                }
-
-                ContextMenu {
-                    id: contextMenu
-                    MenuItem {
-                        text: qsTr("Copy")
-                        onClicked: Clipboard.text = model.hashString
-                    }
                 }
             }
         }

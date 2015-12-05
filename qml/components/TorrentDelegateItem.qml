@@ -55,16 +55,22 @@ Item {
                     return 0
                 }
                 source: {
+                    var iconSource
                     if (torrentStatus === Tremotesf.TorrentModel.StoppedStatus ||
                             torrentStatus === Tremotesf.TorrentModel.QueuedForCheckingStatus ||
                             torrentStatus === Tremotesf.TorrentModel.CheckingStatus ||
                             torrentStatus === Tremotesf.TorrentModel.IsolatedStatus)
-                        return "image://theme/icon-m-pause"
+                        iconSource = "image://theme/icon-m-pause"
                     if (torrentStatus === Tremotesf.TorrentModel.StalledStatus ||
                             torrentStatus === Tremotesf.TorrentModel.DownloadingStatus ||
                             torrentStatus === Tremotesf.TorrentModel.QueuedForSeedingStatus ||
                             torrentStatus === Tremotesf.TorrentModel.SeedingStatus)
-                        return "image://theme/icon-m-play"
+                        iconSource = "image://theme/icon-m-play"
+
+                    if (highlighted)
+                        iconSource += "?" + Theme.highlightColor
+
+                    return iconSource
                 }
                 sourceSize.height: Theme.iconSizeMedium
                 sourceSize.width: Theme.iconSizeMedium
@@ -88,7 +94,7 @@ Item {
             width: parent.width
 
             Label {
-                color: Theme.secondaryColor
+                color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 font.pixelSize: Theme.fontSizeSmall
                 text: {
                     if (model.percentDone === 100)
@@ -102,7 +108,7 @@ Item {
 
             Label {
                 anchors.right: parent.right
-                color: Theme.secondaryColor
+                color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 font.pixelSize: Theme.fontSizeSmall
                 text: {
                     if (model.eta < 0 ||
@@ -148,13 +154,13 @@ Item {
                     }
 
                     Label {
-                        color: Theme.secondaryColor
+                        color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                         font.pixelSize: Theme.fontSizeSmall
                         text: "↓ %1".arg(Tremotesf.Utils.formatByteSpeed(model.rateDownload))
                     }
 
                     Label {
-                        color: Theme.secondaryColor
+                        color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                         font.pixelSize: Theme.fontSizeSmall
                         text: "↑ %1".arg(Tremotesf.Utils.formatByteSpeed(model.rateUpload))
                     }
@@ -165,7 +171,7 @@ Item {
                         left: parent.horizontalCenter
                         right: parent.right
                     }
-                    color: Theme.secondaryColor
+                    color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                     elide: Text.ElideRight
                     font.pixelSize: Theme.fontSizeSmall
                     horizontalAlignment: Text.AlignRight

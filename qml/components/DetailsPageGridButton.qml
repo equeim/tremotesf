@@ -27,8 +27,8 @@ BackgroundItem {
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.secondaryHighlightColor
-        opacity: 0.3
+        color: Theme.highlightBackgroundColor
+        opacity: Theme.highlightBackgroundOpacity
     }
 
     Label {
