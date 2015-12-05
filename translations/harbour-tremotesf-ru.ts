@@ -2,29 +2,52 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru">
 <context>
+    <name>AboutPage</name>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="32"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="78"/>
+        <source>Transmission Remote for Sailfish OS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="103"/>
+        <source>Show license</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="121"/>
+        <source>Translators</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AccountsPage</name>
     <message>
-        <location filename="../qml/pages/AccountsPage.qml" line="46"/>
+        <location filename="../qml/pages/AccountsPage.qml" line="44"/>
         <source>Accounts</source>
         <translation>Учетные записи</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AccountsPage.qml" line="110"/>
+        <location filename="../qml/pages/AccountsPage.qml" line="53"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AccountsPage.qml" line="111"/>
+        <location filename="../qml/pages/AccountsPage.qml" line="54"/>
         <source>Removing account</source>
         <translation>Удаление учетной записи</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AccountsPage.qml" line="122"/>
+        <location filename="../qml/pages/AccountsPage.qml" line="116"/>
         <source>Add account...</source>
         <translation>Добавить учетную запись...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AccountsPage.qml" line="129"/>
+        <location filename="../qml/pages/AccountsPage.qml" line="123"/>
         <source>No accounts</source>
         <translation>Нет учетных записей</translation>
     </message>
@@ -32,7 +55,7 @@
 <context>
     <name>AddAccountDialog</name>
     <message>
-        <location filename="../qml/dialogs/AddAccountDialog.qml" line="69"/>
+        <location filename="../qml/dialogs/AddAccountDialog.qml" line="68"/>
         <source>Add account</source>
         <translation>Добавить учетную запись</translation>
     </message>
@@ -40,27 +63,27 @@
 <context>
     <name>AddTorrentDialog</name>
     <message>
-        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="40"/>
+        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="41"/>
         <source>Add torrent</source>
         <translation>Добавить торрент</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="45"/>
+        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="46"/>
         <source>HTTP, Magnet or local file path</source>
         <translation>HTTP, Magnet или путь к файлу</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="53"/>
+        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="54"/>
         <source>Download directory</source>
         <translation>Каталог загрузки</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="60"/>
+        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="61"/>
         <source>Start torrent</source>
         <translation>Запустить торрент</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="61"/>
+        <location filename="../qml/dialogs/AddTorrentDialog.qml" line="62"/>
         <source>Start downloading after adding</source>
         <translation>Начать загрузку после добавления</translation>
     </message>
@@ -68,12 +91,12 @@
 <context>
     <name>AddTrackerDialog</name>
     <message>
-        <location filename="../qml/dialogs/AddTrackerDialog.qml" line="38"/>
+        <location filename="../qml/dialogs/AddTrackerDialog.qml" line="39"/>
         <source>Add tracker</source>
         <translation>Добавить трекер</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddTrackerDialog.qml" line="45"/>
+        <location filename="../qml/dialogs/AddTrackerDialog.qml" line="46"/>
         <source>Tracker announce URL</source>
         <translation>Адрес объявлений трекера</translation>
     </message>
@@ -162,42 +185,42 @@
         <translation>Загрузить сертификат</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="128"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="126"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="138"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="136"/>
         <source>Local certificate should be a .pem file containing both certificate and RSA private key.</source>
         <translation>Локальный сертификат должен быть .pem-файлом, содержащим как сам сертификат, так и закрытый ключ RSA.</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="155"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="153"/>
         <source>Remove certificate</source>
         <translation>Удалить сертификат</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="186"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="184"/>
         <source>Update interval, s</source>
         <translation>Интервал обновления, с</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="192"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="190"/>
         <source>Timeout, s</source>
         <translation>Таймаут, с</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="166"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="164"/>
         <source>Authentication</source>
         <translation>Идентификация</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="171"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="169"/>
         <source>Username</source>
         <translation>Имя пользователя</translation>
     </message>
     <message>
-        <location filename="../qml/components/EditAccountItem.qml" line="179"/>
+        <location filename="../qml/components/EditAccountItem.qml" line="177"/>
         <source>Password</source>
         <translation>Пароль</translation>
     </message>
@@ -205,17 +228,17 @@
 <context>
     <name>EditAccountPage</name>
     <message>
-        <location filename="../qml/pages/EditAccountPage.qml" line="75"/>
+        <location filename="../qml/pages/EditAccountPage.qml" line="74"/>
         <source>Removing account</source>
         <translation>Удаление учетной записи</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EditAccountPage.qml" line="74"/>
+        <location filename="../qml/pages/EditAccountPage.qml" line="73"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EditAccountPage.qml" line="91"/>
+        <location filename="../qml/pages/EditAccountPage.qml" line="90"/>
         <source>Edit account</source>
         <translation>Редактировать учетную запись</translation>
     </message>
@@ -223,22 +246,22 @@
 <context>
     <name>EditTrackerPage</name>
     <message>
-        <location filename="../qml/pages/EditTrackerPage.qml" line="45"/>
+        <location filename="../qml/pages/EditTrackerPage.qml" line="43"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EditTrackerPage.qml" line="46"/>
+        <location filename="../qml/pages/EditTrackerPage.qml" line="44"/>
         <source>Removing tracker</source>
         <translation>Удаление трекера</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EditTrackerPage.qml" line="58"/>
+        <location filename="../qml/pages/EditTrackerPage.qml" line="56"/>
         <source>Edit tracker</source>
         <translation>Редактировать трекер</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EditTrackerPage.qml" line="63"/>
+        <location filename="../qml/pages/EditTrackerPage.qml" line="61"/>
         <source>Tracker announce URL</source>
         <translation>Адрес объявлений трекера</translation>
     </message>
@@ -246,17 +269,17 @@
 <context>
     <name>FilePickerDialog</name>
     <message>
-        <location filename="../qml/dialogs/FilePickerDialog.qml" line="44"/>
+        <location filename="../qml/dialogs/FilePickerDialog.qml" line="41"/>
         <source>Select file</source>
         <translation>Выбрать файл</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/FilePickerDialog.qml" line="45"/>
+        <location filename="../qml/dialogs/FilePickerDialog.qml" line="42"/>
         <source>Select directory</source>
         <translation>Выбрать каталог</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/FilePickerDialog.qml" line="108"/>
+        <location filename="../qml/dialogs/FilePickerDialog.qml" line="113"/>
         <source>No files</source>
         <translation>Нет файлов</translation>
     </message>
@@ -297,6 +320,14 @@
         <location filename="../qml/pages/FilterTorrentsPage.qml" line="78"/>
         <source>Finished</source>
         <translation>Завершенные</translation>
+    </message>
+</context>
+<context>
+    <name>LicensePage</name>
+    <message>
+        <location filename="../qml/pages/LicensePage.qml" line="34"/>
+        <source>License</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -385,27 +416,27 @@
 <context>
     <name>QueueSettingsPage</name>
     <message>
-        <location filename="../qml/pages/QueueSettingsPage.qml" line="36"/>
+        <location filename="../qml/pages/QueueSettingsPage.qml" line="34"/>
         <source>Queue</source>
         <translation>Очередь</translation>
     </message>
     <message>
-        <location filename="../qml/pages/QueueSettingsPage.qml" line="42"/>
+        <location filename="../qml/pages/QueueSettingsPage.qml" line="40"/>
         <source>Enable download queue</source>
         <translation>Очередь загрузки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/QueueSettingsPage.qml" line="47"/>
+        <location filename="../qml/pages/QueueSettingsPage.qml" line="45"/>
         <source>Maximum active downloads</source>
         <translation>Макс. количество активных загрузок</translation>
     </message>
     <message>
-        <location filename="../qml/pages/QueueSettingsPage.qml" line="54"/>
+        <location filename="../qml/pages/QueueSettingsPage.qml" line="52"/>
         <source>Enable seed queue</source>
         <translation>Очередь раздачи</translation>
     </message>
     <message>
-        <location filename="../qml/pages/QueueSettingsPage.qml" line="59"/>
+        <location filename="../qml/pages/QueueSettingsPage.qml" line="57"/>
         <source>Maximum active uploads</source>
         <translation>Макс. количество активных раздач</translation>
     </message>
@@ -413,29 +444,52 @@
 <context>
     <name>ServerSettingsPage</name>
     <message>
-        <location filename="../qml/pages/ServerSettingsPage.qml" line="36"/>
+        <location filename="../qml/pages/ServerSettingsPage.qml" line="34"/>
         <source>Server settings</source>
         <translation>Настройки сервера</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ServerSettingsPage.qml" line="40"/>
+        <location filename="../qml/pages/ServerSettingsPage.qml" line="38"/>
         <source>Downloading</source>
         <translation>Загрузка</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ServerSettingsPage.qml" line="50"/>
+        <location filename="../qml/pages/ServerSettingsPage.qml" line="43"/>
         <source>Speed</source>
         <translation>Скорость</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ServerSettingsPage.qml" line="60"/>
+        <location filename="../qml/pages/ServerSettingsPage.qml" line="48"/>
         <source>Queue</source>
         <translation>Очередь</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ServerSettingsPage.qml" line="70"/>
+        <location filename="../qml/pages/ServerSettingsPage.qml" line="53"/>
         <source>Network</source>
         <translation>Сеть</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsPage</name>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="31"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="41"/>
+        <source>Settings</source>
+        <translation type="unfinished">Настройки</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="45"/>
+        <source>Accounts</source>
+        <translation type="unfinished">Учетные записи</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="51"/>
+        <source>Server settings</source>
+        <translation type="unfinished">Настройки сервера</translation>
     </message>
 </context>
 <context>
@@ -583,37 +637,37 @@
 <context>
     <name>TorrentDelegateItem</name>
     <message>
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="95"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="101"/>
         <source>%1, uploaded %2</source>
         <translation>%1, роздано %2</translation>
     </message>
     <message>
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="97"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="103"/>
         <source>%1 of %2 (%L3%)</source>
         <translation>%1 из %2 (%L3%)</translation>
     </message>
     <message>
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="179"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="185"/>
         <source>Stopped</source>
         <translation>Остановлен</translation>
     </message>
     <message>
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="181"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="187"/>
         <source>Queued for checking</source>
         <translation>В очереди на проверку</translation>
     </message>
     <message>
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="183"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="189"/>
         <source>Checking</source>
         <translation>Проверяется</translation>
     </message>
     <message>
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="185"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="191"/>
         <source>Stalled</source>
         <translation>Заморожен</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="187"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="193"/>
         <source>Downloading
 from %1 of %n peer(s)</source>
         <translation>
@@ -626,12 +680,12 @@ from %1 of %n peer(s)</source>
         </translation>
     </message>
     <message>
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="189"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="195"/>
         <source>Queued to seeding</source>
         <translation>В очереди на раздачу</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="191"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="197"/>
         <source>Seeding
 to %1 of %n peer(s)</source>
         <translation>
@@ -644,12 +698,12 @@ to %1 of %n peer(s)</source>
         </translation>
     </message>
     <message>
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="193"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="199"/>
         <source>Isolated</source>
         <translation>Изолирован</translation>
     </message>
     <message>
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="195"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="201"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
@@ -662,112 +716,112 @@ to %1 of %n peer(s)</source>
         <translation>Удаление торрента</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="64"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="57"/>
         <source>Delete files and remove</source>
         <translation>Удалить вместе с файлами</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="68"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="61"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="72"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="65"/>
         <source>Verify</source>
         <translation>Проверить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="76"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="69"/>
         <source>Start</source>
         <translation>Запустить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="76"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="69"/>
         <source>Stop</source>
         <translation>Остановить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="86"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="79"/>
         <source>Details</source>
         <translation>Подробности</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="117"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="110"/>
         <source>Files</source>
         <translation>Файлы</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="127"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="117"/>
         <source>Peers</source>
         <translation>Пиры</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="137"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="124"/>
         <source>Trackers</source>
         <translation>Трекеры</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="147"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="132"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="163"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="148"/>
         <source>Total size</source>
         <translation>Полный размер</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="168"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="153"/>
         <source>Downloaded</source>
         <translation>Загружено</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="169"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="154"/>
         <source>%1 of %2</source>
         <translation>%1 из %2</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="173"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="158"/>
         <source>Uploaded</source>
         <translation>Роздано</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="178"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="163"/>
         <source>Ratio</source>
         <translation>Рейтинг</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="179"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="164"/>
         <source>%L1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="183"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="168"/>
         <source>Last activity</source>
         <translation>Последняя активность</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="187"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="172"/>
         <source>Never</source>
         <translation>Никогда</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="194"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="179"/>
         <source>Added</source>
         <translation>Добавлен</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="199"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="184"/>
         <source>Location</source>
         <translation>Расположение</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="209"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="201"/>
         <source>Hash</source>
         <translation>Хеш</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentDetailsPage.qml" line="221"/>
+        <location filename="../qml/pages/TorrentDetailsPage.qml" line="193"/>
         <source>Copy</source>
         <translation>Копировать</translation>
     </message>
@@ -775,47 +829,47 @@ to %1 of %n peer(s)</source>
 <context>
     <name>TorrentFilesPage</name>
     <message>
-        <location filename="../qml/pages/TorrentFilesPage.qml" line="166"/>
+        <location filename="../qml/pages/TorrentFilesPage.qml" line="51"/>
         <source>Files</source>
         <translation>Файлы</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentFilesPage.qml" line="91"/>
+        <location filename="../qml/pages/TorrentFilesPage.qml" line="146"/>
         <source>%1 of %2 (%3%)</source>
         <translation>%1 из %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentFilesPage.qml" line="126"/>
+        <location filename="../qml/pages/TorrentFilesPage.qml" line="69"/>
         <source>High priority</source>
         <translation>Высокий приоритет</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentFilesPage.qml" line="133"/>
+        <location filename="../qml/pages/TorrentFilesPage.qml" line="76"/>
         <source>Normal</source>
         <translation>Нормальный</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentFilesPage.qml" line="140"/>
+        <location filename="../qml/pages/TorrentFilesPage.qml" line="83"/>
         <source>Low</source>
         <translation>Низкий</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentFilesPage.qml" line="147"/>
+        <location filename="../qml/pages/TorrentFilesPage.qml" line="90"/>
         <source>Mixed</source>
         <translation>Смешанный</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentFilesPage.qml" line="178"/>
+        <location filename="../qml/pages/TorrentFilesPage.qml" line="184"/>
         <source>Download all files</source>
         <translation>Загружать все</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentFilesPage.qml" line="182"/>
+        <location filename="../qml/pages/TorrentFilesPage.qml" line="188"/>
         <source>Ignore all files</source>
         <translation>Игнорировать все</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentFilesPage.qml" line="189"/>
+        <location filename="../qml/pages/TorrentFilesPage.qml" line="195"/>
         <source>No items</source>
         <translation>Нет файлов</translation>
     </message>
@@ -823,106 +877,110 @@ to %1 of %n peer(s)</source>
 <context>
     <name>TorrentPeersPage</name>
     <message>
-        <location filename="../qml/pages/TorrentPeersPage.qml" line="45"/>
+        <location filename="../qml/pages/TorrentPeersPage.qml" line="47"/>
         <source>Peers</source>
         <translation>Пиры</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentPeersPage.qml" line="96"/>
+        <location filename="../qml/pages/TorrentPeersPage.qml" line="101"/>
+        <source>No peers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No items</source>
-        <translation>Нет пиров</translation>
+        <translation type="vanished">Нет пиров</translation>
     </message>
 </context>
 <context>
     <name>TorrentSettingsPage</name>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="44"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="42"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="48"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="46"/>
         <source>Speed</source>
         <translation>Скорость</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="52"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="50"/>
         <source>Honor global limits</source>
         <translation>Учитывать глобальные ограничения</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="66"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="64"/>
         <source>Limit download speed</source>
         <translation>Ограничение скорости загрузки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="80"/>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="109"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="78"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="107"/>
         <source>kB/s</source>
         <translation>кБ/с</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="95"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="93"/>
         <source>Limit upload speed</source>
         <translation>Ограничение скорости раздачи</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="123"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="121"/>
         <source>Torrent priority</source>
         <translation>Приоритет торрента</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="126"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="124"/>
         <source>High</source>
         <translation>Высокий</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="129"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="127"/>
         <source>Normal</source>
         <translation>Нормальный</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="132"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="130"/>
         <source>Low</source>
         <translation>Низкий</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="147"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="145"/>
         <source>Seeding</source>
         <translation>Раздача</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="153"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="151"/>
         <source>Ratio limit</source>
         <translation>Ограничение рейтинга</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="156"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="154"/>
         <source>Use global settings</source>
         <translation>Глобальные настройки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="159"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="157"/>
         <source>Stop seeding at ratio</source>
         <translation>Прекратить раздачу при рейтинге</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="162"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="160"/>
         <source>Seed regardless of ratio</source>
         <translation>Раздавать независимо от рейтинга</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="181"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="179"/>
         <source>%L1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="192"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="190"/>
         <source>Peers</source>
         <translation>Пиры</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentSettingsPage.qml" line="197"/>
+        <location filename="../qml/pages/TorrentSettingsPage.qml" line="195"/>
         <source>Maximum peers</source>
         <translation>Максимальное количество пиров</translation>
     </message>
@@ -930,22 +988,22 @@ to %1 of %n peer(s)</source>
 <context>
     <name>TorrentTrackersPage</name>
     <message>
-        <location filename="../qml/pages/TorrentTrackersPage.qml" line="44"/>
+        <location filename="../qml/pages/TorrentTrackersPage.qml" line="49"/>
         <source>Trackers</source>
         <translation>Трекеры</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentTrackersPage.qml" line="87"/>
+        <location filename="../qml/pages/TorrentTrackersPage.qml" line="61"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentTrackersPage.qml" line="88"/>
+        <location filename="../qml/pages/TorrentTrackersPage.qml" line="62"/>
         <source>Removing tracker</source>
         <translation>Удаление трекера</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentTrackersPage.qml" line="103"/>
+        <location filename="../qml/pages/TorrentTrackersPage.qml" line="109"/>
         <source>Add tracker...</source>
         <translation>Добавить трекер...</translation>
     </message>
@@ -953,72 +1011,75 @@ to %1 of %n peer(s)</source>
 <context>
     <name>TorrentsPage</name>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="40"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="36"/>
         <source>No account connected</source>
         <translation>Нет учетной записи</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="61"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="54"/>
         <source>Removing torrent</source>
         <translation>Удаление торрента</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="97"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="76"/>
         <source>Start</source>
         <translation>Запустить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="98"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="77"/>
         <source>Stop</source>
         <translation>Остановить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="103"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="82"/>
         <source>Verify</source>
         <translation>Проверить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="107"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="86"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="111"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="90"/>
         <source>Delete files and remove</source>
         <translation>Удалить вместе с файлами</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="127"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="121"/>
+        <source>Settings</source>
+        <translation type="unfinished">Настройки</translation>
+    </message>
+    <message>
         <source>Accounts</source>
-        <translation>Учетные записи</translation>
+        <translation type="vanished">Учетные записи</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="138"/>
         <source>Server settings</source>
-        <translation>Настройки сервера</translation>
+        <translation type="vanished">Настройки сервера</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="148"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="126"/>
         <source>Filter</source>
         <translation>Фильтр</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="158"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="131"/>
         <source>Sort by</source>
         <translation>Сортировать</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="169"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="137"/>
         <source>Add torrent...</source>
         <translation>Добавить торрент...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="182"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="145"/>
         <source>Reconnect</source>
         <translation>Подключиться</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TorrentsPage.qml" line="192"/>
+        <location filename="../qml/pages/TorrentsPage.qml" line="154"/>
         <source>No items</source>
         <translation>Нет торрентов</translation>
     </message>
@@ -1026,102 +1087,184 @@ to %1 of %n peer(s)</source>
 <context>
     <name>Transmission</name>
     <message>
-        <location filename="../src/transmission.cpp" line="152"/>
         <source>Authentication error</source>
-        <translation>Ошибка идентификации</translation>
+        <translation type="vanished">Ошибка идентификации</translation>
     </message>
     <message>
-        <location filename="../src/transmission.cpp" line="154"/>
         <source>Connection error</source>
-        <translation>Ошибка соединения</translation>
+        <translation type="vanished">Ошибка соединения</translation>
     </message>
     <message>
-        <location filename="../src/transmission.cpp" line="156"/>
         <source>Legacy RPC protocol version</source>
-        <translation>Устаревшая версия RPC-протокола</translation>
+        <translation type="vanished">Устаревшая версия RPC-протокола</translation>
     </message>
     <message>
-        <location filename="../src/transmission.cpp" line="158"/>
         <source>SSL handshake failed</source>
-        <translation>Ошибка SSL handshake</translation>
+        <translation type="vanished">Ошибка SSL handshake</translation>
     </message>
     <message>
-        <location filename="../src/transmission.cpp" line="160"/>
         <source>Connection timed out</source>
-        <translation>Время соединения истекло</translation>
+        <translation type="vanished">Время соединения истекло</translation>
+    </message>
+</context>
+<context>
+    <name>Tremotesf::Transmission</name>
+    <message>
+        <location filename="../src/transmission.cpp" line="164"/>
+        <source>Authentication error</source>
+        <translation type="unfinished">Ошибка идентификации</translation>
+    </message>
+    <message>
+        <location filename="../src/transmission.cpp" line="166"/>
+        <source>Connection error</source>
+        <translation type="unfinished">Ошибка соединения</translation>
+    </message>
+    <message>
+        <location filename="../src/transmission.cpp" line="168"/>
+        <source>Legacy RPC protocol version</source>
+        <translation type="unfinished">Устаревшая версия RPC-протокола</translation>
+    </message>
+    <message>
+        <location filename="../src/transmission.cpp" line="170"/>
+        <source>SSL handshake failed</source>
+        <translation type="unfinished">Ошибка SSL handshake</translation>
+    </message>
+    <message>
+        <location filename="../src/transmission.cpp" line="172"/>
+        <source>Connection timed out</source>
+        <translation type="unfinished">Время соединения истекло</translation>
+    </message>
+</context>
+<context>
+    <name>Tremotesf::Utils</name>
+    <message>
+        <location filename="../src/utils.cpp" line="64"/>
+        <source>%1/s</source>
+        <translation type="unfinished">%1/с</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="83"/>
+        <source>%1 B</source>
+        <translation type="unfinished">%1 Б</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="85"/>
+        <source>%1 KiB</source>
+        <translation type="unfinished">%1 КиБ</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="87"/>
+        <source>%1 MiB</source>
+        <translation type="unfinished">%1 МиБ</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="89"/>
+        <source>%1 GiB</source>
+        <translation type="unfinished">%1 ГиБ</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="91"/>
+        <source>%1 TiB</source>
+        <translation type="unfinished">%1 ТиБ</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="93"/>
+        <source>%1 PiB</source>
+        <translation type="unfinished">%1 ПиБ</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="95"/>
+        <source>%1 EiB</source>
+        <translation type="unfinished">%1 ЭиБ</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="97"/>
+        <source>%1 ZiB</source>
+        <translation type="unfinished">%1 ЗиБ</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="99"/>
+        <source>%1 YiB</source>
+        <translation type="unfinished">%1 ЙиБ</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="115"/>
+        <source>%1 h </source>
+        <translation type="unfinished">%1 ч </translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="118"/>
+        <source>%1 m </source>
+        <translation type="unfinished">%1 м </translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="123"/>
+        <source>%1 s</source>
+        <translation type="unfinished">%1 с</translation>
+    </message>
+    <message>
+        <location filename="../src/utils.cpp" line="148"/>
+        <source>Torrent finished</source>
+        <translation type="unfinished">Торрент завершен</translation>
     </message>
 </context>
 <context>
     <name>Utils</name>
     <message>
-        <location filename="../src/utils.cpp" line="60"/>
         <source>%1/s</source>
-        <translation>%1/с</translation>
+        <translation type="vanished">%1/с</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="79"/>
         <source>%1 B</source>
-        <translation>%1 Б</translation>
+        <translation type="vanished">%1 Б</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="81"/>
         <source>%1 KiB</source>
-        <translation>%1 КиБ</translation>
+        <translation type="vanished">%1 КиБ</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="83"/>
         <source>%1 MiB</source>
-        <translation>%1 МиБ</translation>
+        <translation type="vanished">%1 МиБ</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="85"/>
         <source>%1 GiB</source>
-        <translation>%1 ГиБ</translation>
+        <translation type="vanished">%1 ГиБ</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="87"/>
         <source>%1 TiB</source>
-        <translation>%1 ТиБ</translation>
+        <translation type="vanished">%1 ТиБ</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="89"/>
         <source>%1 PiB</source>
-        <translation>%1 ПиБ</translation>
+        <translation type="vanished">%1 ПиБ</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="91"/>
         <source>%1 EiB</source>
-        <translation>%1 ЭиБ</translation>
+        <translation type="vanished">%1 ЭиБ</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="93"/>
         <source>%1 ZiB</source>
-        <translation>%1 ЗиБ</translation>
+        <translation type="vanished">%1 ЗиБ</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="95"/>
         <source>%1 YiB</source>
-        <translation>%1 ЙиБ</translation>
+        <translation type="vanished">%1 ЙиБ</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="111"/>
         <source>%1 h </source>
-        <translation>%1 ч </translation>
+        <translation type="vanished">%1 ч </translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="114"/>
         <source>%1 m </source>
-        <translation>%1 м </translation>
+        <translation type="vanished">%1 м </translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="119"/>
         <source>%1 s</source>
-        <translation>%1 с</translation>
+        <translation type="vanished">%1 с</translation>
     </message>
     <message>
-        <location filename="../src/utils.cpp" line="142"/>
         <source>Torrent finished</source>
-        <translation>Торрент завершен</translation>
+        <translation type="vanished">Торрент завершен</translation>
     </message>
 </context>
 </TS>

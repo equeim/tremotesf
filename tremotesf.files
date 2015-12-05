@@ -83,3 +83,6 @@ qml/pages/TorrentPeersPage.qml
 qml/pages/TorrentSettingsPage.qml
 qml/pages/TorrentsPage.qml
 qml/pages/TorrentTrackersPage.qml
+
+
+translations/update.sh

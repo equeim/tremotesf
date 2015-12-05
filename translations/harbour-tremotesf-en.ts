@@ -4,7 +4,7 @@
 <context>
     <name>TorrentDelegateItem</name>
     <message numerus="yes">
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="187"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="193"/>
         <source>Downloading
 from %1 of %n peer(s)</source>
         <translation>
@@ -15,7 +15,7 @@ from %1 of %n peers</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/components/TorrentDelegateItem.qml" line="191"/>
+        <location filename="../qml/components/TorrentDelegateItem.qml" line="197"/>
         <source>Seeding
 to %1 of %n peer(s)</source>
         <translation>
