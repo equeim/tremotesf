@@ -11,7 +11,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="78"></location>
         <source>Transmission Remote for Sailfish OS</source>
-        <translation>Transmission Remote per Sailfosh OS</translation>
+        <translation type="unfinished">Transmission Remote per Sailfosh OS</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="103"></location>
@@ -44,7 +44,7 @@
     <message>
         <location filename="../qml/pages/AccountsPage.qml" line="116"></location>
         <source>Add account...</source>
-        <translation>Aggiungi account...</translation>
+        <translation>Aggiungi account…</translation>
     </message>
     <message>
         <location filename="../qml/pages/AccountsPage.qml" line="123"></location>
@@ -57,7 +57,7 @@
     <message>
         <location filename="../qml/dialogs/AddAccountDialog.qml" line="68"></location>
         <source>Add account</source>
-        <translation>Aggiungi acount</translation>
+        <translation>Aggiungi account</translation>
     </message>
 </context>
 <context>
@@ -207,7 +207,7 @@
     <message>
         <location filename="../qml/components/EditAccountItem.qml" line="190"></location>
         <source>Timeout, s</source>
-        <translation>Timeout, s</translation>
+        <translation>Scadenza, s</translation>
     </message>
     <message>
         <location filename="../qml/components/EditAccountItem.qml" line="164"></location>
@@ -230,12 +230,12 @@
     <message>
         <location filename="../qml/pages/EditAccountPage.qml" line="74"></location>
         <source>Removing account</source>
-        <translation>Elimino account</translation>
+        <translation>Rimuovo l'account</translation>
     </message>
     <message>
         <location filename="../qml/pages/EditAccountPage.qml" line="73"></location>
         <source>Remove</source>
-        <translation>Elimina</translation>
+        <translation>Rimuovi</translation>
     </message>
     <message>
         <location filename="../qml/pages/EditAccountPage.qml" line="90"></location>
@@ -319,7 +319,7 @@
     <message>
         <location filename="../qml/pages/FilterTorrentsPage.qml" line="78"></location>
         <source>Finished</source>
-        <translation>Finito</translation>
+        <translation>Completato</translation>
     </message>
 </context>
 <context>
@@ -365,12 +365,12 @@
     <message>
         <location filename="../qml/pages/NetworkSettingsPage.qml" line="73"></location>
         <source>Allow</source>
-        <translation>Permetti</translation>
+        <translation>Permessa</translation>
     </message>
     <message>
         <location filename="../qml/pages/NetworkSettingsPage.qml" line="76"></location>
         <source>Prefer</source>
-        <translation>Preferisci</translation>
+        <translation>Preferita</translation>
     </message>
     <message>
         <location filename="../qml/pages/NetworkSettingsPage.qml" line="79"></location>
@@ -606,12 +606,12 @@
     <message>
         <location filename="../qml/pages/SpeedSettingsPage.qml" line="102"></location>
         <source>From</source>
-        <translation>Dal</translation>
+        <translation>Dalle</translation>
     </message>
     <message>
         <location filename="../qml/pages/SpeedSettingsPage.qml" line="108"></location>
         <source>to</source>
-        <translation>al</translation>
+        <translation>alle</translation>
     </message>
     <message>
         <location filename="../qml/pages/SpeedSettingsPage.qml" line="138"></location>
@@ -997,7 +997,7 @@ da %1 di %n peer</numerusform>
     <message>
         <location filename="../qml/pages/TorrentTrackersPage.qml" line="109"></location>
         <source>Add tracker...</source>
-        <translation>Aggiungi tracker...</translation>
+        <translation>Aggiungi tracker…</translation>
     </message>
 </context>
 <context>
@@ -1063,7 +1063,7 @@ da %1 di %n peer</numerusform>
     <message>
         <location filename="../qml/pages/TorrentsPage.qml" line="137"></location>
         <source>Add torrent...</source>
-        <translation>Aggiungi torrent...</translation>
+        <translation>Aggiungi torrent…</translation>
     </message>
     <message>
         <location filename="../qml/pages/TorrentsPage.qml" line="145"></location>
