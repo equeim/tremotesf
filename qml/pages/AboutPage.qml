@@ -70,7 +70,7 @@ Page {
                     Label {
                         anchors.horizontalCenter: parent.horizontalCenter
                         font.pixelSize: Theme.fontSizeLarge
-                        text: "Tremotesf 0.3.1"
+                        text: "Tremotesf 0.3.2"
                     }
 
                     Label {
