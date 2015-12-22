@@ -35,6 +35,7 @@ def build(context):
         ],
         lang=[
             "translations/harbour-tremotesf-en",
+            "translations/harbour-tremotesf-it",
             "translations/harbour-tremotesf-ru"
         ]
     )
