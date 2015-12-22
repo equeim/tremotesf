@@ -110,10 +110,11 @@ Page {
                         onClicked: Qt.openUrlExternally("https://github.com/equeim/tremotesf")
                     }
 
-                    /*Button {
+                    Button {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: qsTr("Translations")
-                    }*/
+                        onClicked: Qt.openUrlExternally("https://hosted.weblate.org/projects/tremotesf/translation")
+                    }
                 }
             }
 
@@ -130,7 +131,13 @@ Page {
                 }
                 font.pixelSize: Theme.fontSizeSmall
                 wrapMode: Text.WordWrap
-                text: "Русский
+                text: "English
+    Alexey Rochev <equeim@gmail.com>
+
+Italiano
+    tichy <tichy@cryptolab.net>
+
+Русский
     Alexey Rochev <equeim@gmail.com>
 "
             }
