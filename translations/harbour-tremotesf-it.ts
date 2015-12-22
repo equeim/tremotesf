@@ -11,7 +11,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="78"></location>
         <source>Transmission Remote for Sailfish OS</source>
-        <translation type="unfinished">Transmission Remote per Sailfosh OS</translation>
+        <translation>Telecomando per Transmission per Sailfosh OS</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="103"></location>
