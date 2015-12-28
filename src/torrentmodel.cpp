@@ -545,6 +545,7 @@ void TorrentModel::endUpdateModel(QList<Torrent*> newTorrents, QList<int> newTor
             endRemoveRows();
 
             i--;
+            torrentsCount--;
 
             emit torrentRemoved();
 
