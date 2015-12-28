@@ -22,6 +22,8 @@ import Sailfish.Silica 1.0
 import "../dialogs"
 
 Item {
+    id: component
+
     property alias label: textField.label
     property alias text: textField.text
 
@@ -63,9 +65,9 @@ Item {
             id: filePickerDialog
 
             FilePickerDialog {
-                nameFilters: nameFilters
-                showFiles: showFiles
-                onAccepted: textField.text = path
+                nameFilters: component.nameFilters
+                showFiles: component.showFiles
+                onAccepted: textField.text = filePath
             }
         }
     }

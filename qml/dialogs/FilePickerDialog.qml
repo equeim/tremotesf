@@ -24,17 +24,19 @@ import harbour.tremotesf 0.1 as Tremotesf
 import "../components"
 
 Dialog {
+    id: dialog
+
     property string filePath
 
     property alias nameFilters: folderListModel.nameFilters
     property alias showFiles: folderListModel.showFiles
 
+    canAccept: !showFiles
+
     onAccepted: {
         if (!showFiles)
             filePath = Tremotesf.Utils.urlToPath(folderListModel.folder)
     }
-
-    canAccept: filePath.length !== 0 || !showFiles
 
     DialogHeader {
         id: header
@@ -98,7 +100,8 @@ Dialog {
                 if (model.fileIsDir) {
                     folderListModel.folder = model.filePath
                 } else {
-                    filePath = model.filePath
+                    dialog.filePath = model.filePath
+                    canAccept = true
                     accept()
                 }
             }
