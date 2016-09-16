@@ -1,2 +1,1 @@
-# Tremotesf
-Transmission Remote for Sailfish OS
+Project is moved to https://github.com/equeim/tremotesf2

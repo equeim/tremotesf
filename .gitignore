@@ -1,7 +1,0 @@
-*.list
-.lock-waf*
-*.user
-.waf*
-build-*
-rpm/*.spec.*
-RPMS
